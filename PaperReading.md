@@ -11,6 +11,11 @@
 
 
 ## <div id="tutorial"></div>Resource, Tutorial, and Course
+- Python 
+- Pytorch
+- Mathmatics
+- Etc. 
+
 ID|name|Commence  
 ---|---|---
 xx | xx | xx
