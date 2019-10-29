@@ -26,21 +26,27 @@ xx | xx | xx | xx
 
 
 
-## <div id="ml"></div>Machine Learning    
+## <div id="ml"></div>Machine Learning   
+- ML  
+ 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 xx | xx | xx | xx
 
 
 ## <div id="gan"></div>Generative Adversarial Network
+- GAN  
+
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 xx | xx | xx | xx
 
 
 ## <div id="rl"></div>Reinforcement Learning
-|ID|Name|Conference|Commence  
-|---|---|---|---|
+- RL
+
+ID|Name|Conference|Commence  
+---|---|---|---
 xx | xx | xx | xx
 
 
@@ -51,7 +57,7 @@ xx | xx | xx | xx
 - Image Retrival or Search   
 - Multi / Single object Tracking  
 - Optical Flow  
-- 3D / SLAM / Depth / Motion / Calibration  
+- 3D / SLAM / Depth / Motion Pose / Calibration  
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
