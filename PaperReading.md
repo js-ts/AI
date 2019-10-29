@@ -1,12 +1,13 @@
-# Paper Reading
+# AI Paper Reading
 
 - [Tutorials](#tutorial)
-- [Neural Network](#nn)
-- [Machine Learing](#ml)
+- [Machine Learning](#ml)
+- [Deep Neural Network](#dnn)
 - [Reinforcement Learning](#rl)
 - [Generative Adversarial Network](#gan)
+- [Natural Language Procesing](#nlp)
 - [Computer Vision](#cv)
-- [Acceleraion](#acc)
+- [Acceleration](#acc)
 
 
 ## <div id="tutorial"></div>Resource, Tutorial, and Course
@@ -15,7 +16,7 @@ ID|name|Commence
 xx | xx | xx
 
 
-## <div id="nn"></div>Neural Network
+## <div id="dnn"></div>Deep Neural Network
 - Architecture
 - CNN  
 - RNN/LSTM  
@@ -23,7 +24,6 @@ xx | xx | xx
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 xx | xx | xx | xx
-
 
 
 ## <div id="ml"></div>Machine Learning   
@@ -44,6 +44,14 @@ xx | xx | xx | xx
 
 ## <div id="rl"></div>Reinforcement Learning
 - RL
+
+ID|Name|Conference|Commence  
+---|---|---|---
+xx | xx | xx | xx
+
+
+## <div id="nlp"></div>Natural Language Processing
+- NLP 
 
 ID|Name|Conference|Commence  
 ---|---|---|---
