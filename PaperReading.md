@@ -1,17 +1,21 @@
 # Paper Reading
 
-- [ML](#ml)
+- [Tutorials](#tutorial)
+- [Neural Network](#nn)
+- [Machine Learing](#ml)
+- [Reinforcement Learning](#rl)
+- [Generative Adversarial Network](#gan)
+- [Computer Vision](#cv)
+- [Acceleraion](#acc)
 
 
-
-
-## Resource, Tutorial, and Course
+## <div id="tutorial"></div>Resource, Tutorial, and Course
 ID|name|Commence  
 ---|---|---
 xx | xx | xx
 
 
-## Neural Network
+## <div id="nn"></div>Neural Network
 - Architecture
 - CNN  
 - RNN/LSTM  
@@ -28,19 +32,19 @@ xx | xx | xx | xx
 xx | xx | xx | xx
 
 
-## GAN
+## <div id="gan"></div>Generative Adversarial Network
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 xx | xx | xx | xx
 
 
-## Reinforcement Learning
+## <div id="rl"></div>Reinforcement Learning
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 xx | xx | xx | xx
 
 
-## Computer Vision
+## <div id="cv"></div>Computer Vision
 - Classification / Fine-graind Recognition  
 - Object / Instance / Keypoint Detection    
 - Semantic / Instance Segmentation   
@@ -54,7 +58,7 @@ xx | xx | xx | xx
 xx | xx | xx | 
 
 
-## Acceleration
+## <div id="acc"></div>Acceleration
 - Quantization  
 - Pruning  
 - Distilling  
