@@ -7,6 +7,7 @@
 - [Generative Adversarial Network](#gan)
 - [Natural Language Procesing](#nlp)
 - [Computer Vision](#cv)
+- [Recommender Systems](#recm)
 - [Acceleration](#acc)
 
 
@@ -55,7 +56,10 @@ xx | xx | xx | xx
 
 ID|Name|Conference|Commence  
 ---|---|---|---
-xx | xx | xx | xx
+00 | [Reinforcement Learning: An Introduction (Second Edition)](http://www.incompleteideas.net/book/RLbook2018.pdf) | xx | xx
+01 | [UCL Course on RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html) | xx | xx
+02 | [Stanford CS234: Reinforcement Learning](http://web.stanford.edu/class/cs234/index.html) | xx | xx
+03 | [CS 294-112 at UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/) | xx | xx
 
 
 ## <div id="nlp"></div>Natural Language Processing
@@ -79,6 +83,14 @@ xx | xx | xx | xx
 |---|---|---|---|
 xx | xx | xx | 
 
+
+## <div id="recm"></div>Recommender Systems
+- Recommender
+- Ads
+
+|ID|Name|Conference|Commence  
+|---|---|---|---|
+xx | xx | xx | 
 
 ## <div id="acc"></div>Acceleration
 - Quantization  
