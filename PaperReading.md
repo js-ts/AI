@@ -18,7 +18,7 @@
 
 ID|name|Commence  
 ---|---|---
-00 | (DLRLSS 2019)[https://www.youtube.com/watch?v=O2o4oONWCWA&list=PLKlhhkvvU8-aXmPQZNYG_e-2nTd0tJE8v&index=2&t=0s] | Amii Intelligence
+00 | [DLRLSS 2019](https://www.youtube.com/watch?v=O2o4oONWCWA&list=PLKlhhkvvU8-aXmPQZNYG_e-2nTd0tJE8v&index=2&t=0s) | Amii Intelligence, DL and RL Summer School 2019
 
 
 ## <div id="dnn"></div>Deep Neural Network
