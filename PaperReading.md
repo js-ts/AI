@@ -21,6 +21,15 @@ ID|name|Commence
 00 | [DLRLSS 2019](https://www.youtube.com/watch?v=O2o4oONWCWA&list=PLKlhhkvvU8-aXmPQZNYG_e-2nTd0tJE8v&index=2&t=0s) | Amii Intelligence, DL and RL Summer School 2019
 
 
+## <div id="ml"></div>Machine Learning   
+- ML  
+- Data Minnig 
+
+|ID|Name|Conference|Commence  
+|---|---|---|---|
+xx | xx | xx | xx
+
+
 ## <div id="dnn"></div>Deep Neural Network
 - Architecture
 - CNN  
@@ -31,12 +40,6 @@ ID|name|Commence
 xx | xx | xx | xx
 
 
-## <div id="ml"></div>Machine Learning   
-- ML  
- 
-|ID|Name|Conference|Commence  
-|---|---|---|---|
-xx | xx | xx | xx
 
 
 ## <div id="gan"></div>Generative Adversarial Network
