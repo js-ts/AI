@@ -11,9 +11,9 @@
 
 
 ## <div id="tutorial"></div>Resource, Tutorial, and Course
-- Python 
-- Pytorch
-- Mathmatics
+- [Python](https://github.com/lyuwenyu/Leetcode)
+- [PyTorch](https://pytorch.org/)
+- Mathmatics / Statistics/ Calculus / Probability
 - Etc. 
 
 ID|name|Commence  
