@@ -18,6 +18,12 @@ class NeuralNetwork(object):
         # self._z_s = []
         # self._a_s = []
 
+    def init_wb_grad(self, ):
+        '''
+        '''
+        self._weights_grad = [0 for _ in range(len(self.layers)) - 1]
+        self._biases_grad = [0 for _ in range(len(self.layers)) - 1]
+
 
     def feedforward(self, x):
         '''
@@ -27,7 +33,6 @@ class NeuralNetwork(object):
         a_s = [a]
 
         for i in range(len(self.weights)):
-            
             activation_fn = self.get_ActivationFunc(self.activations[i])
             z = self.weights[i].dot(a) + self.biases[i]
             a = activation_fn(z)
@@ -38,6 +43,37 @@ class NeuralNetwork(object):
         self._a_s = a_s
 
         return z_s, a_s
+
+
+    def backpropagation(self, y, z_s=None, a_s=None):
+        '''
+        '''
+        deltas = [None for _ in range(len(self.weights))]  # error delta = dC/dZ
+
+        # loss: y - a_s[-1]
+        deltas[-1] = ((y - self._a_s[-1]) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1]))
+
+        for i in reversed(range(len(deltas)-1)):
+            deltas[i] = self.weights[i+1].T.dot(deltas[i+1]) * self.getDerivitiveActivationFunc(self.activations[i])(self._z_s[i])
+
+        n = y.shape[1]
+        db = [d.dot(np.ones(n, 1)) / n for d in deltas]
+        dw = [d.dot(self._a_s[i].T) / n for i, d in enumerate(deltas)]
+
+        self._weights_grad += dw
+        self._biases_grad += db
+
+        return dw, db
+
+
+    def update(self, lr=1e-2):
+        '''
+        '''
+        self.weights = [w + lr * dw for w, dw in zip(self.weights, self._weights_grad)]
+        self.biases = [b + lr * db for b, db in zip(self.biases, self._biases_grad)]
+        self._weights_grad = [0 for _ in range(len(self.layers)) - 1]
+        self._biases_grad = [0 for _ in range(len(self.layers)) - 1]
+
 
 
     @staticmethod
@@ -74,35 +110,6 @@ class NeuralNetwork(object):
                 return y
             return relu_diff
 
-
-    def backpropagation(self, y, z_s=None, a_s=None):
-        '''
-        '''
-        deltas = [None for _ in range(len(self.weights))]  # error delta = dC/dZ
-
-        # loss: y - a_s[-1]
-        deltas[-1] = ((y - self._a_s[-1]) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1]))
-
-        for i in reversed(range(len(deltas)-1)):
-            deltas[i] = self.weights[i+1].T.dot(deltas[i+1]) * self.getDerivitiveActivationFunc(self.activations[i])(self._z_s[i])
-
-        n = y.shape[1]
-        db = [d.dot(np.ones(n, 1)) / n for d in deltas]
-        dw = [d.dot(self._a_s[i].T) / n for i, d in enumerate(deltas)]
-
-        self._weights_grad += dw
-        self._biases_grad += db
-
-        return dw, db
-
-
-    def update(self, lr=1e-2):
-        '''
-        '''
-        self.weights = [w + lr * dw for w, dw in zip(self.weights, self._weights_grad)]
-        self.biases = [b + lr * db for b, db in zip(self.biases, self._biases_grad)]
-        self._weights_grad = [0 for _ in range(len(self.layers)) - 1]
-        self._biases_grad = [0 for _ in range(len(self.layers)) - 1]
 
 
     def train(self, x, y, batch_size=0, epoches=100, lr=0.1):
