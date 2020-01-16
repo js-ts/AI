@@ -2,7 +2,7 @@ import numpy as np
 
 class NeuralNetwork(object):
 
-    def __init__(self, layers = [2, 10, 1], activations=['sigmoid', 'sigmoid']):
+    def __init__(self, layers = [1, 10, 1], activations=['sigmoid', 'sigmoid']):
 
         self.layers = layers
         self.activations = activations
@@ -10,19 +10,19 @@ class NeuralNetwork(object):
         self.weights = []
         self.biases = []
         for i in range(len(layers) - 1):
-            self.weights.append(np.random.randn(layers[i], layers[i+1]))
+            self.weights.append(np.random.randn(layers[i+1], layers[i]))
             self.biases.append(np.random.randn(layers[i+1], 1))
 
-        self._weights_grad = [0 for _ in range(len(layers)) - 1]
-        self._biases_grad = [0 for _ in range(len(layers)) - 1]
+        self._weights_grad = [0 for _ in range(len(layers)-1)]
+        self._biases_grad = [0 for _ in range(len(layers)-1)]
         # self._z_s = []
         # self._a_s = []
 
     def init_wb_grad(self, ):
         '''
         '''
-        self._weights_grad = [0 for _ in range(len(self.layers)) - 1]
-        self._biases_grad = [0 for _ in range(len(self.layers)) - 1]
+        self._weights_grad = [0 for _ in range(len(self.layers)-1)]
+        self._biases_grad = [0 for _ in range(len(self.layers)-1)]
 
 
     def feedforward(self, x):
@@ -57,11 +57,11 @@ class NeuralNetwork(object):
             deltas[i] = self.weights[i+1].T.dot(deltas[i+1]) * self.getDerivitiveActivationFunc(self.activations[i])(self._z_s[i])
 
         n = y.shape[1]
-        db = [d.dot(np.ones(n, 1)) / n for d in deltas]
+        db = [d.dot(np.ones((n, 1), dtype=np.float)) / n for d in deltas]
         dw = [d.dot(self._a_s[i].T) / n for i, d in enumerate(deltas)]
 
-        self._weights_grad += dw
-        self._biases_grad += db
+        self._weights_grad = dw
+        self._biases_grad = db
 
         return dw, db
 
@@ -71,9 +71,8 @@ class NeuralNetwork(object):
         '''
         self.weights = [w + lr * dw for w, dw in zip(self.weights, self._weights_grad)]
         self.biases = [b + lr * db for b, db in zip(self.biases, self._biases_grad)]
-        self._weights_grad = [0 for _ in range(len(self.layers)) - 1]
-        self._biases_grad = [0 for _ in range(len(self.layers)) - 1]
-
+        # self._weights_grad = [0 for _ in range(len(self.layers)-1)]
+        # self._biases_grad = [0 for _ in range(len(self.layers)-1)]
 
 
     @staticmethod
@@ -110,24 +109,35 @@ class NeuralNetwork(object):
                 return y
             return relu_diff
 
-
-
-    def train(self, x, y, batch_size=0, epoches=100, lr=0.1):
+    def train(self, x, y, epoches=100, batch_size=0, lr=0.01):
         '''
         '''
         for _ in range(epoches):
-            i = 0
-            while i < len(y):
-                x_batch = x[i: i + batch_size]
-                y_batch = y[i: i + batch_size]
+            i = np.random.randint(low=0, high=batch_size)
+            while i < y.shape[-1] - batch_size:
+                x_batch = x[:, i: i + batch_size]
+                y_batch = y[:, i: i + batch_size]
                 i += batch_size
-            
-                # z_s, a_s = self.feedforward(x_batch)
-                # dws, dbs = self.backpropagation(y_batch, z_s, a_s)
-                # self.weights = [w + lr * dw for w, dw in zip(self.weights, dws)]
-                # self.biases = [b + lr * db for b, db in zip(self.biases, dbs)]
                 _, a_s = self.feedforward(x_batch)
-                self.backpropagation(y_batch)
-                self.update(lr=lr)
+                dws, dbs = self.backpropagation(y_batch)
+                # self.update(lr=lr)
+                self.weights = [w + lr * dw for w, dw in zip(self.weights, dws)]
+                self.biases = [b + lr * db for b, db in zip(self.biases, dbs)]
 
                 print("loss={}".format(np.linalg.norm(a_s[-1] - y_batch)))
+
+
+
+if __name__=='__main__':
+    import matplotlib.pyplot as plt
+    nn = NeuralNetwork([1, 100, 1], activations=['sigmoid', 'sigmoid'])
+    X = 2 * np.pi * np.random.rand(1000).reshape(1, -1)
+    y = np.sin(X)
+
+    nn.train(X, y, 10000, 64, 0.1)
+
+    _, a_s = nn.feedforward(X)
+    #print(y, X)
+    plt.scatter(X.flatten(), y.flatten())
+    plt.scatter(X.flatten(), a_s[-1].flatten())
+    plt.show()
