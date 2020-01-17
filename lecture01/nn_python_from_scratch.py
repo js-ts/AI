@@ -9,11 +9,6 @@ class NeuralNetwork(object):
 
         self.reset_wb()
         self.reset_wb_grad()
-        # self._weights_grad = [0 for _ in range(len(layers)-1)]
-        # self._biases_grad = [0 for _ in range(len(layers)-1)]
-        # self._z_s = []
-        # self._a_s = []
-
     
     def reset_wb(self, ):
         '''
@@ -21,15 +16,16 @@ class NeuralNetwork(object):
         self.weights = []
         self.biases = []
         for i in range(len(self.layers) - 1):
-            self.weights.append(np.random.randn(self.layers[i+1], self.layers[i]))
-            self.biases.append(np.random.randn(self.layers[i+1], 1))
+            # self.weights.append(np.random.randn(self.layers[i+1], self.layers[i]))
+            # self.biases.append(np.random.randn(self.layers[i+1], 1))
+            self.weights.append(np.random.randn(self.layers[i], self.layers[i+1]))
+            self.biases.append(np.random.randn(1, self.layers[i+1]))
 
     def reset_wb_grad(self, ):
         '''
         '''
         self._weights_grad = [0 for _ in range(len(self.layers)-1)]
         self._biases_grad = [0 for _ in range(len(self.layers)-1)]
-
 
     def feedforward(self, x):
         '''
@@ -40,7 +36,8 @@ class NeuralNetwork(object):
 
         for i in range(len(self.weights)):
             activation_fn = self.get_ActivationFunc(self.activations[i])
-            z = self.weights[i].dot(a) + self.biases[i]
+            # z = self.weights[i].dot(a) + self.biases[i]
+            z = a.dot(self.weights[i]) + self.biases[i]
             a = activation_fn(z)
             z_s.append(z)
             a_s.append(a)
@@ -60,11 +57,14 @@ class NeuralNetwork(object):
         deltas[-1] = (y - self._a_s[-1]) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1])
 
         for i in reversed(range(len(deltas)-1)):
-            deltas[i] = self.weights[i+1].T.dot(deltas[i+1]) * self.getDerivitiveActivationFunc(self.activations[i])(self._z_s[i])
+            # deltas[i] = self.weights[i+1].T.dot(deltas[i+1]) * self.getDerivitiveActivationFunc(self.activations[i])(self._z_s[i])
+            deltas[i] = deltas[i+1].dot(self.weights[i+1].T) * self.getDerivitiveActivationFunc(self.activations[i])(self._z_s[i])
 
-        n = y.shape[1]
-        db = [d.dot(np.ones((n, 1), dtype=np.float)) / n for d in deltas]
-        dw = [d.dot(self._a_s[i].T) / n for i, d in enumerate(deltas)]
+        n = y.shape[0]
+        # db = [d.dot(np.ones((n, 1), dtype=np.float)) / n for d in deltas]
+        # dw = [d.dot(self._a_s[i].T) / n for i, d in enumerate(deltas)]
+        db = [np.ones((n, 1), dtype=np.float).T.dot(d) / n for d in deltas]
+        dw = [self._a_s[i].T.dot(d) / n for i, d in enumerate(deltas)]
 
         self._weights_grad = dw
         self._biases_grad = db
@@ -120,9 +120,9 @@ class NeuralNetwork(object):
         '''
         for _ in range(epoches):
             i = np.random.randint(low=0, high=batch_size)
-            while i < y.shape[-1] - batch_size:
-                x_batch = x[:, i: i + batch_size]
-                y_batch = y[:, i: i + batch_size]
+            while i < y.shape[0] - batch_size:
+                x_batch = x[i: i + batch_size, :]
+                y_batch = y[i: i + batch_size, :]
                 i += batch_size
 
                 _, a_s = self.feedforward(x_batch)
@@ -136,7 +136,8 @@ class NeuralNetwork(object):
 if __name__=='__main__':
     import matplotlib.pyplot as plt
     nn = NeuralNetwork([1, 32, 32, 1], activations=['sigmoid', 'sigmoid', 'identity'])
-    X = 2 * np.pi * np.random.rand(1000).reshape(1, -1)
+    # X = 2 * np.pi * np.random.rand(1000).reshape(1, -1)
+    X = 2 * np.pi * np.random.rand(1000).reshape(-1, 1)
     y = np.sin(X)
 
     nn.train(X, y, 3000, 64, 0.1)
