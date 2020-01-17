@@ -132,7 +132,6 @@ class NeuralNetwork(object):
                 print("loss={}".format(np.linalg.norm(a_s[-1] - y_batch)))
 
 
-
 if __name__=='__main__':
     import matplotlib.pyplot as plt
     nn = NeuralNetwork([1, 32, 32, 1], activations=['sigmoid', 'sigmoid', 'identity'])
