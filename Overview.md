@@ -67,7 +67,7 @@ ID|Name|Conference|Commence
 
 ID|Name|Conference|Commence  
 ---|---|---|---
-xx | xx | xx | xx
+xx | [Document Embedding Techniques](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | xx | xx
 
 
 ## <div id="cv"></div>Computer Vision
@@ -90,7 +90,7 @@ xx | xx | xx |
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | xx | xx | 
+xx | DSSM | xx | 
 
 ## <div id="acc"></div>Acceleration
 - Quantization  
