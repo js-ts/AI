@@ -60,14 +60,20 @@ ID|Name|Conference|Commence
 01 | [UCL Course on RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html) | xx | xx
 02 | [Stanford CS234: Reinforcement Learning](http://web.stanford.edu/class/cs234/index.html) | xx | xx
 03 | [CS 294-112 at UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/) | xx | xx
-
+04 | [My practice](https://github.com/lyuwenyu/RL) | xx | xx
 
 ## <div id="nlp"></div>Natural Language Processing
 - NLP 
+- Word Embedding
+- Document Embedding
+- Word/Text classification
+- Language Model
 
-ID|Name|Conference|Commence  
+ID|Name|Reference|Commence  
 ---|---|---|---
-xx | [Document Embedding Techniques](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | xx | xx
+00 | cs224n.stanford | x | x
+01 | Word embedding | [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | context, Common Bag Of Words, Skip-Gram model, BERT, GPT
+02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | x
 
 
 ## <div id="cv"></div>Computer Vision
@@ -75,13 +81,18 @@ xx | [Document Embedding Techniques](https://towardsdatascience.com/document-emb
 - Object / Instance / Keypoint Detection    
 - Semantic / Instance Segmentation   
 - Image Retrival or Search   
-- Multi / Single object Tracking  
+- Multi- and Single- Object Tracking  
 - Optical Flow  
-- 3D / SLAM / Depth / Motion Pose / Calibration  
+- 3D-restruction 
+    - Calibration 
+    - Motion Pose 
+    - Depth
+    - SLAM
+
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | xx | xx | 
+00 | cs231n.stanford | x | x
 
 
 ## <div id="recm"></div>Recommender Systems
