@@ -70,13 +70,18 @@ ID|Name|Conference|Commence
 - Word Embedding
 - Document Embedding
 - Word/Text classification
-- Language Model
+- Language Model (generating)
+- Machine Tanslation 
+- Queation and Awswer
+- Chat and Respose
 
-ID|Name|Reference|Commence  
+ID|Name|Concepts|Commence  
 ---|---|---|---
 00 | [cs224n.stanford](http://web.stanford.edu/class/cs224n/)| x | x
 01 | Word embedding | [word2vec intro](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | CBOW, Skip-Gram, GloVe
 02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | x
+03 | Classification | x | x
+04 | Language Model | seq2seq, encoder and decoder, attention | 
 
 
 ## <div id="cv"></div>Computer Vision
