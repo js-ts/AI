@@ -2,12 +2,18 @@
 # 
 # https://mlexplained.com/2018/02/08/a-comprehensive-tutorial-to-torchtext/
 # 
-
+import torch 
+import torch.nn as nn
 import torchtext
 from torchtext.data import Field
 from torchtext.data import TabularDataset # for csv/csv
 from torchtext.data import Iterator, BucketIterator
 from torchtext.data import BPTTIterator
+from torchtext.data.utils import ngrams_iterator
+from torchtext.vocab import Vocab, build_vocab_from_iterator
+
+import numpy as np
+from collections import Counter
 
 import spacy
 from spacy.symbols import ORTH
@@ -39,33 +45,66 @@ print(train[0].__dict__['src'])
 # TEXT.build_vocab(train, min_freq=2, vectors="glove.6B.200d")
 TEXT.build_vocab(train, min_freq=1,)
 
+# Word Hash Vocab
+letts_counter = Counter()
+specials = ['<unk>', '<pad>', '<sos>', '<eos>']
+letter_n_gram = 3
 for i in range(len(TEXT.vocab)):
-    print(i, TEXT.vocab.itos[i])
+    w = TEXT.vocab.itos[i]
+    if w in specials:
+        continue
+    w = '#' + w + '#'
+    c = zip(*[list(w)[i:] for i in range(letter_n_gram)])
+    c = [''.join(x) for x in c]
+    letts_counter.update(c)
+
+letter_vocab = Vocab(letts_counter, specials=specials)
+
+vectors = [0 for _ in range(len(TEXT.vocab))]
+stoi = {}
+for i in range(len(TEXT.vocab)):
+    w = TEXT.vocab.itos[i]
+    if w not in specials:
+        c = zip(*[list('#'+w+'#')[i:] for i in range(letter_n_gram)])
+        c = [''.join(x) for x in c]
+    else:
+        # c = [w]
+        continue
+    _idx = [letter_vocab.stoi[x] for x in c]
+    _dim = len(letter_vocab)
+    _vec = np.eye(_dim)[_idx, :].sum(axis=0)
+    vectors[i] = torch.tensor(_vec).to(torch.float) # 
+    stoi[w] = i
+
+TEXT.vocab.set_vectors(stoi, vectors, _dim, unk_init=torch.Tensor.zero_)
+
 
 # Iterator
-train_iter, valid_iter = BucketIterator.splits((train, valid), batch_sizes=(3, 3), sort_key=lambda x: len(x.src))
-test_iter = Iterator(test, batch_size=2, )
+bs = 2
+train_iter, valid_iter = BucketIterator.splits((train, valid), batch_sizes=(bs, bs), sort_key=lambda x: len(x.src))
+test_iter = Iterator(test, batch_size=bs, )
 
 # BPTTIterator
 # BPTTIterator
 
+weight = TEXT.vocab.vectors
+print(weight.shape)
+
+dim = len(letter_vocab)
+embedding = nn.Embedding(len(TEXT.vocab), dim)
+embedding.weight.data.copy_(TEXT.vocab.vectors)
 
 for batch in train_iter:
     src = batch.src
     trg = batch.trg
     lab = batch.label
-    print(src)
-    print(trg)
-    print(lab)
-    print(src.shape)
-    break
+    print('src1: ', src.shape)
 
+    src = embedding(src)
+    lens, bss, dim = src.shape
+    print('src2: ', src.shape)
 
-# for batch in valid_iter:
-#     src = batch.src
-#     trg = batch.trg 
-#     lab = batch.label
-#     print(src)
-#     print(trg)
-#     print(lab)
-#     break
+    word_n_gram = 3
+    src = [torch.cat(t, dim=-1) for t in zip(*[src[i:] for i in range(word_n_gram)])]
+    src = torch.cat(src, dim=0).view(-1, bss, word_n_gram * dim)
+    print('src3: ', src.shape)
