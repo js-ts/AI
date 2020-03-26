@@ -1,11 +1,13 @@
 # referrence: 
 # 
 # https://mlexplained.com/2018/02/08/a-comprehensive-tutorial-to-torchtext/
+# https://github.com/pytorch/text/issues/78
 # 
 import torch 
 import torch.nn as nn
 import torchtext
 from torchtext.data import Field
+from torchtext.data import Pipeline
 from torchtext.data import TabularDataset # for csv/csv
 from torchtext.data import Iterator, BucketIterator
 from torchtext.data import BPTTIterator
@@ -26,9 +28,13 @@ def tokenize(s):
 
 # tokenize = lambda s : s.strip().split(' ')
 
+
 # Field
+def PreFunc(s):
+    return s
+
 TEXT = Field(sequential=True, tokenize=tokenize, lower=True, init_token='<sos>', eos_token='<eos>')
-LABEL = Field(sequential=False, use_vocab=False, lower=True)
+LABEL = Field(sequential=False, use_vocab=False, batch_first=True, preprocessing=Pipeline(PreFunc))
 
 # Dataset, tsv, csv
 datafields = [('id', None), ('src', TEXT), ('trg', TEXT), ('label', LABEL)]
@@ -98,7 +104,7 @@ for batch in train_iter:
     src = batch.src
     trg = batch.trg
     lab = batch.label
-    print('src1: ', src.shape)
+    print('src1: ', src.shape) # [lens, batch, dims]
 
     src = embedding(src)
     lens, bss, dim = src.shape
@@ -108,3 +114,4 @@ for batch in train_iter:
     src = [torch.cat(t, dim=-1) for t in zip(*[src[i:] for i in range(word_n_gram)])]
     src = torch.cat(src, dim=0).view(-1, bss, word_n_gram * dim)
     print('src3: ', src.shape)
+
