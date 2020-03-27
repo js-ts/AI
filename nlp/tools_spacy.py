@@ -29,3 +29,8 @@ print(doc[0].pos, doc[0].pos_)
 # Entity Detection
 entities = [(i, i.label_, i.label) for i in doc.ents]
 print(entities)
+
+
+
+# python re: https://www.cnblogs.com/shenjianping/p/11647473.html
+

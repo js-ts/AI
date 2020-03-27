@@ -67,13 +67,25 @@ ID|Name|Conference|Commence
 
 ## <div id="nlp"></div>Natural Language Processing
 - NLP 
-- Word Embedding
-- Document Embedding
-- Word/Text classification
-- Language Model (generating)
-- Machine Tanslation 
-- Queation and Awswer
-- Chat and Respose
+- Embedding
+    - word
+    - sentence
+    - document
+- classification
+    - word
+    - text
+    - sentiment
+- Language Model
+    - generation
+    - machine translation
+    - QA and charbot
+- Linguistic structure
+    - constituency parsing
+    - dependency parsing
+- Basic 
+    - tokenization
+    - POS tagging
+    - named entity recognition
 
 ID|Name|Concepts|Commence  
 ---|---|---|---
@@ -82,7 +94,7 @@ ID|Name|Concepts|Commence
 02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | x
 03 | Classification | x | x
 04 | Language Model | seq2seq, encoder and decoder, attention | 
-
+05 | Tokenization, POS Tagging, Entity Detection | 
 
 ## <div id="cv"></div>Computer Vision
 - Classification / Fine-graind Recognition  

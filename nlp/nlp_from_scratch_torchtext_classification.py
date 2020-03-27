@@ -39,6 +39,7 @@ num_class = len(train_dataset.get_labels())
 model = TextSentiment(vocab_size, embed_dim, num_class)
 
 print(vocab_size)
+print(type(train_dataset.get_vocab()))
 print(model)
 
 from torch.utils.data import DataLoader
