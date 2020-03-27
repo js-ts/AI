@@ -3,6 +3,13 @@
 # https://mlexplained.com/2018/02/08/a-comprehensive-tutorial-to-torchtext/
 # https://github.com/pytorch/text/issues/78
 # 
+# Field
+# Example
+# Dataset: 
+#   building exmaples (in Example will use field preprocess)
+# Iterator: 
+#   using Dataset to build Batch
+
 import torch 
 import torch.nn as nn
 import torchtext
@@ -29,19 +36,24 @@ def tokenize(s):
 # tokenize = lambda s : s.strip().split(' ')
 
 
-# Field
-def PreFunc(s):
-    return s
-
+# Field  
+def PreProcess(s):
+    return float(s)
 TEXT = Field(sequential=True, tokenize=tokenize, lower=True, init_token='<sos>', eos_token='<eos>')
-LABEL = Field(sequential=False, use_vocab=False, batch_first=True, preprocessing=Pipeline(PreFunc))
+LABEL = Field(sequential=False, use_vocab=False, batch_first=True, preprocessing=Pipeline(PreProcess))
 
 # Dataset, tsv, csv
+# # when building dataset, Feild's <preprocessing> will run when create exmaple func. 
+# # filter_pred
+
+def filter_pred(example):
+    return example.__dict__['src'] is not None
+
 datafields = [('id', None), ('src', TEXT), ('trg', TEXT), ('label', LABEL)]
 train, valid = TabularDataset.splits(path='./data', fields=datafields, train='train.csv', validation='valid.csv', format='csv', skip_header=True)
 
 datafields = [('id', None), ('src', TEXT), ('trg', TEXT)]
-test = TabularDataset(path='data/test.csv', fields=datafields, format='csv', skip_header=True)
+test = TabularDataset(path='data/test.csv', fields=datafields, format='csv', skip_header=True, filter_pred=filter_pred)
 
 # Example
 print(train[0].__dict__.keys())# data.exmaple.Example
@@ -86,6 +98,8 @@ TEXT.vocab.set_vectors(stoi, vectors, _dim, unk_init=torch.Tensor.zero_)
 
 
 # Iterator
+# will create and reture Batch object, 
+# will call <process> for each filed before return in Batch Object
 bs = 2
 train_iter, valid_iter = BucketIterator.splits((train, valid), batch_sizes=(bs, bs), sort_key=lambda x: len(x.src))
 test_iter = Iterator(test, batch_size=bs, )
