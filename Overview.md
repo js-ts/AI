@@ -12,8 +12,11 @@
 
 
 ## <div id="tutorial"></div>Resource, Tutorial, and Course
-- [Python](https://github.com/lyuwenyu/Leetcode)
-- [PyTorch](https://pytorch.org/)
+- Python
+    - [My Leecode](https://github.com/lyuwenyu/Leetcode)
+- PyTorch
+    - [HomePage](https://pytorch.org/)
+    
 - Mathmatics
     - Calculus  
     - Statistics  
@@ -27,7 +30,10 @@ ID|name|Commence
 
 ## <div id="ml"></div>Machine Learning   
 - ML  
-- Data Minnig 
+- Supervise  
+    - LR
+- Unsurpervise  
+    - KNN
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
@@ -36,7 +42,15 @@ xx | xx | xx | xx
 
 ## <div id="dnn"></div>Deep Neural Network
 - Architecture
+    - FullyConnect
+    - Convolution
+    - Normalization
+    - Activation
+    - Dropout
 - CNN  
+    - GoogleNet
+    - ResNet
+
 - RNN/LSTM  
 
 |ID|Name|Conference|Commence  
