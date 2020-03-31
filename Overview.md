@@ -56,6 +56,7 @@ xx | xx | xx | xx
 
 ## <div id="rl"></div>Reinforcement Learning
 - RL
+- [My practice](https://github.com/lyuwenyu/RL)
 
 ID|Name|Conference|Commence  
 ---|---|---|---
@@ -63,7 +64,6 @@ ID|Name|Conference|Commence
 01 | [UCL Course on RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html) | xx | xx
 02 | [Stanford CS234: Reinforcement Learning](http://web.stanford.edu/class/cs234/index.html) | xx | xx
 03 | [CS 294-112 at UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/) | xx | xx
-04 | [My practice](https://github.com/lyuwenyu/RL) | xx | xx
 
 ## <div id="nlp"></div>Natural Language Processing
 - NLP 
@@ -89,13 +89,20 @@ ID|Name|Conference|Commence
 
 ID|Name|Concepts|Commence  
 ---|---|---|---
-00 | [cs224n.stanford](http://web.stanford.edu/class/cs224n/)| x | x
+00 | [cs224n.stanford](http://web.stanford.edu/class/cs224n/)|  | 
 01 | Word embedding | [word2vec intro](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | CBOW, Skip-Gram, GloVe
-02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | x
-03 | Classification | x | x
+02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | 
+03 | Classification |  | 
 04 | Language Model | seq2seq, encoder and decoder, attention | 
-05 | Tokenization, POS Tagging, Entity Detection | 
+---
+Paper | Commits
+---|---
+[Word2vec]()| 
+[GloVe]() | 
+[Attention-Transformer](https://arxiv.org/pdf/1706.03762.pdf) | 
+[BERT](https://arxiv.org/pdf/1810.04805.pdf) |
 
+---
 ## <div id="cv"></div>Computer Vision
 - Classification / Fine-graind Recognition  
 - Object / Instance / Keypoint Detection    
@@ -108,6 +115,10 @@ ID|Name|Concepts|Commence
     - Motion Pose 
     - Depth
     - SLAM
+- Mine
+    - [pytorch-workspace](https://github.com/lyuwenyu/pytorch_workspace)
+    - [Geometry]()
+    - [Detetron]()
 
 
 |ID|Name|Conference|Commence  
