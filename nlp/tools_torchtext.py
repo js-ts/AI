@@ -62,6 +62,24 @@ print(train[0].__dict__['src'])
 # Vocab
 # TEXT.build_vocab(train, min_freq=2, vectors="glove.6B.200d")
 TEXT.build_vocab(train, min_freq=1,)
+for i in range(len(TEXT.vocab)):
+    print(i, TEXT.vocab.itos[i])
+print(len(TEXT.vocab))
+
+from itertools import chain
+TEXT.build_vocab(chain(train.src, valid.src, train.trg, valid.trg), min_freq=1)
+for i in range(len(TEXT.vocab)):
+    print(i, TEXT.vocab.itos[i])
+print(len(TEXT.vocab))
+
+
+# TEXT.numericalize
+s = train.examples[0].src
+d = TEXT.numericalize([s])
+print(s)
+print(d)
+print(d.shape)
+
 
 # Word Hash Vocab
 letts_counter = Counter()
@@ -128,4 +146,6 @@ for batch in train_iter:
     src = [torch.cat(t, dim=-1) for t in zip(*[src[i:] for i in range(word_n_gram)])]
     src = torch.cat(src, dim=0).view(-1, bss, word_n_gram * dim)
     print('src3: ', src.shape)
+
+    break
 
