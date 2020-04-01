@@ -16,7 +16,7 @@
     - [My Leecode](https://github.com/lyuwenyu/Leetcode)
 - PyTorch
     - [HomePage](https://pytorch.org/)
-    
+
 - Mathmatics
     - Calculus  
     - Statistics  
@@ -30,10 +30,11 @@ ID|name|Commence
 
 ## <div id="ml"></div>Machine Learning   
 - ML  
-- Supervise  
+- Supervised  
     - LR
-- Unsurpervise  
+- Unsupervised  
     - KNN
+    - K-means
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
@@ -44,18 +45,37 @@ xx | xx | xx | xx
 - Architecture
     - FullyConnect
     - Convolution
-    - Normalization
     - Activation
+    - Pooling
+    - Normalize
     - Dropout
+
+- Optimization
+    - BP
+        - chain rule
+        - gradient vanishing
+        - gradient exploding
+    - SGD
+    - Adam
+
 - CNN  
+    - AlexNet
+    - VGGNet
     - GoogleNet
     - ResNet
 
-- RNN/LSTM  
+- RNN
+    - Vanilla
+    - LSTM
+    - GRU   
+    - BPTT
+
+- NN from scrach  
+    - [example]()
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | xx | xx | xx
+xx | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | xx | xx
 
 
 
@@ -89,16 +109,20 @@ ID|Name|Conference|Commence
     - word
     - text
     - sentiment
-- Language Model
-    - generation
-    - machine translation
-    - QA and charbot
 - Linguistic structure
     - constituency parsing
     - dependency parsing
+- Language Model
+    - language modeling
+    - generating
+    - summarizing
+    - conditional
+    - machine translation
+    - QA and chartbot
+    - image captioning
 - Basic 
     - tokenization
-    - POS tagging
+    - part-of-speech tagging
     - named entity recognition
 
 ID|Name|Concepts|Commence  
