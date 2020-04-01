@@ -25,7 +25,9 @@
 
 ID|name|Commence  
 ---|---|---
-00 | [DLRLSS 2019](https://www.youtube.com/watch?v=O2o4oONWCWA&list=PLKlhhkvvU8-aXmPQZNYG_e-2nTd0tJE8v&index=2&t=0s) | Amii Intelligence, DL and RL Summer School 2019
+xx | [cs231n.stanford](http://cs231n.stanford.edu/) | CS231n: Convolutional Neural Networks for Visual Recognition
+xx | [cs224n.stanford](http://web.stanford.edu/class/cs224n/) | CS224n: Natural Language Processing with Deep Learning
+xx | [DLRLSS 2019](https://www.youtube.com/watch?v=O2o4oONWCWA&list=PLKlhhkvvU8-aXmPQZNYG_e-2nTd0tJE8v&index=2&t=0s) | Amii Intelligence, DL and RL Summer School 2019
 
 
 ## <div id="ml"></div>Machine Learning   
