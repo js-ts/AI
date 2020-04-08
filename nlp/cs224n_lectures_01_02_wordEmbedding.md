@@ -5,7 +5,7 @@
 |-|-|
 [Lecture_01](#lecture01) | word2vec, sg
 [Lecture_02](#lecture02) | glove, evaluate
-
+[fastText](#lecture02) | fastText, 
 
 ---
 
@@ -39,8 +39,7 @@
     - negtive sampling  
         - select negative samples using a 'unigram distribution', where more frequent words are more likely to be selected. 
         - p(w_i) = f(w_i)^(3/4) / sum_j(f(w_j)^(3/4)), the power makes less frequent words be sampled more often  
-
-    - Hierarchy Softmax  
+    - Hierarchical Softmax  
     - sub-sampling of frequent word (eg. the)
         - dont appear as context for reminning word
         - as center word fewer
@@ -51,6 +50,10 @@
 
 - chain rule (derive gradient)
 - stochastic gradient descent
+
+
+reference:
+5. https://towardsdatascience.com/hierarchical-softmax-and-negative-sampling-short-notes-worth-telling-2672010dbe08
 
 ---
 
@@ -75,7 +78,32 @@
         - syntactic
     - extrinsic
 
+
 ---
+
+### fastText
+
+- one majar drawback for above methods were its inability to deal with out of corpus words. Because they treat word as the minimal entrity
+- character n-grams
+    - treat each word and composed of n-grams
+    - #india#: #in ind ndi dia ia#
+- memory requirement
+    - control minimum letter n-grams
+    - minimum word count
+    - hash n-grams
+
+- Hierarchical softmax
+    - vocab too large
+    - HuffmanTree
+- Multi-label classification
+    - softmax 
+        - number of labels to predict 
+        - the threshold for the predicted probability
+    - A convenient way to handle multiple labels is to use independent binary classifiers for each label
+
+
 reference:
-- http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
-- https://blog.csdn.net/sinat_29819401/article/details/90669304
+1. https://fasttext.cc/docs/en/supervised-tutorial.html
+2. https://ruder.io/word-embeddings-1/index.html
+3. http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
+4. https://blog.csdn.net/sinat_29819401/article/details/90669304

@@ -7,7 +7,8 @@ class SkipGramModle(nn.Module):
     '''
     u : center word
     v : context word
-    - negtive sampling
+    - negtive sampling (GAN, discriminate; SGD; Unigram distribution; p ^ 3/4)
+    - hierarchical softmax
     '''
     def __init__(self, emb_size, emb_dimension):
         super(SkipGramModle, self).__init__()

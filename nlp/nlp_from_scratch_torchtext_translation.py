@@ -16,9 +16,9 @@ print(train_data[0].__dict__['trg'])
 
 SRC.build_vocab(train_data, min_freq = 2)
 TRG.build_vocab(train_data, min_freq = 2)
-for i in range(4):
+for i in range(10):
     print(SRC.vocab.itos[i])
-for i in range(4):
+for i in range(10):
     print(TRG.vocab.itos[i])   
 
 batch_size = 3
@@ -48,7 +48,7 @@ class Encoder(nn.Module):
         self.dec_hid_dim = dec_hid_dim
         self.dropout = dropout
 
-        self.embedding = nn.Embedding(input_dim, emb_dim)
+        self.embedding = nn.Embedding(input_dim, emb_dim, )
         self.rnn = nn.GRU(emb_dim, enc_hid_dim, bidirectional=True)
         self.fc = nn.Linear(enc_hid_dim * 2, dec_hid_dim)
         self.dropout = nn.Dropout(dropout)
@@ -166,6 +166,8 @@ optimizer = optim.Adam(model.parameters())
 
 PAD_IDX = TRG.vocab.stoi['<pad>']
 criterion = nn.CrossEntropyLoss(ignore_index=PAD_IDX)
+# or
+# embedding ignore pad
 
 print(model)
 
