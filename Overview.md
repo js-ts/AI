@@ -53,21 +53,30 @@ xx | xx | xx | xx
     - Pooling
     - Normalize
     - Dropout
+    - [torch.nn]()
 
 - Optimization
     - BP
         - chain rule
-        - gradient vanishing
-        - gradient exploding
+    - Gradient
+        - vanishing
+        - exploding
+        - momery
+        - skip-connection
+        - clipping
     - SGD
     - Adam
+    - Criterion
+        - Cross Entropy
+    - [torch.optim]()
 
 - CNN  
     - AlexNet
     - VGGNet
     - GoogleNet
     - ResNet
-
+    - DenseNet
+    - [torchvision]()
 - RNN
     - Vanilla
     - LSTM
@@ -79,9 +88,8 @@ xx | xx | xx | xx
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | xx | xx
-
-
+xx | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | xx | gradient vanishing and exploding
+xx | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | xx
 
 
 ## <div id="gan"></div>Generative Adversarial Network
@@ -114,25 +122,29 @@ ID|Name|Conference|Commence
     - text
     - sentiment
 - Linguistic structure
-    - constituency parsing
     - dependency parsing
+    - constituency parsing
 - Language Model
-    - language modeling
-    - generating
-    - summarizing
-    - conditional
-    - machine translation
-    - QA and chartbot
+    - recurrent neural networks
+    - generation
+    - summarization
+- Machine Translation
+    - seq2seq
+    - attention
+    - transformer
+    - bert 
     - image captioning
+- QA
+    - chatbot
 - Basic 
     - tokenization
     - part-of-speech tagging
     - named entity recognition
-
+    
 ID|Name|Concepts|Commence  
 ---|---|---|---
 00 | [cs224n.stanford](http://web.stanford.edu/class/cs224n/)|  | 
-01 | Word embedding | [word2vec intro](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | CBOW, Skip-Gram, GloVe
+01 | Word embedding | [word2vec intro](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | CBOW, Skip-Gram, GloVe， FastText
 02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | 
 03 | Classification |  | 
 04 | Language Model | seq2seq, encoder and decoder, attention | 
@@ -141,9 +153,10 @@ Paper | Commits
 ---|---
 [Word2vec]()| 
 [GloVe]() | 
-[Attention-Transformer](https://arxiv.org/pdf/1706.03762.pdf) | 
-[BERT](https://arxiv.org/pdf/1810.04805.pdf) |
-
+[fastText]() | 
+[Transformer](https://arxiv.org/pdf/1706.03762.pdf) | [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html#batches-and-masking)
+[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings)
+[GPT2]() | 
 ---
 ## <div id="cv"></div>Computer Vision
 - Classification / Fine-graind Recognition  
