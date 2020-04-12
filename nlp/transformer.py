@@ -484,11 +484,11 @@ class LabelSmoothing(nn.Module):
 class Batch(object):
     def __init__(self, src, trg=None, pad=0):
         self.src = src
-        self.src_mask = (src != pad).unsqueeze(-2) # [batch, 1, L]
+        self.src_mask = (src != pad).unsqueeze(-2) # [batch, 1, Ls]
         if trg is not None:
             self.trg = trg[:, :-1]
             self.trg_y = trg[:, 1:]
-            self.trg_mask = self.mask_std_mask(self.trg, pad)
+            self.trg_mask = self.mask_std_mask(self.trg, pad) # [batch, Lt, Lt]
             self.ntokens = (self.trg_y != pad).data.sum()
 
     @staticmethod
@@ -560,6 +560,3 @@ for epoch in range(10):
     run_epoch(data_gen(v, 30, 20), model, SimpleLossCompute(model.generator, criterion, model_opt))
     model.eval()
     run_epoch(data_gen(v, 30, 20), model, SimpleLossCompute(model.generator, criterion, None))
-
-
-    
