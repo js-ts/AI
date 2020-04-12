@@ -128,14 +128,14 @@ ID|Name|Conference|Commence
     - recurrent neural networks
     - generation
     - summarization
+    - bert 
 - Machine Translation
     - seq2seq
     - attention
     - transformer
-    - bert 
-    - image captioning
-- QA
     - chatbot
+- QA
+    - reading comprehension
 - Basic 
     - tokenization
     - part-of-speech tagging
@@ -154,9 +154,11 @@ Paper | Commits
 [Word2vec]()| 
 [GloVe]() | 
 [fastText]() | 
+[ELMo]() | 
 [Transformer](https://arxiv.org/pdf/1706.03762.pdf) | [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html#batches-and-masking)
-[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings)
 [GPT2]() | 
+[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings)
+
 ---
 ## <div id="cv"></div>Computer Vision
 - Classification / Fine-graind Recognition  
