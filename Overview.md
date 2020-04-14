@@ -30,12 +30,14 @@ ID|name|Commence
 02 | [RL Course by David Silver](https://www.youtube.com/playlist?list=PLzuuYNsE1EZAXYR4FJ75jcJseBmo4KQ9-) | RL Course by David Silver
 03 | [DLRLSS 2019](https://www.youtube.com/watch?v=O2o4oONWCWA&list=PLKlhhkvvU8-aXmPQZNYG_e-2nTd0tJE8v&index=2&t=0s) | Amii Intelligence, DL and RL Summer School 2019
 04 | [MIT 18.065](https://ocw.mit.edu/courses/mathematics/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/syllabus/18.065-course-introduction/) | Linear Algebra Gilbert Strang  
+05 | [UFLDL]() | by Andrew Ng
 
 
 ## <div id="ml"></div>Machine Learning   
 - ML  
 - Supervised  
     - LR
+    - SVM
 - Unsupervised  
     - KNN
     - K-means
@@ -49,25 +51,27 @@ xx | xx | xx | xx
 - Architecture
     - FullyConnect
     - Convolution
+        - group conv
+        - dilational conv
+        - separable conv
+            - depthwise
+            - pointwise
     - Activation
     - Pooling
     - Normalize
+        - bn/gn/ln
     - Dropout
     - [torch.nn]()
 
 - Optimization
     - BP
-        - chain rule
+        - chain-rule
     - Gradient
-        - vanishing
-        - exploding
-        - momery
-        - skip-connection
-        - clipping
-    - SGD
-    - Adam
-    - Criterion
-        - Cross Entropy
+        - vanishing/memory/skipconnect
+        - exploding/cliiping
+    - SGD/Adam/
+    - Loss-Criterion
+    - LR-Schedule
     - [torch.optim]()
 
 - CNN  
@@ -76,15 +80,18 @@ xx | xx | xx | xx
     - GoogleNet
     - ResNet
     - DenseNet
+    - EfficientNet
     - [torchvision]()
+
 - RNN
     - Vanilla
-    - LSTM
-    - GRU   
+    - Gated
+        - LSTM/GRU/  
+    - Q-RNN 
     - BPTT
 
 - NN from scrach  
-    - [example]()
+    - [example](https://github.com/lyuwenyu/AI/tree/master/nn)
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
@@ -114,27 +121,23 @@ ID|Name|Conference|Commence
 ## <div id="nlp"></div>Natural Language Processing
 - NLP 
 - Embedding
-    - word
-    - sentence
-    - document
+    - word/sentence/document
 - classification
-    - word
-    - text
-    - sentiment
+    - word/text/sentiment
+    - bow/rnn/window/cnn
 - Linguistic structure
     - dependency parsing
     - constituency parsing
 - Language Model
-    - recurrent neural networks
     - generation
-    - summarization
-    - bert 
+    - rnn
+    - transformer
+    - masked-lm/bert 
 - Machine Translation
     - seq2seq
     - attention
     - transformer
-    - chatbot
-- QA
+- Question Answer
     - reading comprehension
 - Basic 
     - tokenization
@@ -147,7 +150,7 @@ ID|Name|Concepts|Commence
 01 | Word embedding | [word2vec intro](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | CBOW, Skip-Gram, GloVe， FastText
 02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | 
 03 | Classification |  | 
-04 | Language Model | seq2seq, encoder and decoder, attention | 
+04 | Language Model | seq2seq, encoder and decoder, attention, bert | 
 ---
 Paper | Commits
 ---|---
@@ -157,7 +160,7 @@ Paper | Commits
 [ELMo]() | 
 [Transformer](https://arxiv.org/pdf/1706.03762.pdf) | [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html#batches-and-masking)
 [GPT2]() | 
-[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings)
+[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings), pre/post-norm
 
 ---
 ## <div id="cv"></div>Computer Vision
