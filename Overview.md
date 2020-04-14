@@ -1,4 +1,4 @@
-# AI Paper Reading
+# AI Overview
 
 - [Tutorials](#tutorial)
 - [Machine Learning](#ml)
@@ -51,15 +51,18 @@ xx | xx | xx | xx
 - Architecture
     - FullyConnect
     - Convolution
-        - group conv
-        - dilational conv
-        - separable conv
-            - depthwise
-            - pointwise
-    - Activation
+        - group
+        - dilate
+        - separable
+            - depth/point-wise
     - Pooling
+        - ave/max/kmax/
+    - Activation
+        - tanh/sigmoid/relu/prelu/swish/
     - Normalize
-        - bn/gn/ln
+        - bn/gn/ln/in/
+        - l1/l2/
+        - evolving normalization-activation
     - Dropout
     - [torch.nn]()
 
@@ -77,9 +80,8 @@ xx | xx | xx | xx
 - CNN  
     - AlexNet
     - VGGNet
-    - GoogleNet
-    - ResNet
-    - DenseNet
+    - GoogleNet/MobileNet
+    - ResNet/DenseNet
     - EfficientNet
     - [torchvision]()
 
@@ -97,7 +99,7 @@ xx | xx | xx | xx
 |---|---|---|---|
 xx | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | xx | gradient vanishing and exploding
 xx | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | xx
-
+xx | [Evolving Normalization-Activation Layers](https://www.youtube.com/watch?v=RFn5eH5ZCVo&feature=youtu.be) | xx
 
 ## <div id="gan"></div>Generative Adversarial Network
 - GAN  
@@ -121,19 +123,19 @@ ID|Name|Conference|Commence
 ## <div id="nlp"></div>Natural Language Processing
 - NLP 
 - Embedding
-    - word/sentence/document
+    - word/sentence/document/
 - classification
-    - word/text/sentiment
-    - bow/rnn/window/cnn
+    - word/text/sentiment/
+    - bow/rnn/window/cnn/
 - Linguistic structure
-    - dependency parsing
-    - constituency parsing
+    - dependency/constituency-parsing
 - Language Model
     - generation
     - rnn
     - transformer
     - masked-lm/bert 
 - Machine Translation
+    - transduction
     - seq2seq
     - attention
     - transformer
@@ -192,7 +194,8 @@ Paper | Commits
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | DSSM | xx | 
+xx | DSSM | xx 
+xx | CDSSM | xx 
 
 ## <div id="acc"></div>Acceleration
 - Quantization  
