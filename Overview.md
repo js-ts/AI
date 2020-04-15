@@ -88,21 +88,32 @@ xx | xx | xx | xx
 - RNN
     - Vanilla
     - Gated
-        - LSTM/GRU/  
+        - LSTM/GRU/biLSTM
     - Q-RNN 
     - BPTT
 
 - NN from scrach  
-    - [example](https://github.com/lyuwenyu/AI/tree/master/nn)
+    - [tiny example](https://github.com/lyuwenyu/AI/tree/master/nn)
+        - forward
+            - specific funcion
+            - record tensors for bp
+        - backward
+            - delta error 
+            - derive according specific function to inputs and weights
+        - update
+            - grident
+            - momentum/lr
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | xx | gradient vanishing and exploding
-xx | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | xx
-xx | [Evolving Normalization-Activation Layers](https://www.youtube.com/watch?v=RFn5eH5ZCVo&feature=youtu.be) | xx
+-- | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | -- | gradient vanishing and exploding
+-- | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | xx
+-- | [Evolving Normalization-Activation Layers](https://www.youtube.com/watch?v=RFn5eH5ZCVo&feature=youtu.be) | --
 
 ## <div id="gan"></div>Generative Adversarial Network
 - GAN  
+    - Generator
+    - Discriminator
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
@@ -123,7 +134,8 @@ ID|Name|Conference|Commence
 ## <div id="nlp"></div>Natural Language Processing
 - NLP 
 - Embedding
-    - word/sentence/document/
+    - word/character/sentence/document/
+    - subword/bpe/wordpiece/unigram-lm/sentencepiece
 - classification
     - word/text/sentiment/
     - bow/rnn/window/cnn/
@@ -169,8 +181,8 @@ Paper | Commits
 - Classification / Fine-graind Recognition  
 - Object / Instance / Keypoint Detection    
 - Semantic / Instance Segmentation   
-- Image Retrival or Search   
 - Multi- and Single- Object Tracking  
+- Image Retrival / Search   
 - Optical Flow  
 - 3D-restruction 
     - Calibration 
