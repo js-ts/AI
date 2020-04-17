@@ -10,9 +10,10 @@ import re
 import collections
 class BPE(object):
     def __init__(self, vocab_size=10):
-        self.vocab = {'l o w': 5, 'l o w e r': 2, 'n e w e s t': 6, 'w i d e s t': 1}
+        self.text = {'l o w': 5, 'l o w e r': 2, 'n e w e s t': 6, 'w i d e s t': 1}
         self.num_merges = 10
         self.vocab_size = 10
+        self.vocab = {}
 
     def bpe(self, vocab, iters=10):
         for i in range(iters):
@@ -43,19 +44,41 @@ class BPE(object):
             ans[_w] = vocab[w]
         return ans
 
-bpe = BPE()
-bpe.bpe(bpe.vocab)
+# bpe = BPE()
+# bpe.bpe(bpe.text)
 
 
-
+# sentencepiece
 # https://github.com/google/sentencepiece/blob/master/python/README.md
 #
 def sentencepiece_test():
     import sentencepiece as spm 
-    spm.SentencePieceTrainer.Train('--input=./data/docs.txt --model_prefix=xx --vocab_size=100')
+    # spm.SentencePieceTrainer.Train('--model_type=unigram --input=./data/docs.txt --model_prefix=xx --vocab_size=100')
+    # spm.SentencePieceTrainer.Train('--model_type=bpe --input=./data/docs.txt --model_prefix=xx --vocab_size=50')
     sp = spm.SentencePieceProcessor()
     sp.Load('xx.model')
-    pieces = sp.EncodeAsPieces('this is a test')
-    ids = sp.EncodeAsIds('this is a test')
+
+    # vocab = [sp.id_to_piece(i) for i in range(sp.get_piece_size())]
+    # print([x for x in vocab if len(x) == 1])
+    # print(vocab)
+
+    pieces = sp.encode_as_pieces('like')
+    # ids = sp.encode_as_ids('like')
+    # words = sp.decode_ids([59])
     print(pieces)
-    print(ids)
+    
+sentencepiece_test()
+
+
+# tokenizers
+def tokenizers_test():
+    from tokenizers import ByteLevelBPETokenizer, CharBPETokenizer, SentencePieceBPETokenizer, BertWordPieceTokenizer
+    # tokenizer = BertWordPieceTokenizer('./data/vocab.txt', lowercase=True)
+    # output = tokenizer.encode('hello, likee')
+    # print(output.ids, output.tokens, output.offsets)
+
+    tokenizer = SentencePieceBPETokenizer()
+    tokenizer.train(['./data/docs.txt'], vocab_size=50)
+    print(tokenizer.encode('like').tokens)
+
+tokenizers_test()

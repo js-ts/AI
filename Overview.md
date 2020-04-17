@@ -44,7 +44,7 @@ ID|name|Commence
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | xx | xx | xx
+-- | -- | -- | --
 
 
 ## <div id="dnn"></div>Deep Neural Network
@@ -107,7 +107,7 @@ xx | xx | xx | xx
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 -- | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | -- | gradient vanishing and exploding
--- | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | xx
+-- | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | --
 -- | [Evolving Normalization-Activation Layers](https://www.youtube.com/watch?v=RFn5eH5ZCVo&feature=youtu.be) | --
 
 ## <div id="gan"></div>Generative Adversarial Network
@@ -117,7 +117,7 @@ xx | xx | xx | xx
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | xx | xx | xx
+-- | -- | -- | --
 
 
 ## <div id="rl"></div>Reinforcement Learning
@@ -126,34 +126,57 @@ xx | xx | xx | xx
 
 ID|Name|Conference|Commence  
 ---|---|---|---
-00 | [Reinforcement Learning: An Introduction (Second Edition)](http://www.incompleteideas.net/book/RLbook2018.pdf) | xx | xx
-01 | [UCL Course on RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html) | xx | xx
-02 | [Stanford CS234: Reinforcement Learning](http://web.stanford.edu/class/cs234/index.html) | xx | xx
-03 | [CS 294-112 at UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/) | xx | xx
+00 | [Reinforcement Learning: An Introduction (Second Edition)](http://www.incompleteideas.net/book/RLbook2018.pdf) | -- | --
+01 | [UCL Course on RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html) | -- | --
+02 | [Stanford CS234: Reinforcement Learning](http://web.stanford.edu/class/cs234/index.html) | -- | --
+03 | [CS 294-112 at UC Berkeley](http://rail.eecs.berkeley.edu/deeprlcourse/) | -- | --
 
 ## <div id="nlp"></div>Natural Language Processing
-- NLP 
+
+- Preprocessing 
+    - Normalization/Pretokenizer
+        - text-encoding/unicode/byte
+        - cleaning/canonical
+    - Segmentation/Tokenization/Model
+        - morphology/
+        - word/character/byte
+        - subword/bpe/wordpiece/unigram-lm/sentencepiece
+    - Numbericalization
+        - map/hash-id
+        - problem
+            - oov/train/test
+            - overfitting
+    - Tools
+        - [spacy]()
+        - [sentencepiece](https://github.com/google/sentencepiece)
+        - [tokenizers](https://github.com/huggingface/tokenizers)
+
 - Embedding
     - word/character/sentence/document/
-    - subword/bpe/wordpiece/unigram-lm/sentencepiece
+    - distributional/contexture-representation
+
 - classification
     - word/text/sentiment/
     - bow/rnn/window/cnn/
-- Linguistic structure
-    - dependency/constituency-parsing
+
 - Language Model
-    - generation
-    - rnn
+    - generation-p
+    - recurrent-nn
     - transformer
     - masked-lm/bert 
+
 - Machine Translation
     - transduction
     - seq2seq
     - attention
     - transformer
+
 - Question Answer
     - reading comprehension
+
 - Basic 
+    - Linguistic structure
+        - dependency/constituency-parsing
     - tokenization
     - part-of-speech tagging
     - named entity recognition
@@ -174,7 +197,7 @@ Paper | Commits
 [ELMo]() | 
 [Transformer](https://arxiv.org/pdf/1706.03762.pdf) | [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html#batches-and-masking)
 [GPT2]() | 
-[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings), pre/post-norm
+[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings), pre/post-norm, [RoBERTa: A Robustly Optimized BERT](https://arxiv.org/pdf/1907.11692.pdf), [Extreme language model compression with optimal subwords and shared projections](https://arxiv.org/pdf/1909.11687.pdf)
 
 ---
 ## <div id="cv"></div>Computer Vision
@@ -206,8 +229,8 @@ Paper | Commits
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | DSSM | xx 
-xx | CDSSM | xx 
+-- | DSSM | -- 
+-- | CDSSM | -- 
 
 ## <div id="acc"></div>Acceleration
 - Quantization  
@@ -216,4 +239,4 @@ xx | CDSSM | xx
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-xx | xx | xx | 
+-- | -- | -- | 
