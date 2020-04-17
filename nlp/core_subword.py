@@ -8,6 +8,7 @@
 import os 
 import re
 import collections
+
 class BPE(object):
     def __init__(self, vocab_size=10):
         self.text = {'l o w': 5, 'l o w e r': 2, 'n e w e s t': 6, 'w i d e s t': 1}

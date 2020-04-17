@@ -4,7 +4,7 @@
 # http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/
 # https://www.youtube.com/watch?v=FKlPCK1uFrc&feature=youtu.be
 
-
+import transformers
 from transformers import BertTokenizer, BertModel
 from transformers import AdamW, get_linear_schedule_with_warmup
 
@@ -18,6 +18,10 @@ np.random.seed(seed_val)
 torch.manual_seed(seed_val)
 torch.cuda.manual_seed_all(seed_val)
 
+def transformers_test():
+    '''
+    '''
+    pass
 
 # import logging
 # logging.basicConfig(level=logging.INFO)
@@ -46,7 +50,7 @@ for n, p in model.named_parameters():
         print(n, p.shape)
 
 with torch.no_grad():
-    outputs = model(tokens_tensor, token_type_ids=segments_tensor, attention_mask=None)
+    outputs = model(tokens_tensor, token_type_ids=segments_tensor, attention_mask=None, output_all_encoded_layers=False)
     print(len(outputs))
     print(outputs[0].shape, outputs[1].shape)
 
