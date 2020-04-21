@@ -5,7 +5,7 @@
 - [Deep Neural Network](#dnn)
 - [Reinforcement Learning](#rl)
 - [Generative Adversarial Network](#gan)
-- [Natural Language Procesing](#nlp)
+- [Natural Language Processing](#nlp)
 - [Computer Vision](#cv)
 - [Recommender Systems](#recm)
 - [Acceleration](#acc)
@@ -140,12 +140,11 @@ ID|Name|Conference|Commence
     - Segmentation/Tokenization/Model
         - morphology/
         - word/character/byte
-        - subword/bpe/wordpiece/unigram-lm/sentencepiece
+        - subword/bpe/unigram-lm/wordpiece
     - Numbericalization
         - map/hash-id
-        - problem
-            - oov/train/test
-            - overfitting
+        - problem/oov/overfitting
+
     - Tools
         - [spacy]()
         - [sentencepiece](https://github.com/google/sentencepiece)
@@ -153,7 +152,12 @@ ID|Name|Conference|Commence
 
 - Embedding
     - word/character/sentence/document/
-    - distributional/contexture-representation
+    - distributional representation
+        - word2vec/cbow/skip-gram/glove
+        - fasttext
+    - contexture representation
+        - pretrained-nn/transfer/fineturn
+        - ELMo/transformers
 
 - classification
     - word/text/sentiment/
@@ -162,9 +166,11 @@ ID|Name|Conference|Commence
 - Language Model
     - generation-p
     - recurrent-nn
+    - ELMo/ULMfit
     - transformer
-    - masked-lm/bert 
-
+    - gpt/bert/gpt-2
+    - XLNET
+    
 - Machine Translation
     - transduction
     - seq2seq
@@ -180,24 +186,6 @@ ID|Name|Conference|Commence
     - tokenization
     - part-of-speech tagging
     - named entity recognition
-    
-ID|Name|Concepts|Commence  
----|---|---|---
-00 | [cs224n.stanford](http://web.stanford.edu/class/cs224n/)|  | 
-01 | Word embedding | [word2vec intro](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/), [An Intro](https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa), [How to Train word2vec](http://jalammar.github.io/illustrated-word2vec/) | CBOW, Skip-Gram, GloVe， FastText
-02 | Document Embedding | [An Intro](https://towardsdatascience.com/document-embedding-techniques-fed3e7a6a25d) | 
-03 | Classification |  | 
-04 | Language Model | seq2seq, encoder and decoder, attention, bert | 
----
-Paper | Commits
----|---
-[Word2vec]()| 
-[GloVe]() | 
-[fastText]() | 
-[ELMo]() | 
-[Transformer](https://arxiv.org/pdf/1706.03762.pdf) | [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html#batches-and-masking)
-[GPT2]() | 
-[BERT](https://arxiv.org/pdf/1810.04805.pdf) | [bert-research by mc](http://mccormickml.com/2019/11/11/bert-research-ep-1-key-concepts-and-sources/#31-input-representation--wordpiece-embeddings), pre/post-norm, [RoBERTa: A Robustly Optimized BERT](https://arxiv.org/pdf/1907.11692.pdf), [Extreme language model compression with optimal subwords and shared projections](https://arxiv.org/pdf/1909.11687.pdf)
 
 ---
 ## <div id="cv"></div>Computer Vision
@@ -220,7 +208,7 @@ Paper | Commits
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
-00 | cs231n.stanford | x | x
+00 | cs231n.stanford | -- | --
 
 
 ## <div id="recm"></div>Recommender Systems
