@@ -35,12 +35,6 @@ ID|name|Commence
 
 ## <div id="ml"></div>Machine Learning   
 - ML  
-- Supervised  
-    - LR
-    - SVM
-- Unsupervised  
-    - KNN
-    - K-means
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
@@ -135,16 +129,19 @@ ID|Name|Conference|Commence
 
 - Preprocessing 
     - Normalization/Pretokenizer
-        - text-encoding/unicode/byte
+        - text-encoding/lowercase/unicode/byte
         - cleaning/canonical
+        - split/byte-level/whitespace/chardelimiter
     - Segmentation/Tokenization/Model
         - morphology/
         - word/character/byte
         - subword/bpe/unigram-lm/wordpiece
-    - Numbericalization
+    - Numbericalization/Postprocessor
         - map/hash-id
         - problem/oov/overfitting
-
+        - bertprocess
+    - Decode
+        - word/bpe/wordpiece
     - Tools
         - [spacy]()
         - [sentencepiece](https://github.com/google/sentencepiece)
@@ -153,6 +150,7 @@ ID|Name|Conference|Commence
 - Embedding
     - word/character/sentence/document/
     - distributional representation
+        - counting/predicting
         - word2vec/cbow/skip-gram/glove
         - fasttext
     - contexture representation
@@ -167,15 +165,17 @@ ID|Name|Conference|Commence
     - generation-p
     - recurrent-nn
     - ELMo/ULMfit
-    - transformer
-    - gpt/bert/gpt-2
-    - XLNET
+    - transformer/transformer-XL
+    - bert/m-lm/ae-lm
+    - gpt/gpt-2
+    - XLNET/p-lm/ar-lm
     
 - Machine Translation
     - transduction
     - seq2seq
     - attention
     - transformer
+    - Google-NMT
 
 - Question Answer
     - reading comprehension
@@ -206,19 +206,20 @@ ID|Name|Conference|Commence
     - [Detetron]()
 
 
-|ID|Name|Conference|Commence  
-|---|---|---|---|
-00 | cs231n.stanford | -- | --
-
-
 ## <div id="recm"></div>Recommender Systems
 - Recommender
 - Ads
 
-|ID|Name|Conference|Commence  
-|---|---|---|---|
--- | DSSM | -- 
--- | CDSSM | -- 
+- DSSM
+    - DSSM/CDSSM
+- Google YouTube Recommendations
+
+Name | commits | resource
+--- | --- | ---
+DSSM | cdssm | 
+[Google YouTube Recommendations]() | candidate generation and ranking | --
+[Facebook Practical Lessons from Predicting Clicks on Ads](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | -- | --
+[An Investigation of Practical Approximate Nearest Neighbor Algorithms](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | k-NN, LSH
 
 ## <div id="acc"></div>Acceleration
 - Quantization  

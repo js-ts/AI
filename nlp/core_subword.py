@@ -2,6 +2,8 @@
 # wordpiece
 # unigram-lm
 # sentencepiece
+# https://huggingface.co/blog/how-to-train
+# https://www.kaggle.com/funtowiczmo/hugging-face-tutorials-training-tokenizer
 
 
 # bpe
@@ -54,8 +56,8 @@ class BPE(object):
 #
 def sentencepiece_test():
     import sentencepiece as spm 
-    # spm.SentencePieceTrainer.Train('--model_type=unigram --input=./data/docs.txt --model_prefix=xx --vocab_size=100')
-    # spm.SentencePieceTrainer.Train('--model_type=bpe --input=./data/docs.txt --model_prefix=xx --vocab_size=50')
+    spm.SentencePieceTrainer.Train('--model_type=bpe --input=train.en --model_prefix=xx --vocab_size=2000')
+    # spm.SentencePieceTrainer.Train('--model_type=unigram --input=./data/docs.txt --model_prefix=xx --vocab_size=50')
     sp = spm.SentencePieceProcessor()
     sp.Load('xx.model')
 
@@ -63,23 +65,37 @@ def sentencepiece_test():
     # print([x for x in vocab if len(x) == 1])
     # print(vocab)
 
-    pieces = sp.encode_as_pieces('like')
+    pieces = sp.encode_as_pieces('Two young, White males are outside near many bushes.')
     # ids = sp.encode_as_ids('like')
     # words = sp.decode_ids([59])
     print(pieces)
-    
-sentencepiece_test()
+
+# sentencepiece_test()
 
 
 # tokenizers
 def tokenizers_test():
     from tokenizers import ByteLevelBPETokenizer, CharBPETokenizer, SentencePieceBPETokenizer, BertWordPieceTokenizer
+    from tokenizers.processors import BertProcessing
+    from tokenizers import Tokenizer
+    from tokenizers.models import BPE
+    from tokenizers.normalizers import Lowercase, Sequence
+    
     # tokenizer = BertWordPieceTokenizer('./data/vocab.txt', lowercase=True)
     # output = tokenizer.encode('hello, likee')
     # print(output.ids, output.tokens, output.offsets)
 
-    tokenizer = SentencePieceBPETokenizer()
-    tokenizer.train(['./data/docs.txt'], vocab_size=50)
-    print(tokenizer.encode('like').tokens)
+    tokenizer = BertWordPieceTokenizer()
+    # tokenizer = BertWordPieceTokenizer(lowercase=True)
+    # tokenizer = CharBPETokenizer(lowercase=True)
+    tokenizer.train(['./data/train.en'], vocab_size=5000, )
+    tokenizer.save('./data', 'xx')
+
+    # tokenizer = ByteLevelBPETokenizer('./data/xx-vocab.json', './data/xx-merges.txt')
+    # tokenizer._tokenizer.post_processor(BertProcessing(("</s>", tokenizer.token_to_id("</s>")),("<s>", tokenizer.token_to_id("<s>")),))
+    tokenizer = BertWordPieceTokenizer('./data/xx-vocab.txt')
+    print(tokenizer.encode('Two young, White males are outside near many bushes.').tokens)
 
 tokenizers_test()
+
+
