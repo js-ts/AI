@@ -17,6 +17,7 @@ def pandas_test():
     print(df.shape, list(df.keys()))
     for i in range(df.shape[0]):
         print(df.src.values[i], df.trg.values[i])
+        print(df.__getattr__('src').values[i])
         break
 
 def io_test():
@@ -58,7 +59,7 @@ def collate_fn(samples):
 
 def dataloader_test():
     dataset = CDataset()
-    dataloader = DataLoader(dataset, batch_size=5, collate_fn=collate_fn, shuffle=False)
+    dataloader = DataLoader(dataset, batch_size=5, collate_fn=collate_fn, shuffle=False) # num_workers=0 # disable multiprocess
     for batch in dataloader:
         print(batch)
         break
@@ -70,6 +71,10 @@ def sampler_test():
     BATCH_SIZE = 10
     train_tensor, train_y_tensor = torch.rand(100, 100), torch.rand(100, 1)
     train_dataset = TensorDataset(train_tensor, train_y_tensor)
+    
     train_sampler = RandomSampler(train_dataset)
     test_sampler = SequentialSampler(train_dataset)
+    ddpsampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+
     train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE)
+
