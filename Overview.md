@@ -66,17 +66,19 @@ ID|name|Commence
     - Gradient
         - vanishing/memory/skipconnect
         - exploding/cliiping
-    - SGD/Adam/
+    - SGD/Adam/AdamW
     - Loss-Criterion
     - LR-Schedule
     - [torch.optim]()
 
 - CNN  
+    - LeNet
     - AlexNet
     - VGGNet
-    - GoogleNet/MobileNet
-    - ResNet/DenseNet
+    - GoogleNet/Inception/MobileNet
+    - ResNet/DenseNet/ReNeXt
     - EfficientNet
+    - RegNet
     - [torchvision]()
 
 - RNN
@@ -151,21 +153,20 @@ ID|Name|Conference|Commence
     - word/character/sentence/document/
     - distributional representation
         - counting/predicting
-        - word2vec/cbow/skip-gram/glove
+        - word2vec/cbow/skip-gram
+        - glove
         - fasttext
     - contexture representation
         - pretrained-nn/transfer/fineturn
-        - ELMo/transformers
-
-- classification
-    - word/text/sentiment/
-    - bow/rnn/window/cnn/
+        - ELMo
+        - transformers
 
 - Language Model
+    - statistics
     - generation-p
     - recurrent-nn
     - ELMo/ULMfit
-    - transformer/transformer-XL
+    - attention/transformer/transformer-XL
     - bert/m-lm/ae-lm
     - gpt/gpt-2
     - XLNET/p-lm/ar-lm
@@ -173,14 +174,28 @@ ID|Name|Conference|Commence
 - Machine Translation
     - transduction
     - seq2seq
-    - attention
-    - transformer
+    - attention/transformer
     - Google-NMT
+    
+- Natual Language Generation
+    - NMT
+    - Summarization
+    - Dialogue
+    - Image Captioning
+    - Freeform QA
+    - Decoding
+        - Greedy/Beam-seach
+        - Pure/TopK-sampling
+
+- Classification
+    - word/text/sentiment/
+    - bow/rnn/window/cnn/
 
 - Question Answer
     - reading comprehension
+    - extracted from tex
 
-- Basic 
+- Others 
     - Linguistic structure
         - dependency/constituency-parsing
     - tokenization

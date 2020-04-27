@@ -3,4 +3,5 @@
 *cache
 *.model
 *.vocab
+*.en
 
