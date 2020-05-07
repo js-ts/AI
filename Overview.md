@@ -65,7 +65,7 @@ ID|name|Commence
         - chain-rule
     - Gradient
         - vanishing/memory/skipconnect
-        - exploding/cliiping
+        - exploding/clipping
     - SGD/Adam/AdamW
     - Loss-Criterion
     - LR-Schedule
@@ -98,13 +98,17 @@ ID|name|Commence
             - derive according specific function to inputs and weights
         - update
             - grident
-            - momentum/lr
+            - laerning rate
+            - momentum
+            - weight decay
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 -- | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | -- | gradient vanishing and exploding
+-- | [Bag of Tricks for Image Classification with Convolutional Neural Networks]() | -- | --
 -- | [Neural Network Optimization](https://towardsdatascience.com/neural-network-optimization-7ca72d4db3e0) | blog | --
--- | [Evolving Normalization-Activation Layers](https://www.youtube.com/watch?v=RFn5eH5ZCVo&feature=youtu.be) | --
+-- | [CNN Explainer: Learning Convolutional Neural Networks with Interactive Visualization](https://arxiv.org/abs/2004.15004) | -- | --
+
 
 ## <div id="gan"></div>Generative Adversarial Network
 - GAN  
@@ -153,7 +157,9 @@ ID|Name|Conference|Commence
     - word/character/sentence/document/
     - distributional representation
         - counting/predicting
-        - word2vec/cbow/skip-gram
+        - word2vec
+            - cbow
+            - skip-gram
         - glove
         - fasttext
     - contexture representation
@@ -162,14 +168,14 @@ ID|Name|Conference|Commence
         - transformers
 
 - Language Model
-    - statistics
+    - statistical methods
     - generation-p
     - recurrent-nn
     - ELMo/ULMfit
-    - attention/transformer/transformer-XL
-    - bert/m-lm/ae-lm
-    - gpt/gpt-2
-    - XLNET/p-lm/ar-lm
+    - Attention/Transformer/Transformer-XL
+    - BERT/RoBERTa/m-lm/ae-lm
+    - GPT/GPT-2
+    - XLNet/p-lm/ar-lm
     
 - Machine Translation
     - transduction
@@ -186,6 +192,7 @@ ID|Name|Conference|Commence
     - Decoding
         - Greedy/Beam-seach
         - Pure/TopK-sampling
+    - [fairseq](https://github.com/pytorch/fairseq)
 
 - Classification
     - word/text/sentiment/
@@ -226,8 +233,9 @@ ID|Name|Conference|Commence
 - Ads
 
 - DSSM
-    - DSSM/CDSSM
-- Google YouTube Recommendations
+    - DSSM
+    - CDSSM
+- [Google YouTube Recommendations]()
 
 Name | commits | resource
 --- | --- | ---
