@@ -19,6 +19,7 @@
 
 - Mathmatics
     - Calculus  
+        - [matrixcalculus](http://www.matrixcalculus.org/)
     - Statistics  
     - Probability  
 - Etc. 
