@@ -23,7 +23,9 @@ continuous | $\int$
 
 - Differentiation
     - x
-    
+ 
+- [matrixcalculus online](http://www.matrixcalculus.org/)
+
 ---
 ## Probability
 - Event $x$
