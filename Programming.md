@@ -1,4 +1,11 @@
-# Python for Beginner
+
+
+## Overview
+- Basic
+- Numpy
+- Matplotlib
+
+## Python for Beginner
 
 >> You'll start with the very basics to lay a solid foundation for future learning. Then, you'll go deeper, learning more advanced ways of manipulating data with commonly used data structures. Later on, I will share some pointers with you about how to get data in and out of files and even store complex data structures in them. ~~After that, You will learn some basic concepts about <u>*machine learning*</u>, and use ML to solve data-related problems.~~
 
@@ -46,6 +53,7 @@
         - List Comprehensions
         - Map / Filter
         - Generator / Iterator
+        - Counter
 
     - File I/O
         - File System
@@ -76,5 +84,16 @@
 # Module
 
 ## Numpy
+- slice
+- view
+- broadcasting
+- ufunc (universal function)
+- read/save
 
+## Pandas
 
+## Matplotlib
+
+---
+reference:
+- http://old.sebug.net/paper/books/scipydoc/numpy_intro.html#id6  
