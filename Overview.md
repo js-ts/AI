@@ -103,6 +103,18 @@ ID|name|Commence
             - momentum
             - weight decay
 
+- Summary
+    - Defination 
+        - metrics
+    - Solving
+        - Data
+        - Label
+        - Feature
+        - Model
+        - Optimization
+    - Serving
+        - xxx
+
 |ID|Name|Conference|Commence  
 |---|---|---|---|
 -- | [On the difficulty of training Recurrent Neural Networks](https://arxiv.org/abs/1211.5063) | -- | gradient vanishing and exploding
