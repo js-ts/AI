@@ -229,6 +229,7 @@ ID|Name|Conference|Commence
 - Semantic / Instance Segmentation   
 - Multi- and Single- Object Tracking  
 - Image Retrival / Search   
+- Style Transform
 - Optical Flow  
 - 3D-restruction 
     - Calibration 
