@@ -249,6 +249,7 @@ ID|Name|Conference|Commence
 - DSSM
     - DSSM
     - CDSSM
+- Wide & Deep
 - [Google YouTube Recommendations]()
 
 Name | commits | resource
@@ -257,6 +258,7 @@ DSSM | cdssm |
 [Google YouTube Recommendations]() | candidate generation and ranking | --
 [Facebook Practical Lessons from Predicting Clicks on Ads](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | -- | --
 [An Investigation of Practical Approximate Nearest Neighbor Algorithms](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | k-NN, LSH
+[Wide & Deep Learning for Recommender Systems](https://arxiv.org/pdf/1606.07792.pdf) | -- | -- 
 
 ## <div id="acc"></div>Acceleration
 - Quantization  
