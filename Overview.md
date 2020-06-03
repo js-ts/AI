@@ -259,6 +259,7 @@ DSSM | cdssm |
 [Facebook Practical Lessons from Predicting Clicks on Ads](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | -- | --
 [An Investigation of Practical Approximate Nearest Neighbor Algorithms](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | k-NN, LSH
 [Wide & Deep Learning for Recommender Systems](https://arxiv.org/pdf/1606.07792.pdf) | -- | -- 
+[Practical Lessons from Predicting Clicks on Ads at Facebook](https://quinonero.net/Publications/predicting-clicks-facebook.pdf) | -- | --
 
 ## <div id="acc"></div>Acceleration
 - Quantization  
