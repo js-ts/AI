@@ -224,11 +224,20 @@ ID|Name|Conference|Commence
 
 ---
 ## <div id="cv"></div>Computer Vision
-- Classification / Fine-graind Recognition  
-- Object / Instance / Keypoint Detection    
-- Semantic / Instance Segmentation   
-- Multi- and Single- Object Tracking  
-- Image Retrival / Search   
+- Classification
+    - Recognition
+    - Fine-graind Recognition  
+- Detection
+    - Object 
+    - Instance
+    - Keypoint     
+- Segmentation
+    - Semantic
+    - Instance    
+- Tracking
+    - Single Object
+    - Multiple Object
+- Image Search   
 - Style Transform
 - Optical Flow  
 - 3D-restruction 
