@@ -250,6 +250,10 @@ ID|Name|Conference|Commence
     - [Geometry]()
     - [Detetron]()
 
+Name | commits | resource
+--- | --- | ---
+[DetectoRS: Detecting Objects with Recursive Feature Pyramid and Switchable Atrous Convolution](https://arxiv.org/pdf/2006.02334.pdf) | -- | --
+
 
 ## <div id="recm"></div>Recommender Systems
 - Recommender
@@ -258,15 +262,18 @@ ID|Name|Conference|Commence
 - DSSM
     - DSSM
     - CDSSM
+- Wide & Deep
 - [Google YouTube Recommendations]()
 
 Name | commits | resource
 --- | --- | ---
-DSSM | cdssm | 
-[Google YouTube Recommendations]() | candidate generation and ranking | --
-[Facebook Practical Lessons from Predicting Clicks on Ads](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | -- | --
+[Learning Deep Structured Semantic Models for Web Search. Microsoft]() | cdssm | 
+[Google YouTube Recommendations]() | marching and ranking | --
+[Practical Lessons from Predicting Clicks on Ads at Facebook](https://quinonero.net/Publications/predicting-clicks-facebook.pdf) | GBDT + LR | --
+[Wide & Deep Learning for Recommender Systems. Google](https://arxiv.org/pdf/1606.07792.pdf) | Wide + Deep | -- 
+[Deep & Cross Network for Ad Click Predictions. Google](https://arxiv.org/pdf/1708.05123.pdf) | DCN | --
+[Deep Learning Recommendation Model for Personalization and Recommendation System. Facebook](https://arxiv.org/pdf/1906.00091.pdf) | DLRM | --
 [An Investigation of Practical Approximate Nearest Neighbor Algorithms](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | k-NN, LSH
-
 ## <div id="acc"></div>Acceleration
 - Quantization  
 - Pruning  

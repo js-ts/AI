@@ -2,6 +2,8 @@ import random
 import numpy as np
 import torch
 
+import matplotlib.pyplot as plt
+
 
 def set_random(seed_val=0):
     '''
