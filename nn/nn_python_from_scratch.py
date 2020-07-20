@@ -53,7 +53,8 @@ class NeuralNetwork(object):
         '''
         deltas = [None for _ in range(len(self.weights))]  # error delta = dC/dZ
 
-        # loss: y - a_s[-1]
+        # loss: y - a_s[-1]  mean_(prediction - observation) ^ 2
+        # deltas[-1] = (self._a_s[-1] - y) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1])
         deltas[-1] = (y - self._a_s[-1]) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1])
 
         for i in reversed(range(len(deltas)-1)):
@@ -75,6 +76,8 @@ class NeuralNetwork(object):
     def update(self, lr=1e-2):
         '''
         '''
+        # self.weights = [w - lr * dw for w, dw in zip(self.weights, self._weights_grad)]
+        # self.biases = [b - lr * db for b, db in zip(self.biases, self._biases_grad)]
         self.weights = [w + lr * dw for w, dw in zip(self.weights, self._weights_grad)]
         self.biases = [b + lr * db for b, db in zip(self.biases, self._biases_grad)]
         # self._weights_grad = [0 for _ in range(len(self.layers)-1)]
