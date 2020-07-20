@@ -53,7 +53,7 @@ class NeuralNetwork(object):
         '''
         deltas = [None for _ in range(len(self.weights))]  # error delta = dC/dZ
 
-        # loss: y - a_s[-1]  mean_(prediction - observation) ^ 2
+        # MSE = mean_(prediction - observation) ^ 2
         # deltas[-1] = (self._a_s[-1] - y) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1])
         deltas[-1] = (y - self._a_s[-1]) * self.getDerivitiveActivationFunc(self.activations[-1])(self._z_s[-1])
 
