@@ -5,6 +5,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <stdexcept>
 #include <cmath>
@@ -249,6 +250,25 @@ int main()
         cout << a << endl;
     }
 
+    // map
+    map<string, int> dict;
+    dict.insert(pair<string, int>("a", 2));
+    dict.insert(map<string, int>::value_type("b", 1));
+    dict["c"] = 10;
+
+    cout << dict.empty() << endl;
+    cout << dict.count("d") << endl;
+
+    auto p = dict.find("a");
+    if (p != dict.end()) {
+        cout << p->first << p->second << endl;
+    }
+    //map<string, int>::iterator iter;s
+    for (auto iter = dict.begin(); iter != dict.end(); iter++) {
+        cout << iter->first << " " << iter->second << endl;
+    }
+    
+    
     // template
     STACK<int> stack;
     stack.push(10);
