@@ -151,6 +151,10 @@ class FastText(object):
         self.nsubwords = self.weights.shape[0] - self.nwords
         self.dims = self.weights.shape[-1]
         self.ngrams = 5
+        
+        assert self.nwords == 2000000, ''
+        assert self.nsubwords == 2000000, ''
+        assert self.dims == 300, ''
     
     def get_word_vector(self, w):
         ''''''
