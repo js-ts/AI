@@ -24,6 +24,8 @@
     - cnn
     - fast
 
+- convolutional seq2seq
+
 ```
 import torch
 import torch.nn as nn

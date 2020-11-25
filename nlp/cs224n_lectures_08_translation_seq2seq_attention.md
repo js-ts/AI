@@ -1,7 +1,6 @@
 
 # machine translation
 
-
 machine translation is a task of translating s sentence x from one language to a sentence y in another language.
 
 - rule-based
@@ -15,7 +14,7 @@ machine translation is a task of translating s sentence x from one language to a
     - encoder produce an embedding ogf the source sentence
     - decoder is a language model the generating target sentence conditioned on encoding
     - greedy decoding
-    - beam search decoding
+    - **beam search decoding**
         - keep track of k most probable partial translations
         - score = log p(y1...yt | x) = sum_i log_p(yi | y1...yi-1, x)
         - not guaranteed to find optimal solution
@@ -39,7 +38,6 @@ machine translation is a task of translating s sentence x from one language to a
             - plus a penalty for too short system translations
     - 
 
-
 - seq2seq
     - conditional language model
 
@@ -47,4 +45,8 @@ machine translation is a task of translating s sentence x from one language to a
     - core idea on each step of the decoder, use direct connection to the encoder to focus on a particular part of the source sequence
     - 
 
+- fails
+    - incorrect alignment
+    - identity copy fail
 
+- Google’s Neural Machine Translation System

@@ -308,7 +308,7 @@ def attention(query, key, value, mask=None, dropout=None):
     '''dot product attention, [N, Head, Lx, Dim]
     '''
     d_k = query.size(-1)
-    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k) # scaled
     if mask is not None:
         scores = scores.masked_fill(mask==0, -1e9)
     

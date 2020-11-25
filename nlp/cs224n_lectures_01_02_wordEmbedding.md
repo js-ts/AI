@@ -7,7 +7,7 @@
 [Lecture_02](#lecture02) | glove, evaluate
 [fastText](#fasttext) | fastText, 
 [ELMo]() | 
-[BERT](#bert) |
+[BERT](#bert) | bert
 ---
 
 ## <div id="lecture01"></div>Lecture_01

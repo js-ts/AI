@@ -13,8 +13,9 @@ from .core_bert import transformers_test
 from .core_transformer import EncoderDecoder, Generator
 from .core_transformer import Encoder, EncoderLayer
 from .core_transformer import Decoder, DecoderLayer
+from .core_transformer import MultiHeadAttention, attention
 from .core_transformer import PositionwiseFeedForward
-from .core_transformer import MultiHeadAttention, subsequent_mask
+from .core_transformer import subsequent_mask
 from .core_transformer import PositionalEncoding
 from .core_transformer import LabelSmoothing
 from .core_transformer import NoamOpt
