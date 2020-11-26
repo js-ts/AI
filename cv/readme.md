@@ -4,9 +4,3 @@
 - https://github.com/lyuwenyu/Geometry
 - https://github.com/lyuwenyu/Detectron
 
-
----
-Name | Concept | Commits
----|---|---
-[RegNet]() | 
-
