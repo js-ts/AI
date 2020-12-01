@@ -288,6 +288,8 @@ Name | commits | resource
 [Deep & Cross Network for Ad Click Predictions. Google](https://arxiv.org/pdf/1708.05123.pdf) | DCN | --
 [Deep Learning Recommendation Model for Personalization and Recommendation System. Facebook](https://arxiv.org/pdf/1906.00091.pdf) | DLRM | --
 [An Investigation of Practical Approximate Nearest Neighbor Algorithms](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | k-NN, LSH
+[Category-Specific CNN for Visual-aware CTR Prediction at JD.COM](https://arxiv.org/pdf/2006.10337.pdf) | -- | --
+
 ## <div id="acc"></div>Acceleration
 - Quantization  
 - Pruning  
