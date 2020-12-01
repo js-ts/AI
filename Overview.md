@@ -267,27 +267,36 @@ Paper | Commits | Related
 Name | commits | resource
 --- | --- | ---
 [DetectoRS: Detecting Objects with Recursive Feature Pyramid and Switchable Atrous Convolution](https://arxiv.org/pdf/2006.02334.pdf) | -- | --
-
+[End-to-End Object Detection with Transformers](https://arxiv.org/pdf/2005.12872.pdf) | DETR | --
 
 ## <div id="recm"></div>Recommender Systems
 - Recommender
 - Ads
 
-- DSSM
+- GOOGLE
+    - [Google YouTube Recommendations]() 
+    - Deep & Wise & Cross
+    
+- MICROSOFT
     - DSSM
     - CDSSM
-- Wide & Deep
-- [Google YouTube Recommendations]()
+    
+- FACEBOOK
+    - DLRM
+    
+- ALIBABA
+    - DIN 
+    - DIEN
 
 Name | commits | resource
 --- | --- | ---
-[Learning Deep Structured Semantic Models for Web Search. Microsoft]() | cdssm | 
 [Google YouTube Recommendations]() | marching and ranking | --
+[Learning Deep Structured Semantic Models for Web Search. Microsoft]() | cdssm | --
 [Practical Lessons from Predicting Clicks on Ads at Facebook](https://quinonero.net/Publications/predicting-clicks-facebook.pdf) | GBDT + LR | --
 [Wide & Deep Learning for Recommender Systems. Google](https://arxiv.org/pdf/1606.07792.pdf) | Wide + Deep | -- 
 [Deep & Cross Network for Ad Click Predictions. Google](https://arxiv.org/pdf/1708.05123.pdf) | DCN | --
 [Deep Learning Recommendation Model for Personalization and Recommendation System. Facebook](https://arxiv.org/pdf/1906.00091.pdf) | DLRM | --
-[An Investigation of Practical Approximate Nearest Neighbor Algorithms](http://papers.nips.cc/paper/2666-an-investigation-of-practical-approximate-nearest-neighbor-algorithms.pdf) | k-NN, LSH
+[Deep Interest Evolution Network for Click-Through Rate Prediction](https://arxiv.org/pdf/1809.03672.pdf) | DIN DIEN | --
 [Category-Specific CNN for Visual-aware CTR Prediction at JD.COM](https://arxiv.org/pdf/2006.10337.pdf) | -- | --
 
 ## <div id="acc"></div>Acceleration
