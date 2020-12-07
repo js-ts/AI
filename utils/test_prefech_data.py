@@ -71,7 +71,7 @@ class data_layer(caffe.Layer):
 
 			except:
 
-				print 'load xxx',
+				print('load xxx')
 				continue
 
 		self._cur += self.batch_size
@@ -106,13 +106,13 @@ class data_layer(caffe.Layer):
 		with codecs.open(self.data_file, 'r', 'utf-8') as f:
 			self._lines = f.readlines()
 
-		print 'Total images: {}.'.format(len(self._lines))
+		print('Total images: {}.'.format(len(self._lines)))
 
 
 		self._cur = 0
 		self._perm = np.random.permutation(np.arange(len(self._lines)))
 
-		print 'queue init'
+		print('queue init')
 		self.queue = Queue(20)
 
 		#fetch_process = Process(target=self._process_run)
@@ -123,7 +123,7 @@ class data_layer(caffe.Layer):
 			self.fetcher_processes[i].start()
 
 		def clean_up():
-			print 'terminatring process'
+			print( 'terminatring process')
 			for iterm in self.fetcher_processes:
 				iterm.terminate()
 				iterm.join()
@@ -191,8 +191,6 @@ class Fetcher(Process):
 
 		self._cur = 0
 		self._perm = np.random.permutation( np.arange(len(self._lines)) )
-
-		
 
 	def _image_preprocess(self, img):
 
