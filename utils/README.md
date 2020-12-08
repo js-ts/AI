@@ -1,6 +1,6 @@
 # Tools
 
-- [pandas]()
+- [pandas](https://pandas.pydata.org/docs/getting_started/index.html#getting-started)
 - [sklearn]()
-- [matplotlab]()
-- [pyecharts]()
+- [matplotlib](https://matplotlib.org/tutorials/index.html)
+- [pyecharts](https://github.com/pyecharts/pyecharts-gallery)
