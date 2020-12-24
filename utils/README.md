@@ -4,3 +4,5 @@
 - [sklearn]()
 - [matplotlib](https://matplotlib.org/tutorials/index.html)
 - [pyecharts](https://github.com/pyecharts/pyecharts-gallery)
+- [pyxll](https://www.pyxll.com/blog/)
+
