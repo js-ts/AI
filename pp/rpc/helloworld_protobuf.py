@@ -9,6 +9,12 @@ tmp.b = 2
 tmp.data = base64.b64encode(np.random.rand(2, 2))
 print(str(tmp))
 
+
 tmp1 = helloworld_pb2.ModelRequest()
 tmp1.ParseFromString(tmp.SerializeToString())
 print('tmp1', str(tmp1))
+
+
+tmp2 = helloworld_pb2.ModelRequest(data=base64.b64encode(np.random.rand(2, 2)), 
+                                    a=2, b=2)
+print('tmp2', str(tmp2))

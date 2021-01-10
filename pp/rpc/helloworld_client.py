@@ -19,11 +19,17 @@ def run():
 
         stub = ModelStub(channel)
 
+        # modelRequest = ModelRequest()
+        # modelRequest.a = 10
+        # modelRequest.b = 20
+        # modelRequest.data = base64.b64encode(np.random.rand(a, b))
+
         a = 10
         b = 20
         data = base64.b64encode(np.random.rand(a, b))
 
         response = stub.Inference(ModelRequest(data=data, a=a, b=b))
+
         print(response.data, response.c)
 
         mean = np.frombuffer(base64.b64decode(response.data))
