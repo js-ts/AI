@@ -12,6 +12,8 @@
     - pip install --upgrade protobuf
 - Usage
     - python -m grpc_tools.protoc -I./ --python_out=. --grpc_python_out=. ./helloworld.proto
+    - server
+    - client
 - Example
     - hello world
     - model inference
