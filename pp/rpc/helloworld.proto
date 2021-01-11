@@ -1,6 +1,6 @@
 // python -m grpc_tools.protoc -I./ --python_out=. --grpc_python_out=. ./helloworld.proto
 
-syntax="proto3";
+syntax = "proto3";
 
 
 // The greeting service definition.
@@ -35,7 +35,24 @@ message ModelRequest {
 }
 
 message ModelReply {
-  // string result = 1;
+  // string result = 1; // utf-8
   bytes data = 1;
   float c = 2;
+}
+
+
+
+message DataExample {
+  // string result = 1; // utf-8
+  bytes data = 1;
+  float c = 2;
+  int32 d = 3;
+
+  message Blob {
+    string info = 1;
+    int64 data = 2;
+  }
+
+  repeated Blob blobs = 4;
+
 }
