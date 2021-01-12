@@ -55,6 +55,8 @@ def run(rank, world_size):
     '''process
     '''
     setup(world_size, rank)
+    # new_group = dist.new_group([1, 2, 3])
+    # torch.cuda.set_device(rank)
     
     print(f'{dist.get_world_size()}, {dist.get_rank()} \n')
     print(f'args.local_rank: {args.local_rank}, rank: {rank}')
@@ -62,6 +64,9 @@ def run(rank, world_size):
     # if dist.get_rank() == 0: pass
     # model_to_save = model.module if hasattr(model, 'module') else model
  
+    # tensor_list = [torch.empty_like(tensor) for _ in range(dist.get_world_size())]
+    # dist.all_gather(tensor_list, tensor)
+
     cleanup()
 
 
