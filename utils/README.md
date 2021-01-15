@@ -4,4 +4,5 @@
 - [matplotlib](https://matplotlib.org/tutorials/index.html)
 - [pyecharts](https://github.com/pyecharts/pyecharts-gallery)
 - [pyxll](https://www.pyxll.com/blog/)
+- [youtube-dl](https://github.com/ytdl-org/youtube-dl)
 
