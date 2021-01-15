@@ -13,7 +13,6 @@ class Dependency:
 
 
 def to_numpy(data):
-    
     if isinstance(data, np.ndarray):
         return data.astype(np.float32)
     else:
@@ -32,7 +31,7 @@ class Tensor:
                 requires_grad: bool=False,
                 depends_on: List[Dependency] = None) -> None:
         
-        self.data = to_numpy(data)
+        self.data = to_numpy(data)        
         self.requires_grad = requires_grad
         self.depends_on = depends_on or []
         self.grad: 'Tensor' = None
@@ -45,13 +44,13 @@ class Tensor:
         return f'Tensor({self.data}, requires_grad={self.requires_grad})'
         
     def zero_grad(self, ) -> None:
-        self.grad = self.__class__(np.zeros_like(self.data))
+        self.grad = Tensor(np.zeros(self.shape)) # self.__class__
 
     def backward(self, grad: 'Tensor'=None) -> 'Tensor':
         assert self.requires_grad, f'requires_grad={self.requires_grad}'
         
         if grad is None:
-            grad = self.__class__(1.)
+            grad = Tensor(1.)
 
         self.grad.data += grad.data
 
@@ -88,6 +87,11 @@ class Tensor:
 
     def __getitem__(self, idx) -> 'Tensor':
         return op_slice(self, idx)
+
+    def __iadd__(self, other) -> None:
+        pass
+    def __isub__(self, other) -> None:
+        pass
 
 def op_sum(t: Tensor) -> Tensor:
     '''
@@ -218,7 +222,7 @@ def op_matmul(t1: Tensor, t2: Tensor) -> Tensor:
 def op_slice(t: Tensor, idx):
     '''
     '''
-    data = t.data[idx] # copy.deepcopy()
+    data = t.data[idx] # pointer # copy.deepcopy()
     requires_grad = t.requires_grad
     depends_on = []
 
@@ -237,3 +241,13 @@ def op_slice(t: Tensor, idx):
 # deepcopy
 # func_params and return value
 # reference
+
+"""
+def test_reference(x: np.ndarray) -> np.ndarray:
+    _x = x
+    return _x
+
+x = np.random.rand(3, 3)
+y = test_reference(x)
+assert x is y, 'x is y'
+"""
