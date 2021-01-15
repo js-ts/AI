@@ -43,6 +43,7 @@ def repr_string(layer:paddle.nn.Layer) -> str:
         _s = ''
         return '{}({})'.format(_get_name(layer), _s)
     
+    # Container
     elif _get_name(layer) in set(dir(paddle.nn)).difference(set(['Sequential', 'LayerList', 'ParameterList'])):
         _s = ''
         return '{}({})'.format(_get_name(layer), _s)
