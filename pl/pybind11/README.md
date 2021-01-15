@@ -2,6 +2,9 @@
 
 - git clone https://github.com/pybind/pybind11.git
 - pip install pytest
-- cmake .
+- mkdir build
+- cd build
+- cmake ..
+- cmake --build . --config Release --target check
 
 - python setup.py build_ext --inspace
