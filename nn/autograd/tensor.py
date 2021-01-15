@@ -1,4 +1,6 @@
 import numpy as np 
+import copy
+
 from dataclasses import dataclass
 
 from typing import Union, Callable, List
@@ -84,7 +86,8 @@ class Tensor:
     def __matmul__(self, other) -> 'Tensor':
         return op_matmul(self, to_tensor(other))
 
-
+    def __getitem__(self, idx) -> 'Tensor':
+        return op_slice(self, idx)
 
 def op_sum(t: Tensor) -> Tensor:
     '''
@@ -114,13 +117,10 @@ def op_add(t1: Tensor, t2: Tensor) -> Tensor:
             _extend = grad.ndim - t1.data.ndim
             for _ in range(_extend):
                 grad = grad.sum(axis=0)
-            
             for i, dim in enumerate(t1.shape):
                 if dim == 1:
                     grad = grad.sum(axis=i, keepdims=True)
-
             return grad
-
         depends_on.append(Dependency(t1, grad_fn1))
 
     if t2.requires_grad:
@@ -129,13 +129,10 @@ def op_add(t1: Tensor, t2: Tensor) -> Tensor:
             _extend = grad.ndim - t2.data.ndim
             for _ in range(_extend):
                 grad = grad.sum(axis=0)
-            
             for i, dim in enumerate(t2.shape):
                 if dim == 1:
                     grad = grad.sum(axis=i, keepdims=True)
-
             return grad
-
         depends_on.append(Dependency(t2, grad_fn2))
 
     return Tensor(data, requires_grad, depends_on)
@@ -171,26 +168,26 @@ def op_mul(t1: Tensor, t2: Tensor) -> Tensor:
 
     if t1.requires_grad:
         def grad_fn1(grad: np.ndarray) -> np.ndarray:
-            grad = grad * t2.data
-            _extend = grad.ndim - t1.data.ndim
+            _grad = grad * t2.data
+            _extend = _grad.ndim - t1.data.ndim
             for _ in range(_extend):
-                grad = grad.sum(axis=0)
+                _grad = _grad.sum(axis=0)
             for i, dim in enumerate(t1.shape):
                 if dim == 1:
-                    grad = grad.sum(axis=i, keepdims=True)
-            return grad
+                    _grad = _grad.sum(axis=i, keepdims=True)
+            return _grad
         depends_on.append(Dependency(t1, grad_fn1))
 
     if t2.requires_grad:
         def grad_fn2(grad: np.ndarray) -> np.ndarray:
-            grad = grad * t1.data
-            _extend = grad.ndim - t2.data.ndim
+            _grad = grad * t1.data
+            _extend = _grad.ndim - t2.data.ndim
             for _ in range(_extend):
-                grad = grad.sum(axis=0)
+                _grad = _grad.sum(axis=0)
             for i, dim in enumerate(t2.shape):
                 if dim == 1:
-                    grad = grad.sum(axis=i, keepdims=True)
-            return grad
+                    _grad = _grad.sum(axis=i, keepdims=True)
+            return _grad
         depends_on.append(Dependency(t2, grad_fn2))
     
     return Tensor(data, requires_grad, depends_on)
@@ -205,14 +202,38 @@ def op_matmul(t1: Tensor, t2: Tensor) -> Tensor:
 
     if t1.requires_grad:
         def grad_fn1(grad: np.ndarray) -> np.ndarray:
-            grad = grad @ t2.data.T
-            return grad
+            _grad = grad @ t2.data.T
+            return _grad
         depends_on.append(Dependency(t1, grad_fn1))
 
     if t2.requires_grad:
         def grad_fn2(grad: np.ndarray) -> np.ndarray:
-            grad = t1.data.T @ grad
-            return grad
+            _grad = t1.data.T @ grad
+            return _grad
         depends_on.append(Dependency(t2, grad_fn2))
 
     return Tensor(data, requires_grad, depends_on)
+
+
+def op_slice(t: Tensor, idx):
+    '''
+    '''
+    data = t.data[idx] # copy.deepcopy()
+    requires_grad = t.requires_grad
+    depends_on = []
+
+    if requires_grad:
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            _grad = np.zeros_like(t.data)
+            _grad[idx] = grad
+            return _grad
+
+        depends_on.append(Dependency(t, grad_fn))
+
+    return Tensor(data, requires_grad, depends_on)
+
+
+# TODO
+# deepcopy
+# func_params and return value
+# reference
