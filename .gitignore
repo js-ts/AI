@@ -5,3 +5,4 @@
 *.en
 *cache
 *vscode/*
+*pycache*
