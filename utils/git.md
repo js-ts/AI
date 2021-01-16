@@ -9,6 +9,7 @@
 - --global
 - git config user.name ""
 - git config user.email ""
+- git config --global core.editor "vim"
 
 ## folk
 - sync with orginal repo
@@ -25,5 +26,9 @@
 - git push 
 
 ## branch
-- git branch -d xxx
 - git checkout xxx
+- git branch -d xxx
+
+## commit
+- git commit -m ""
+- git commit --amend
