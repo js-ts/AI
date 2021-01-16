@@ -10,7 +10,10 @@ def tanh(t: Tensor) -> Tensor:
 
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
-            pass
+            '''tanh(x)
+            '''
+            return grad * (1 - data * data)
+            
         depends_on.append(Dependency(t, grad_fn))
     
     return Tensor(data, requires_grad, depends_on)

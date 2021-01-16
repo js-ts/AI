@@ -200,6 +200,7 @@ def op_mul(t1: Tensor, t2: Tensor) -> Tensor:
 def op_matmul(t1: Tensor, t2: Tensor) -> Tensor:
     '''t = t1 @ t2
     '''
+    print(t1.shape, t2.shape)
     data = t1.data @ t2.data
     requires_grad = t1.requires_grad or t2.requires_grad
     depends_on = []
