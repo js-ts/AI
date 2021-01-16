@@ -9,6 +9,13 @@
     - Static
     - Autograd
 
+- Test
+    - typing
+        - mypy ./static/ --ignore-missing-imports
+    - unittest
+        - pytest
+
+
 --- 
 Reference:
 - [Pytorch Autograd](https://pytorch.org/docs/stable/autograd.html)
