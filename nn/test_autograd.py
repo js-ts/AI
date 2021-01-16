@@ -47,4 +47,4 @@ for n, p in m.named_parameters():
 
 
 outp = Tanh()(outp)
-loss = outp.sum().backward()
+outp.sum().backward()
