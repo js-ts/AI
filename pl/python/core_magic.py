@@ -14,7 +14,7 @@ class TENSOR():
             
     def zero_grad(self, ) -> NoReturn:
         print(self.__class__)
-        # self.grad = self.__class__(0) # WRONG
+        # self.grad = self.__class__(0) # RecursionError: maximum recursion depth exceeded while calling a Python object
         self.grad = TENSOR(0)
         
 
