@@ -89,9 +89,12 @@ class Tensor:
         return op_slice(self, idx)
 
     def __iadd__(self, other) -> None:
-        pass
+        raise NotImplementedError
     def __isub__(self, other) -> None:
-        pass
+        raise NotImplementedError
+    def __abs__(self, ) -> None:
+        raise NotImplementedError
+
 
 def op_sum(t: Tensor) -> Tensor:
     '''
