@@ -1,8 +1,12 @@
 
 from typing import Any, NoReturn
 
+# __setattr__ 
+# __getattr__ 
+# __delattr__
 
-# -----__class__ 
+
+# __class__ 
 class TENSOR():
     def __init__(self, data: Any , requires_grad: bool=False) -> NoReturn:
         self.data = data
@@ -22,6 +26,7 @@ class PARAMETER(TENSOR):
     def __init__(self, data):
         data = data 
         super().__init__(data, requires_grad=True)
+
 
 
 if __name__ == '__main__':
