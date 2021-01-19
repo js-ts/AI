@@ -95,6 +95,12 @@ class Tensor:
     def __abs__(self, ) -> None:
         raise NotImplementedError
 
+    def is_leaf(self, ) -> bool:
+        if self.depends_on:
+            return False
+        else:
+            return True
+
 
 def op_sum(t: Tensor) -> Tensor:
     '''
