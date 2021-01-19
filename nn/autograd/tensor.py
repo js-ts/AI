@@ -95,6 +95,7 @@ class Tensor:
     def __abs__(self, ) -> None:
         raise NotImplementedError
 
+    @property
     def is_leaf(self, ) -> bool:
         if self.depends_on:
             return False

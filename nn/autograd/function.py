@@ -17,3 +17,14 @@ def tanh(t: Tensor) -> Tensor:
         depends_on.append(Dependency(t, grad_fn))
     
     return Tensor(data, requires_grad, depends_on)
+
+
+class Function(object):
+
+    @staticmethod
+    def forward(*data):
+        raise NotImplementedError('forward')
+
+    @staticmethod
+    def backward(*grad):
+        raise NotImplementedError('backward')
