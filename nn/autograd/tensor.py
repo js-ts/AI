@@ -2,8 +2,9 @@ import numpy as np
 import copy
 
 from dataclasses import dataclass
+from typing import Union, Callable, List, NoReturn
 
-from typing import Union, Callable, List
+from .engine import ExecutionEngine
 
 
 @dataclass
@@ -26,6 +27,9 @@ def to_tensor(data):
 
 
 class Tensor:
+
+    _engine = ExecutionEngine()
+
     def __init__(self,
                 data: Union[np.ndarray, list, float, int],
                 requires_grad: bool=False,
@@ -48,7 +52,9 @@ class Tensor:
 
     def backward(self, grad: 'Tensor'=None) -> 'Tensor':
         assert self.requires_grad, f'requires_grad={self.requires_grad}'
-        
+
+        # self._engine.run_backward(self, grad)     
+
         if grad is None:
             grad = Tensor(1.)
 
@@ -58,9 +64,14 @@ class Tensor:
             _grad = depend.grad_fn(grad.data)
             depend.tensor.backward(Tensor(_grad))
     
-    def sum(self, ) -> 'Tensor':
-        return op_sum(self)    
+    @property
+    def is_leaf(self, ) -> bool:
+        if self.depends_on:
+            return False
+        else:
+            return True
 
+    # magic method
     def __add__(self, other) -> 'Tensor':
         return op_add(self, to_tensor(other))
 
@@ -90,17 +101,26 @@ class Tensor:
 
     def __iadd__(self, other) -> None:
         raise NotImplementedError
+
     def __isub__(self, other) -> None:
         raise NotImplementedError
+
     def __abs__(self, ) -> None:
         raise NotImplementedError
 
-    @property
-    def is_leaf(self, ) -> bool:
-        if self.depends_on:
-            return False
-        else:
-            return True
+    # method
+    def sum(self, ) -> 'Tensor':
+        return op_sum(self)    
+    
+    # in-space
+    def add_(self, other: 'Tensor') -> None:
+        self.data += other.data
+
+    def sub_(self, other: 'Tensor') -> None:
+        raise NotImplementedError
+
+    def mul_(self, other: 'Tensor') -> None:
+        raise NotImplementedError
 
 
 def op_sum(t: Tensor) -> Tensor:
