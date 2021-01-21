@@ -1,6 +1,6 @@
 import inspect
 
-from .tensor import Tensor
+from .tensor import Tensor, tanh
 from .parameter import Parameter
 from .function import tanh
 
