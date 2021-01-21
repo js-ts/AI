@@ -23,11 +23,13 @@ class Module:
         for p in self.parameters():
             p.zero_grad()
     
-    def __call__(self, *input, **kwargs):
-        return self.forward(*input, **kwargs)
-        
     def forward(self, *input, **kwargs):
         raise NotImplementedError
+
+    # def __call__(self, *input, **kwargs):
+    #     return self.forward(*input, **kwargs)
+
+    __call__ = forward
 
     def __repr__(self, ):
         s = self._class_name
