@@ -32,3 +32,9 @@
 ## commit
 - git commit -m ""
 - git commit --amend
+
+
+## pull
+- Pull is not possible because you have unmerged files.
+- git reset --hard FETCH_HEAD
+- git pull
