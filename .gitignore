@@ -6,3 +6,4 @@
 *cache
 *vscode/*
 *pycache*
+*.ipynb_checkpoints*
