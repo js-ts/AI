@@ -1,10 +1,12 @@
 import numpy as np 
+from functools import reduce
+import operator
 import copy
 
 from dataclasses import dataclass
 from typing import Union, Callable, List, NoReturn
 
-from .engine import ExecutionEngine
+# from .engine import ExecutionEngine
 
 
 @dataclass
@@ -28,7 +30,7 @@ def to_tensor(data):
 
 class Tensor:
 
-    _engine = ExecutionEngine()
+    # _engine = ExecutionEngine()
 
     def __init__(self,
                 data: Union[np.ndarray, list, float, int],
@@ -93,6 +95,9 @@ class Tensor:
     def __rmul__(self, other) -> 'Tensor':
         return op_mul(to_tensor(other), self)
 
+    def __pow__(self, n: int) -> 'Tensor':
+        return op_pow(self, n)
+
     def __matmul__(self, other) -> 'Tensor':
         return op_matmul(self, to_tensor(other))
 
@@ -112,15 +117,18 @@ class Tensor:
     def sum(self, ) -> 'Tensor':
         return op_sum(self)    
     
+    def mean(self, ) -> 'Tensor':
+        return op_mean(self)
+
     # in-space
     def add_(self, other: 'Tensor') -> None:
         self.data += other.data
 
     def sub_(self, other: 'Tensor') -> None:
-        raise NotImplementedError
+        self.data -= other.data
 
     def mul_(self, other: 'Tensor') -> None:
-        raise NotImplementedError
+        self.data = self.data * other.data
 
 
 def op_sum(t: Tensor) -> Tensor:
@@ -133,6 +141,21 @@ def op_sum(t: Tensor) -> Tensor:
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
             return grad * np.ones_like(t.data)
+        depends_on.append(Dependency(t, grad_fn))
+
+    return Tensor(data, requires_grad, depends_on)
+
+
+def op_mean(t: Tensor) -> Tensor:
+    '''
+    '''
+    data = t.data.mean()
+    requires_grad = t.requires_grad
+    depends_on = []
+
+    if requires_grad:
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            return grad * np.ones_like(t.data) / reduce(operator.mul, t.shape)
         depends_on.append(Dependency(t, grad_fn))
 
     return Tensor(data, requires_grad, depends_on)
@@ -154,6 +177,7 @@ def op_add(t1: Tensor, t2: Tensor) -> Tensor:
             for i, dim in enumerate(t1.shape):
                 if dim == 1:
                     grad = grad.sum(axis=i, keepdims=True)
+            assert grad.shape == t1.shape, 'op_add'
             return grad
         depends_on.append(Dependency(t1, grad_fn1))
 
@@ -166,6 +190,7 @@ def op_add(t1: Tensor, t2: Tensor) -> Tensor:
             for i, dim in enumerate(t2.shape):
                 if dim == 1:
                     grad = grad.sum(axis=i, keepdims=True)
+            assert grad.shape == t2.shape, 'op_add'
             return grad
         depends_on.append(Dependency(t2, grad_fn2))
 
@@ -182,6 +207,22 @@ def op_neg(t: Tensor) -> Tensor:
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
             return -grad
+        depends_on.append(Dependency(t, grad_fn))
+    
+    return Tensor(data, requires_grad, depends_on)
+
+
+def op_pow(t: Tensor, n: int) -> Tensor:
+    '''x ^ n
+    '''
+    data = t.data ** n 
+    requires_grad = t.requires_grad
+    depends_on = []
+
+    if requires_grad:
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            return grad * (n * t.data ** (n-1))
+
         depends_on.append(Dependency(t, grad_fn))
     
     return Tensor(data, requires_grad, depends_on)
@@ -209,7 +250,9 @@ def op_mul(t1: Tensor, t2: Tensor) -> Tensor:
             for i, dim in enumerate(t1.shape):
                 if dim == 1:
                     _grad = _grad.sum(axis=i, keepdims=True)
+            assert _grad.shape == t1.shape, 'op_mul'
             return _grad
+        
         depends_on.append(Dependency(t1, grad_fn1))
 
     if t2.requires_grad:
@@ -221,6 +264,7 @@ def op_mul(t1: Tensor, t2: Tensor) -> Tensor:
             for i, dim in enumerate(t2.shape):
                 if dim == 1:
                     _grad = _grad.sum(axis=i, keepdims=True)
+            assert _grad.shape == t2.shape, 'op_mul'
             return _grad
         depends_on.append(Dependency(t2, grad_fn2))
     
@@ -230,21 +274,20 @@ def op_mul(t1: Tensor, t2: Tensor) -> Tensor:
 def op_matmul(t1: Tensor, t2: Tensor) -> Tensor:
     '''t = t1 @ t2
     '''
-    print(t1.shape, t2.shape)
     data = t1.data @ t2.data
     requires_grad = t1.requires_grad or t2.requires_grad
     depends_on = []
 
     if t1.requires_grad:
         def grad_fn1(grad: np.ndarray) -> np.ndarray:
-            _grad = grad @ t2.data.T
-            return _grad
+            grad = grad @ t2.data.T
+            return grad
         depends_on.append(Dependency(t1, grad_fn1))
 
     if t2.requires_grad:
         def grad_fn2(grad: np.ndarray) -> np.ndarray:
-            _grad = t1.data.T @ grad
-            return _grad
+            grad = t1.data.T @ grad
+            return grad
         depends_on.append(Dependency(t2, grad_fn2))
 
     return Tensor(data, requires_grad, depends_on)
@@ -282,6 +325,24 @@ def tanh(t: Tensor) -> Tensor:
         depends_on.append(Dependency(t, grad_fn))
     
     return Tensor(data, requires_grad, depends_on)
+
+
+def relu(t: Tensor) -> Tensor:
+    mask = np.ones_like(t.data)
+    mask[t.data < 0] = 0
+    data = t.data * mask
+    requires_grad = t.requires_grad
+    depends_on = []
+
+    if requires_grad:
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            '''relu(x)
+            '''
+            return grad * mask
+        depends_on.append(Dependency(t, grad_fn))
+    
+    return Tensor(data, requires_grad, depends_on)
+
 
 # TODO
 # deepcopy

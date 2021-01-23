@@ -1,17 +1,17 @@
 import inspect
 
-from .tensor import Tensor, tanh
+from .tensor import Tensor, tanh, relu
 from .parameter import Parameter
-from .function import tanh
 
 from typing import Iterable
 
 class Module:
 
     def named_parameters(self, ) -> Iterable[Parameter]:
+        prefix = self.__class__.__name__
         for name, value in inspect.getmembers(self):
             if isinstance(value, Parameter):
-                yield name, value
+                yield prefix + '.' + name, value
             elif isinstance(value, Module):
                 yield from value.named_parameters()
 
@@ -26,10 +26,9 @@ class Module:
     def forward(self, *input, **kwargs):
         raise NotImplementedError
 
-    # def __call__(self, *input, **kwargs):
-    #     return self.forward(*input, **kwargs)
-
-    __call__ = forward
+    # __call__ = forward # ERROR
+    def __call__(self, *input, **kwargs):
+        return self.forward(*input, **kwargs)
 
     def __repr__(self, ):
         s = self._class_name
@@ -62,6 +61,15 @@ class Tanh(Module):
 
     def forward(self, data: Tensor) -> Tensor:
         return tanh(data)
+        
+    def extra_repr(self, ):
+        return ''
+
+
+class ReLU(Module):
+
+    def forward(self, data: Tensor) -> Tensor:
+        return relu(data)
         
     def extra_repr(self, ):
         return ''

@@ -1,7 +1,7 @@
 import numpy as np
 
-from autograd.tensor import Tensor
-from autograd.tensor import Dependency
+from .tensor import Tensor
+from .tensor import Dependency
 
 
 class Function(object):
