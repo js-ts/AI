@@ -15,13 +15,29 @@ class Module:
             elif isinstance(value, Module):
                 yield from value.named_parameters()
 
+
     def parameters(self, ) -> Iterable[Parameter]:
         for _, p in self.named_parameters():
             yield p
     
+
+    def named_tensors(self, ) -> Iterable[Tensor]:
+        for name, value in inspect.getmembers(self):
+            if isinstance(value, Tensor):
+                yield name, value
+            elif isinstance(value, Module):
+                yield from value.named_tensors()
+
+
+    def tensors(self, ) -> Iterable[Tensor]:
+        for _, t in self.named_tensors():
+            yield t
+
+
     def zero_grad(self, ) -> None:
-        for p in self.parameters():
-            p.zero_grad()
+        for t in self.tensors():
+            t.zero_grad()
+
     
     def forward(self, *input, **kwargs):
         raise NotImplementedError
@@ -48,6 +64,7 @@ class Linear(Module):
         self.output_dim = output_dim
         self.w = Parameter(input_dim, output_dim)
         self.b = Parameter(output_dim)
+        self.b.zero_()
 
     def forward(self, data: Tensor) -> Tensor:
         out = data @ self.w + self.b

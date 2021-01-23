@@ -65,7 +65,7 @@ class Tensor:
         for depend in self.depends_on:
             _grad = depend.grad_fn(grad.data)
             depend.tensor.backward(Tensor(_grad))
-    
+
     @property
     def is_leaf(self, ) -> bool:
         if self.depends_on:
@@ -129,6 +129,9 @@ class Tensor:
 
     def mul_(self, other: 'Tensor') -> None:
         self.data = self.data * other.data
+
+    def zero_(self, ) -> None:
+        self.data = np.zeros_like(self.data)
 
 
 def op_sum(t: Tensor) -> Tensor:
