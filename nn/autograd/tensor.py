@@ -17,9 +17,9 @@ class Dependency:
 
 def to_numpy(data):
     if isinstance(data, np.ndarray):
-        return data.astype(np.float32)
+        return data.astype(np.float64)
     else:
-        return np.array(data).astype(np.float32)
+        return np.array(data).astype(np.float64)
 
 def to_tensor(data):
     if isinstance(data, Tensor):
@@ -49,9 +49,13 @@ class Tensor:
     def __repr__(self, ):
         return f'Tensor({self.data}, requires_grad={self.requires_grad})'
         
+    # # self.__class__
     def zero_grad(self, ) -> None:
-        self.grad = Tensor(np.zeros(self.shape)) # self.__class__
-
+        if self.grad == None:
+            self.grad = Tensor(np.zeros(self.shape)) 
+        else:
+            self.grad.zero_()
+        
     def backward(self, grad: 'Tensor'=None) -> 'Tensor':
         assert self.requires_grad, f'requires_grad={self.requires_grad}'
 
@@ -128,10 +132,11 @@ class Tensor:
         self.data -= other.data
 
     def mul_(self, other: 'Tensor') -> None:
-        self.data = self.data * other.data
+        self.data *= other.data
 
     def zero_(self, ) -> None:
-        self.data = np.zeros_like(self.data)
+        # self.data = np.zeros_like(self.data)
+        self.data[...] = 0
 
 
 def op_sum(t: Tensor) -> Tensor:

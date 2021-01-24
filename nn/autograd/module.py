@@ -64,7 +64,7 @@ class Linear(Module):
         self.output_dim = output_dim
         self.w = Parameter(input_dim, output_dim)
         self.b = Parameter(output_dim)
-        self.b.zero_()
+        # self.b.zero_()
 
     def forward(self, data: Tensor) -> Tensor:
         out = data @ self.w + self.b
