@@ -137,14 +137,18 @@ class ExecuteEngine(object):
         raise NotImplementedError
 
 
-    def _backward(self, var, grad):
+    def _backward_var(self, var, grad):
         ''' '''
         var.grad += grad
         grads_input = var.creator._do_backward(grad)
         for _i, _grad in enumerate(grads_input):
             # var.creator.previous_functions[_i][0]._do_backward(_grad)
-            self._backward(var.creator.inputs[_i], _grad)
+            self._backward_var(var.creator.inputs[_i], _grad)
 
+    def _backward_fn(self, creator, grad):
+        grads_input = creator._do_backward(grad)
+        for _i, _grad in enumerate(grads_input):
+            self._backward_fn(creator.previous_functions[_i][0], _grad)
 
 
 class Variable(object):
@@ -153,15 +157,18 @@ class Variable(object):
     
     def __init__(self, data, creator=None, requires_grad=False):
         if creator is None:
-            creator = Leaf(data, requires_grad)
+            creator = Leaf(self, requires_grad)
         self.data = data
         self.creator = creator
-        self.grad = None   
+        self.grad = None
+
+        if isinstance(creator, Leaf) and requires_grad:
+            self.grad = np.zeros_like(data)
 
     def backward(self, grad):
         if grad is None:
             grad = 1.
-        self._engine._backward(self, grad)
+        self._engine._backward_fn(self.creator, grad)
 
     def add(self, other):
         return Add()(self, other)[0]
@@ -198,7 +205,8 @@ class Leaf(Function):
 
     def _do_backward(self, *grad_output):
         assert len(grad_output) == 1
-        # self.variable.grad.add_(grad_output[0])
+        if self.requires_grad:
+            self.variable.grad += grad_output[0]
         return tuple()
 
 
