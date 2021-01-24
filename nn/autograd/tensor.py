@@ -319,6 +319,8 @@ def op_slice(t: Tensor, idx):
     return Tensor(data, requires_grad, depends_on)
 
 
+# functional
+
 def tanh(t: Tensor) -> Tensor:
     data = np.tanh(t.data)
     requires_grad = t.requires_grad
@@ -350,6 +352,23 @@ def relu(t: Tensor) -> Tensor:
         depends_on.append(Dependency(t, grad_fn))
     
     return Tensor(data, requires_grad, depends_on)
+
+
+def sigmoid(t: Tensor) -> Tensor:
+
+    data = 1. / (1. + np.exp(-t.data))
+    requires_grad = t.requires_grad
+    depends_on = []
+
+    if requires_grad:
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            return data * (1 - data)
+
+        depends_on.append(Dependency(t, grad_fn))
+
+    return Tensor(data, requires_grad, depends_on)
+
+
 
 
 # TODO
