@@ -22,6 +22,13 @@ class Function(object):
         self.inputs = inputs # for backword
 
         unpacked_input = tuple(arg.data for arg in inputs)
+        # unpacked_input = []
+        # for var in inputs:
+        #     if isinstance(var, Variable):
+        #         unpacked_input.append(var.data)
+        #     else:
+        #         unpacked_input.append(var)
+
         raw_output = self.forward(*unpacked_input)
 
         if not isinstance(raw_output, tuple):
@@ -148,23 +155,29 @@ class ExecuteEngine(object):
     def _backward_fn(self, creator, grad):
         grads_input = creator._do_backward(grad)
         for _i, _grad in enumerate(grads_input):
-            self._backward_fn(creator.previous_functions[_i][0], _grad)
+            if _grad is not None:
+                self._backward_fn(creator.previous_functions[_i][0], _grad)
 
 
 # --- utils
 def to_tensor(data):
-    return np.array(data).asdtype(np.float64)
+    return np.array(data).astype(np.float64)
 
 def to_variable(data):
+    '''make sure data is variable'''
     if isinstance(data, int):
-        data = to_tensor([data])
+        data = to_tensor(data)
         return Variable(data)
+
     elif isinstance(data, list):
         data = to_tensor(data)
         return Variable(data)
+
     elif isinstance(data, Tensor):
         return Variable(data)
-
+        
+    elif isinstance(data, Variable):
+        return data
 # ---
 
 
@@ -184,9 +197,9 @@ class Variable(object):
         if isinstance(creator, Leaf) and requires_grad:
             self.grad = np.zeros_like(data)
 
-    def backward(self, grad):
-        if grad is None:
-            grad = 1.
+    def backward(self, grad=1.):
+        # if grad is None:
+        #     grad = 1.
         self._engine._backward_fn(self.creator, grad)
 
     def add(self, other):
@@ -211,6 +224,7 @@ class Variable(object):
         return Mean()(self)[0]
 
     def pow(self, n):
+        n = to_variable(n)
         return Pow()(self, n)[0]
 
     def exp(self, ):
@@ -222,7 +236,7 @@ class Variable(object):
     def tanh(self, ):
         return Tanh()(self)[0]
 
-    def matmul(self, other: Variable) -> Variable:
+    def matmul(self, other: 'Variable') -> 'Variable':
         return Matmul()(self, other)[0]
     
     # magic method
@@ -244,14 +258,26 @@ class Variable(object):
     def __matmul__(self, other):
         return self.matmul(other)
     
-    # def __radd__(self, other):
-    #     return other.add(self)
+    def __radd__(self, other):
+        other = to_variable(other)
+        return other.add(self)
         
-    # def __rsub__(self, other):
-    #     return other.sub(self)
+    def __rsub__(self, other):
+        other = to_variable(other)
+        return other.sub(self)
     
-    # def __rmul__(self, other):
-    #     return other.mul(self)
+    def __rmul__(self, other):
+        other = to_variable(other)
+        return other.mul(self)
+
+    def __iadd__(self, other):
+        raise NotImplementedError
+
+    def __isub__(self, other):
+        raise NotImplementedError
+
+    def __imul__(self, other):
+        raise NotImplementedError
 
 # ====
 class Parameter(Variable):
@@ -277,14 +303,14 @@ class Leaf(Function):
     def _do_backward(self, *grad_output):
         assert len(grad_output) == 1
         if self.requires_grad:
-            self.variable.grad += grad_output 
+            self.variable.grad += grad_output[0]
         return tuple()
 
 
 def broadcast_reverse(grad: Tensor, shape: Tuple[int]) -> Tensor: 
     '''reverse grad to shape
     '''
-    _extdims = grad.ndims - len(shape)
+    _extdims = grad.ndim - len(shape)
     for _ in range(_extdims):
         grad = grad.sum(axis=0)
     assert len(grad.shape) == len(shape), ''
@@ -369,13 +395,13 @@ class Mean(Function):
 
 class Pow(Function):
     """pow """
-    def forward(self, t: Tensor, n: int):
+    def forward(self, t, n):
         self.t = t
         self.n = n
         return t ** n
 
     def backward(self, grad: Tensor):
-        return grad * self.n * (self.t ** (self.n-1))
+        return grad * self.n * (self.t ** (self.n-1)), None
 
 
 class Exp(Function):
