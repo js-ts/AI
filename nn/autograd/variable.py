@@ -198,9 +198,14 @@ class Variable(object):
             self.grad = np.zeros_like(data)
 
     def backward(self, grad=1.):
-        # if grad is None:
-        #     grad = 1.
         self._engine._backward_fn(self.creator, grad)
+
+    def register_hook(self, name, hook):
+        self.creator.register_hook(name, hook)
+    
+    def remove_hook(self, name):
+        self.creator.remove_hook(name)
+
 
     def add(self, other):
         other = to_variable(other)
@@ -258,6 +263,7 @@ class Variable(object):
     def __matmul__(self, other):
         return self.matmul(other)
     
+    # __radd__ = __add__
     def __radd__(self, other):
         other = to_variable(other)
         return other.add(self)
@@ -278,6 +284,10 @@ class Variable(object):
 
     def __imul__(self, other):
         raise NotImplementedError
+
+    def __getitem__(self, idx):
+        return Getitem(idx)(self)[0]
+
 
 # ====
 class Parameter(Variable):
@@ -461,3 +471,18 @@ class Matmul(Function):
     def backward(self, grad: Tensor) -> Tuple[Tensor]:
         return grad @ self.t2.T, self.t1.T @ grad
     
+
+class Getitem(Function):
+    """getitem"""
+    def __init__(self, index):
+        self.index = index
+        super().__init__()
+    
+    def forward(self, t: Tensor):
+        self.t_shape = t.shape
+        return t[self.index]
+    
+    def backward(self, grad):
+        _grad = np.zeros(shape=self.t_shape)
+        _grad[self.index] = grad
+        return _grad
