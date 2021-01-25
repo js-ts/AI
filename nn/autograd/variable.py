@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import ndarray as Tensor 
 
-from typing import Any
+from typing import Any, Tuple, Optional
 from collections import OrderedDict, Counter
 
 from functools import reduce
@@ -151,6 +151,23 @@ class ExecuteEngine(object):
             self._backward_fn(creator.previous_functions[_i][0], _grad)
 
 
+# --- utils
+def to_tensor(data):
+    return np.array(data).asdtype(np.float64)
+
+def to_variable(data):
+    if isinstance(data, int):
+        data = to_tensor([data])
+        return Variable(data)
+    elif isinstance(data, list):
+        data = to_tensor(data)
+        return Variable(data)
+    elif isinstance(data, Tensor):
+        return Variable(data)
+
+# ---
+
+
 class Variable(object):
 
     _engine = ExecuteEngine()
@@ -160,8 +177,10 @@ class Variable(object):
             creator = Leaf(self, requires_grad)
         self.data = data
         self.creator = creator
+        self.shape = self.data.shape
+        self.requires_grad = self.creator.requires_grad
+        
         self.grad = None
-
         if isinstance(creator, Leaf) and requires_grad:
             self.grad = np.zeros_like(data)
 
@@ -171,7 +190,19 @@ class Variable(object):
         self._engine._backward_fn(self.creator, grad)
 
     def add(self, other):
+        other = to_variable(other)
         return Add()(self, other)[0]
+    
+    def neg(self, ):
+        return Neg()(self)[0]
+
+    def sub(self, other):
+        other = to_variable(other)
+        return self.add(other.neg())
+
+    def mul(self, other):
+        other = to_variable(other)
+        return Mul()(self, other)[0]
 
     def sum(self, ):
         return Sum()(self)[0]
@@ -179,8 +210,48 @@ class Variable(object):
     def mean(self, ):
         return Mean()(self)[0]
 
+    def pow(self, n):
+        return Pow()(self, n)[0]
+
+    def exp(self, ):
+        return Exp()(self)[0]
+
+    def sigmoid(self, ):
+        return Sigmoid()(self)[0]
+
+    def tanh(self, ):
+        return Tanh()(self)[0]
+
+    def matmul(self, other: Variable) -> Variable:
+        return Matmul()(self, other)[0]
+    
+    # magic method
     def __add__(self, other):
         return self.add(other)
+
+    def __neg__(self, ):
+        return self.neg()
+
+    def __sub__(self, other):
+        return self.sub(other)
+
+    def __pow__(self, n):
+        return self.pow(n)
+    
+    def __mul__(self, other):
+        return self.mul(other)
+
+    def __matmul__(self, other):
+        return self.matmul(other)
+    
+    # def __radd__(self, other):
+    #     return other.add(self)
+        
+    # def __rsub__(self, other):
+    #     return other.sub(self)
+    
+    # def __rmul__(self, other):
+    #     return other.mul(self)
 
 # ====
 class Parameter(Variable):
@@ -198,7 +269,7 @@ class Leaf(Function):
         self.output_ids = {id(variable): 0}
         self.previous_functions = []
         self.requires_grad = requires_grad
-        self.backward_hooks = OrderedDict()
+        # self.backward_hooks = OrderedDict()
 
     def _do_forward(self, *input):
         raise NotImplementedError
@@ -206,21 +277,77 @@ class Leaf(Function):
     def _do_backward(self, *grad_output):
         assert len(grad_output) == 1
         if self.requires_grad:
-            self.variable.grad += grad_output[0]
+            self.variable.grad += grad_output 
         return tuple()
 
 
-class Add(Function):
+def broadcast_reverse(grad: Tensor, shape: Tuple[int]) -> Tensor: 
+    '''reverse grad to shape
+    '''
+    _extdims = grad.ndims - len(shape)
+    for _ in range(_extdims):
+        grad = grad.sum(axis=0)
+    assert len(grad.shape) == len(shape), ''
 
+    for i, d in enumerate(shape):
+        if d == 1:
+            grad = grad.sum(axis=i, keepdims=True)
+    assert grad.shape == shape, ''
+    
+    return grad
+
+
+class Add(Function):
+    """add
+    broadcast
+    [1, 3] + [2, 4, 3] -> [2, 4, 3]
+    """
     def forward(self, a, b):
-        return a + b
+        c = a + b
+        self.a_shape = a.shape
+        self.b_shape = b.shape
+        self.c_shape = c.shape
+        return c
 
     def backward(self, grad):
-        return grad, grad
+        assert self.c_shape == grad.shape, ''
+        a_grad = broadcast_reverse(grad, self.a_shape)
+        b_grad = broadcast_reverse(grad, self.b_shape)
+
+        return a_grad, b_grad
+
+
+class Neg(Function):
+    """
+    -t 
+    """
+    def forward(self, t: Tensor) -> Tensor:
+        return -t 
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return -grad
+
+
+class Mul(Function):
+    """MUL"""
+    def forward(self, a: Tensor, b: Tensor) -> Tensor:
+        c = a * b
+        self.a = a
+        self.b = b
+        self.c_shape = c.shape
+        return c
+    
+    def backward(self, grad):
+        assert self.c_shape == grad.shape
+        a_grad = broadcast_reverse(grad * self.b, self.a.shape)
+        b_grad = broadcast_reverse(grad * self.a, self.b.shape)
+
+        return a_grad, b_grad
+
 
 
 class Sum(Function):
-
+    """ sum """
     def forward(self, t: Tensor):
         self.t = t
         return t.sum()
@@ -231,7 +358,7 @@ class Sum(Function):
 
 
 class Mean(Function):
-
+    """ mean """
     def forward(self, t: Tensor):
         self.t = t
         return t.mean()
@@ -239,3 +366,72 @@ class Mean(Function):
     def backward(self, grad: Tensor):
         return grad * np.ones_like(self.t) / reduce(operator.mul, self.t.shape)
 
+
+class Pow(Function):
+    """pow """
+    def forward(self, t: Tensor, n: int):
+        self.t = t
+        self.n = n
+        return t ** n
+
+    def backward(self, grad: Tensor):
+        return grad * self.n * (self.t ** (self.n-1))
+
+
+class Exp(Function):
+    """exp """
+    def forward(self, t: Tensor) -> Tensor:
+        self.out = np.exp(t)
+        return self.out
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return grad * self.out
+
+
+class Sigmoid(Function):
+    """sigmoid """
+    def forward(self, t: Tensor):
+        self.out = 1. / (1. + np.exp(-t)) 
+        return self.out
+    
+    def backward(self, grad):
+        return grad * self.out / (1. - self.out + 1e-10)
+
+
+class ReLU(Function):
+    """relu """ 
+    def forward(self, t: Tensor) -> Tensor:
+        self.mask = t > 0
+        return t * self.mask
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return grad * self.mask
+
+
+class Tanh(Function):
+    """
+    formul: (exp(x) + exp(-x)) / (exp(x) - exp(-x))
+    derive : 1 - tanh(x) ** 2
+    """
+    def forward(self, t: Tensor) -> Tensor:
+        self.out = np.tanh(t)
+        return self.out
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return grad  * (1 - self.out ** 2)
+
+
+class Matmul(Function):
+    """
+    t1 @ t2 [2, 3] [3, 5] -> [2, 5]
+    grad @ t2.T [2, 5] [5, 3] -> [2, 3]
+    t1.T @ grad [3, 2] [2, 5] -> [3, 5]
+    """
+    def forward(self, t1: Tensor, t2: Tensor) -> Tensor:
+        self.t1 = t1
+        self.t2 = t2
+        return t1 @ t2
+    
+    def backward(self, grad: Tensor) -> Tuple[Tensor]:
+        return grad @ self.t2.T, self.t1.T @ grad
+    
