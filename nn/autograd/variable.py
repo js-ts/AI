@@ -165,11 +165,11 @@ def to_tensor(data):
 
 def to_variable(data):
     '''make sure data is variable'''
-    if isinstance(data, int):
+    if isinstance(data, (int, float)):
         data = to_tensor(data)
         return Variable(data)
 
-    elif isinstance(data, list):
+    elif isinstance(data, (list, tuple)):
         data = to_tensor(data)
         return Variable(data)
 
@@ -206,6 +206,9 @@ class Variable(object):
     def remove_hook(self, name):
         self.creator.remove_hook(name)
 
+    def reshape(self, *shape):
+        return Reshape(*shape)(self)[0]
+
 
     def add(self, other):
         other = to_variable(other)
@@ -216,11 +219,16 @@ class Variable(object):
 
     def sub(self, other):
         other = to_variable(other)
-        return self.add(other.neg())
+        # return self.add(other.neg())
+        return Sub()(self, other)[0]
 
     def mul(self, other):
         other = to_variable(other)
         return Mul()(self, other)[0]
+
+    def div(self, other):
+        other = to_variable(other)
+        return Div()(self, other)[0]
 
     def sum(self, ):
         return Sum()(self)[0]
@@ -257,6 +265,10 @@ class Variable(object):
     def __pow__(self, n):
         return self.pow(n)
     
+    def __div__(self, other):
+        return self.div(other)
+    __truediv__ = __div__
+
     def __mul__(self, other):
         return self.mul(other)
 
@@ -276,6 +288,11 @@ class Variable(object):
         other = to_variable(other)
         return other.mul(self)
 
+    def __rdiv__(self, other):
+        other = to_variable(other)
+        return other.div(self)
+    __rtruediv__ = __rdiv__
+    
     def __iadd__(self, other):
         raise NotImplementedError
 
@@ -364,6 +381,20 @@ class Neg(Function):
         return -grad
 
 
+class Sub(Function):
+    """a-b
+    """
+    def forward(self, a: Tensor, b: Tensor) -> Tensor:
+        self.a_shape = a.shape
+        self.b_shape = b.shape
+        return a - b
+
+    def backward(self, grad):
+        a_grad = broadcast_reverse( grad, self.a_shape)
+        b_grad = broadcast_reverse(-grad, self.b_shape)
+        return a_grad, b_grad 
+
+
 class Mul(Function):
     """MUL"""
     def forward(self, a: Tensor, b: Tensor) -> Tensor:
@@ -380,6 +411,20 @@ class Mul(Function):
 
         return a_grad, b_grad
 
+
+class Div(Function):
+    """div
+    """
+    def forward(self, a: Tensor, b: Tensor) -> Tensor:
+        # np.testing.assert_almost_equal(b, 0)
+        self.a = a
+        self.b = b
+        return a / (b + 1e-20)
+    
+    def backward(self, grad: Tensor):
+        a_grad = grad / self.b
+        b_grad = -grad * self.a / (self.b ** 2)
+        return a_grad, b_grad
 
 
 class Sum(Function):
@@ -404,14 +449,18 @@ class Mean(Function):
 
 
 class Pow(Function):
-    """pow """
+    """pow 
+    x^n -> n * (x ^ (n-1))
+    n^x -> ln(y) = x*len(n) -> y' = y * ln(n)
+    """
     def forward(self, t, n):
         self.t = t
         self.n = n
-        return t ** n
+        self.o = t ** n
+        return self.o
 
     def backward(self, grad: Tensor):
-        return grad * self.n * (self.t ** (self.n-1)), None
+        return grad * self.n * (self.t ** (self.n-1)), grad * self.o * np.log(self.t)
 
 
 class Exp(Function):
@@ -486,3 +535,17 @@ class Getitem(Function):
         _grad = np.zeros(shape=self.t_shape)
         _grad[self.index] = grad
         return _grad
+
+
+class Reshape(Function):
+    def __init__(self, *shape):
+        self.shape = shape
+        super().__init__()
+    
+    def forward(self, t: Tensor) -> Tensor:
+        self.t_shape = t.shape
+        return t.reshape(*self.shape)
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        grad = grad[...]
+        return grad.reshape(*self.t_shape)
