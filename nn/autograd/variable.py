@@ -264,6 +264,8 @@ class Variable(object):
     def T(self, ):
         return self.t()
 
+    def transpose(self, *dims):
+        return Transpose(*dims)(self)[0]
 
     # magic method
     def __add__(self, other):
@@ -531,7 +533,7 @@ class Reshape(Function):
         return t.reshape(*self.shape)
     
     def backward(self, grad: Tensor) -> Tensor:
-        grad = grad[...]
+        # grad = grad[...]
         return grad.reshape(*self.t_shape)
 
 
@@ -541,7 +543,7 @@ class Transpose(Function):
         self.dims = dims
     
     def forward(self, t: Tensor):
-        assert self.dims == len(t.shape)
+        assert len(self.dims) == len(t.shape)
         return t.transpose(*self.dims)
     
     def backward(self, grad: Tensor):
@@ -663,7 +665,11 @@ class op_conv2d(Function):
 
         output = (matrix @ weight).reshape(n, out_h, out_w, c_out).transpose(0, 3, 1, 2)
         
-        return output + bias.reshape(1, -1, 1, 1)
+        if bias is not None:
+            return output + bias.reshape(1, -1, 1, 1)
+        else:
+            return output
+
 
     def backward(self, grad: Tensor):
         '''grad n cout hout wout
@@ -865,8 +871,11 @@ class Conv2d(Module):
         weight_init = np.random.uniform(low=-k, high=k, size=(out_channels, int(in_channels/groups), kernel_size[0], kernel_size[1]))
         self.weight = Parameter(data=weight_init)
         
-        bias_init = np.random.uniform(low=-k, high=k, size=(self.out_channels, ))
-        self.bias = Parameter(data=bias_init)
+        if bias:
+            bias_init = np.random.uniform(low=-k, high=k, size=(self.out_channels, ))
+            self.bias = Parameter(data=bias_init)
+        else:
+            self.bias = None
 
     def forward(self, data):
         return op_conv2d(self.kernel_size, self.stride, self.padding)(data, self.weight, self.bias)[0]
