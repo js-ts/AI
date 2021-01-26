@@ -214,8 +214,15 @@ class Variable(object):
     def remove_hook(self, name):
         self.creator.remove_hook(name)
 
+
     def reshape(self, *shape):
         return Reshape(*shape)(self)[0]
+
+    def transpose(self, *dims):
+        return Transpose(*dims)(self)[0]
+
+    def t(self, ):
+        raise NotImplementedError
 
 
     def add(self, other):
@@ -238,18 +245,26 @@ class Variable(object):
         other = to_variable(other)
         return Div()(self, other)[0]
 
-    def sum(self, axis=None):
-        return Sum(axis)(self)[0]
-    
-    def mean(self, axis=None):
-        return Mean(axis)(self)[0]
+    def matmul(self, other: 'Variable') -> 'Variable':
+        return Matmul()(self, other)[0]
 
     def pow(self, n):
-        n = to_variable(n)
-        return Pow()(self, n)[0]
+        # n = to_variable(n)
+        return Pow(n)(self)[0]
+
+    def sqrt(self, ):
+        return Pow(1/2.)(self)[0]
 
     def exp(self, ):
         return Exp()(self)[0]
+
+
+    def sum(self, axis=None, keepdims=False):
+        return Sum(axis, keepdims)(self)[0]
+    
+    def mean(self, axis=None, keepdims=False):
+        return Mean(axis, keepdims)(self)[0]
+
 
     def sigmoid(self, ):
         return op_sigmoid()(self)[0]
@@ -257,18 +272,6 @@ class Variable(object):
     def tanh(self, ):
         return op_tanh()(self)[0]
 
-    def matmul(self, other: 'Variable') -> 'Variable':
-        return Matmul()(self, other)[0]
-    
-    def t(self, ):
-        raise NotImplementedError
-
-    @staticmethod
-    def T(self, ):
-        return self.t()
-
-    def transpose(self, *dims):
-        return Transpose(*dims)(self)[0]
 
     # magic method
     def __add__(self, other):
@@ -280,11 +283,15 @@ class Variable(object):
     def __sub__(self, other):
         return self.sub(other)
 
-    def __pow__(self, n):
+    def __pow__(self, n): # x ** n
         return self.pow(n)
     
+    def __rpow__(self, a): # a ** x
+        return RPow(a)(self)[0]
+
     def __div__(self, other):
         return self.div(other)
+        
     __truediv__ = __div__
 
     def __mul__(self, other):
@@ -472,22 +479,26 @@ class Max(Function):
 class Sum(Function):
     """ sum 
     """
-    def __init__(self, axis):
+    def __init__(self, axis, keepdims):
         if isinstance(axis, int):
             axis = (axis, )
         self.axis = axis
+        self.keepdims = keepdims
 
     def forward(self, t: Tensor):
         self.t_shape = t.shape
-        return t.sum(self.axis)
+        return t.sum(self.axis, keepdims=self.keepdims)
 
     def backward(self, grad: Tensor):
         if self.axis is None:
             self.axis = tuple(range(len(self.t_shape)))
 
-        shape = list(self.t_shape)
-        for ax in self.axis:
-            shape[ax] = 1
+        if self.keepdims:
+            shape = grad.shape
+        else:
+            shape = list(self.t_shape)
+            for ax in self.axis:
+                shape[ax] = 1
         
         return grad.reshape(shape) * np.ones(self.t_shape)
 
@@ -495,22 +506,26 @@ class Sum(Function):
 class Mean(Function):
     """ mean
     """
-    def __init__(self, axis):
+    def __init__(self, axis, keepdims):
         if isinstance(axis, int):
             axis = (axis, )
         self.axis = axis 
+        self.keepdims = keepdims
 
     def forward(self, t: Tensor):
         self.t_shape = t.shape
-        return t.mean(self.axis)
+        return t.mean(self.axis, keepdims=self.keepdims)
     
     def backward(self, grad: Tensor):
         if self.axis is None:
             self.axis = tuple(range(len(self.t_shape)))
 
-        shape = list(self.t_shape)
-        for ax in self.axis:
-            shape[ax] = 1
+        if self.keepdims:
+            shape = grad.shape
+        else:
+            shape = list(self.t_shape)
+            for ax in self.axis:
+                shape[ax] = 1
         
         ks = [self.t_shape[i] for i in self.axis]
         return grad.reshape(shape) * np.ones(self.t_shape) / reduce(operator.mul, ks)
@@ -521,18 +536,34 @@ class Pow(Function):
     x^n -> n * (x ^ (n-1))
     n^x -> ln(y) = x*len(n) -> y' = y * ln(n)
     """
-    def forward(self, t, n):
+    def __init__(self, n):
+        self.n = n 
+
+    def forward(self, t):
         self.t = t
-        self.n = n
-        self.o = t ** n
-        return self.o
+        # self.o = t ** n
+        return t ** self.n
 
     def backward(self, grad: Tensor):
-        return grad * self.n * (self.t ** (self.n-1)), None # grad * self.o * np.log(self.t + 1e-15)
+        return grad * self.n * (self.t ** (self.n-1))
+        # grad * self.o * np.log(self.t + 1e-15)
 
+
+class RPow(Function):
+    def __init__(self, a):
+        self.a = a
+
+    def forward(self, t: Tensor):
+        self.t = t
+        self.out = self.a ** t 
+        return self.out
+    
+    def backward(self, grad: Tensor):
+        return grad * self.out * np.log(self.t + 1e-10)
 
 class Exp(Function):
-    """exp """
+    """exp 
+    """
     def forward(self, t: Tensor) -> Tensor:
         self.out = np.exp(t)
         return self.out
@@ -990,6 +1021,7 @@ class op_bn(Function):
         self.normed = normed
 
         if self.track_running_stats:
+            # modify inference
             self.running_mean *= (1 - self.momentum) + mean * self.momentum
             self.running_var *= (1 - self.momentum) + var * self.momentum
 
