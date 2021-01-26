@@ -6,6 +6,8 @@ from collections import OrderedDict, Counter
 
 from functools import reduce
 import operator
+import inspect
+import math
 
 
 class Function(object):
@@ -200,6 +202,9 @@ class Variable(object):
     def backward(self, grad=1.):
         self._engine._backward_fn(self.creator, grad)
 
+    def zero_grad(self, ):
+        self.grad[...] = 0
+
     def register_hook(self, name, hook):
         self.creator.register_hook(name, hook)
     
@@ -244,14 +249,22 @@ class Variable(object):
         return Exp()(self)[0]
 
     def sigmoid(self, ):
-        return Sigmoid()(self)[0]
+        return op_sigmoid()(self)[0]
 
     def tanh(self, ):
-        return Tanh()(self)[0]
+        return op_tanh()(self)[0]
 
     def matmul(self, other: 'Variable') -> 'Variable':
         return Matmul()(self, other)[0]
     
+    def t(self, ):
+        raise NotImplementedError
+
+    @staticmethod
+    def T(self, ):
+        return self.t()
+
+
     # magic method
     def __add__(self, other):
         return self.add(other)
@@ -292,7 +305,8 @@ class Variable(object):
         other = to_variable(other)
         return other.div(self)
     __rtruediv__ = __rdiv__
-    
+
+
     def __iadd__(self, other):
         raise NotImplementedError
 
@@ -309,8 +323,9 @@ class Variable(object):
 # ====
 class Parameter(Variable):
 
-    def __init__(self, *shape):
-        data = np.random.rand(shape) * 2 - 1
+    def __init__(self, *shape, data=None):
+        if shape:
+            data = np.random.rand(shape) * 2 - 1
         super().__init__(data, requires_grad=True)
 
 
@@ -349,6 +364,8 @@ def broadcast_reverse(grad: Tensor, shape: Tuple[int]) -> Tensor:
     
     return grad
 
+
+# operations
 
 class Add(Function):
     """add
@@ -430,12 +447,12 @@ class Div(Function):
 class Sum(Function):
     """ sum """
     def forward(self, t: Tensor):
-        self.t = t
+        self.t_shape = t.shape
         return t.sum()
 
     def backward(self, grad: Tensor):
         print('mean')
-        return grad * np.ones_like(self.t)
+        return grad * np.ones(self.t_shape)
 
 
 class Mean(Function):
@@ -471,39 +488,6 @@ class Exp(Function):
     
     def backward(self, grad: Tensor) -> Tensor:
         return grad * self.out
-
-
-class Sigmoid(Function):
-    """sigmoid """
-    def forward(self, t: Tensor):
-        self.out = 1. / (1. + np.exp(-t)) 
-        return self.out
-    
-    def backward(self, grad):
-        return grad * self.out / (1. - self.out + 1e-10)
-
-
-class ReLU(Function):
-    """relu """ 
-    def forward(self, t: Tensor) -> Tensor:
-        self.mask = t > 0
-        return t * self.mask
-    
-    def backward(self, grad: Tensor) -> Tensor:
-        return grad * self.mask
-
-
-class Tanh(Function):
-    """
-    formul: (exp(x) + exp(-x)) / (exp(x) - exp(-x))
-    derive : 1 - tanh(x) ** 2
-    """
-    def forward(self, t: Tensor) -> Tensor:
-        self.out = np.tanh(t)
-        return self.out
-    
-    def backward(self, grad: Tensor) -> Tensor:
-        return grad  * (1 - self.out ** 2)
 
 
 class Matmul(Function):
@@ -549,3 +533,267 @@ class Reshape(Function):
     def backward(self, grad: Tensor) -> Tensor:
         grad = grad[...]
         return grad.reshape(*self.t_shape)
+
+
+class Transpose(Function):
+    def __init__(self, *dims):
+        super().__init__()
+        self.dims = dims
+    
+    def forward(self, t: Tensor):
+        assert self.dims == len(t.shape)
+        return t.transpose(*self.dims)
+    
+    def backward(self, grad: Tensor):
+        idx_reverse = np.argsort(self.dims)
+        return grad.reshape(*idx_reverse)
+
+
+## ----Activation
+
+class op_sigmoid(Function):
+    """sigmoid """
+    def forward(self, t: Tensor):
+        self.out = 1. / (1. + np.exp(-t)) 
+        return self.out
+    
+    def backward(self, grad):
+        return grad * self.out / (1. - self.out + 1e-10)
+
+
+class op_relu(Function):
+    """relu """ 
+    def forward(self, t: Tensor) -> Tensor:
+        self.mask = t > 0
+        return t * self.mask
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return grad * self.mask
+
+
+class op_tanh(Function):
+    """
+    formul: (exp(x) + exp(-x)) / (exp(x) - exp(-x))
+    derive : 1 - tanh(x) ** 2
+    """
+    def forward(self, t: Tensor) -> Tensor:
+        self.out = np.tanh(t)
+        return self.out
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return grad  * (1 - self.out ** 2)
+
+
+# --- Conv
+
+def im2col(data, kernel, stride, padding):
+    '''im2col
+    N C H W -> n h w c k k
+    '''
+    n, c, h, w = data.shape
+    out_h = math.floor((h + 2 * padding[0] - kernel[0]) / stride[0] + 1)
+    out_w = math.floor((w + 2 * padding[1] - kernel[1]) / stride[1] + 1)
+
+    # hpad = (padding[0]//2, padding[0] - padding[0]//2)
+    # wpad = (padding[1]//2, padding[1] - padding[1]//2)
+    hpad = (padding[0], padding[0])
+    wpad = (padding[1], padding[1])
+    data = np.pad(data, pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant')
+    
+    matrix = np.zeros((n, c, kernel[0], kernel[1], out_h, out_w))
+
+    for i in range(kernel[0]):
+        iend = i + stride[0] * out_h
+        for j in range(kernel[1]):
+            jend = j + stride[1] * out_w
+            matrix[:, :, i, j, :, :] = data[:, :, i:iend:stride[0], j:jend:stride[1]]
+            # matrix[:, :, i, j, :, :] = data[:, :, i::stride[0], j::stride[1]]
+        
+    matrix = matrix.transpose(0, 4, 5, 1, 2, 3).reshape(n * out_h * out_w, c * kernel[0] * kernel[1])
+
+    return matrix, out_h, out_w
+    
+
+def col2im(matrix, shape, kernel, stride, padding):
+    '''
+    matrix  n, ho, wo  cin, hk, wk
+    '''
+    _, ho, wo, _, _, _ = matrix.shape
+    matrix = matrix.transpose(0, 3, 4, 5, 1, 2) # (n, c, hk, wk, ho, wo)
+
+    hpad = (padding[0], padding[0])
+    wpad = (padding[1], padding[1])
+    data = np.pad(np.zeros(shape), pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant',)
+    _, _, H, W = data.shape
+    
+    for i in range(kernel[0]):
+        iend = i + stride[0] * ho
+        for j in range(kernel[1]):
+            jend = j + stride[1] * wo
+            data[:, :, i:iend:stride[0], j:jend:stride[1]] += matrix[:, :, i, j, :, :]
+
+    return data[:, :, padding[0]:H-padding[0], padding[1]:W-padding[1]]
+
+
+class op_conv2d(Function):
+    '''conv
+    '''
+    def __init__(self, kernel, stride, padding):
+        self.kernel = kernel
+        self.stride = stride
+        self.padding = padding
+
+    def forward(self, data: Tensor, weight: Tensor, bias: Tensor) -> Tensor:
+        '''
+        n c h w
+        co ci kh kw
+        '''
+        # self.data = data
+        self.weight = weight
+        self.data_shape = data.shape
+
+        n, _, _, _ = data.shape
+        c_out, _, _, _ = weight.shape
+        
+        matrix, out_h, out_w = im2col(data, self.kernel, self.stride, self.padding) # -> n*hout*wout cin*hk*wk
+        weight = weight.transpose(1, 2, 3, 0).reshape(-1, c_out) # -> cin*hk*wk cout
+        
+        self.matrix = matrix
+
+        output = (matrix @ weight).reshape(n, out_h, out_w, c_out).transpose(0, 3, 1, 2)
+        return output
+
+    def backward(self, grad: Tensor):
+        '''grad n cout hout wout
+        '''
+        n, cout, hout, wout = grad.shape
+        _, cin, hk, wk = self.weight.shape
+
+        bias_grad = grad.sum(axis=(0, 2, 3))
+
+        # indx_reverse = np.argsort([0, 3, 1, 2])
+        grad_reverse = grad.transpose(0, 2, 3, 1)
+        grad_reverse = grad_reverse.reshape(n * hout * wout, cout)
+        
+        weight_grad = self.matrix.T @ grad_reverse # cin hk wk cout
+        weight_grad = weight_grad.reshape(cin, hk, wk, cout)
+        weight_grad = weight_grad.transpose(3, 0, 1, 2)
+
+        weight = self.weight.transpose(1, 2, 3, 0).reshape(-1, cout)  # -> cin*hk*wk cout
+        data_grad = grad_reverse @ weight.T # n*hout*wout cin*hk*wk
+        data_grad = data_grad.reshape(n, hout, wout, cin, hk, wk)
+        data_grad = col2im(data_grad, self.data_shape, self.kernel, self.stride, self.padding)
+
+        return data_grad, weight_grad, bias_grad
+
+
+# --- Module
+
+class Module(object):
+
+    def named_parameters(self, ):
+        for name, value in inspect.getmembers(self):
+            if isinstance(value, Parameter):
+                yield name, value
+            elif isinstance(value, Module):
+                yield from value.named_parameters()
+            else:
+                pass
+        
+    def parameters(self, ):
+        for _, value in self.named_parameters():
+            yield value
+
+    def zero_grad(self, ):
+        for p in self.parameters():
+            p.zero_grad()
+    
+    def forward(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def __call__(self, *args, **kwargs):
+        return self.forward(*args, **kwargs)
+
+    def __repr__(self, ):
+        '''str
+        '''
+        s = self.__class__.__name__ + self.ext_repr()
+
+        for n, m in inspect.getmembers(self):
+            if isinstance(m, Module):
+                _s = f'\n  {n} {str(m)}'
+                s += _s
+
+        return s
+    
+    def ext_repr(self, ):
+        return ''
+
+
+class Linear(Module):
+    """Linear 
+    """
+    def __init__(self, input_dim, output_dim, bias=True):
+        
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.bias = bias
+
+        k = math.sqrt(1. / input_dim)
+        init_weight = np.random.uniform(low=-k, high=k, size=(input_dim, output_dim))
+        self.weight = Parameter(data=init_weight)
+        if self.bias:
+            init_bias = np.random.uniform(low=-k, high=k, size=(output_dim, ))
+            self.bias = Parameter(data=init_bias)
+        
+    def forward(self, data):
+        if self.bias:
+            return data @ self.weight + self.bias
+        else:
+            return data @ self.weight
+
+    def ext_repr(self, ):
+        return f'({self.input_dim}, {self.output_dim})'    
+
+
+class Conv2d(Module):
+    '''
+    image: C_in H_in W_in
+    kernel: C_out C_in H_kernel W_kernel
+    output: C_out H_out W_out
+    H_out = floor((H_in + 2 * padding[0] - dilation[0] * (kernel[0] - 1) - 1) / stride[0] + 1)
+    '''
+    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, dilation=1, groups=1, bias=True):
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+
+        if isinstance(kernel_size, int):
+            kernel_size = (kernel_size, kernel_size)
+        self.kernel_size = kernel_size
+
+        if isinstance(stride, int):
+            stride = (stride, stride)
+        self.stride = stride
+
+        if isinstance(padding, int):
+            padding = (padding, padding)
+        self.padding = padding
+
+        self.groups = groups
+        
+        assert in_channels % groups == 0, ''
+
+        k = math.sqrt(1. / (groups * in_channels * kernel_size[0] * kernel_size[1]))
+        weight_init = np.random.uniform(low=-k, high=k, size=(out_channels, int(in_channels/groups), kernel_size[0], kernel_size[1]))
+        self.weight = Parameter(data=weight_init)
+        
+        bias_init = np.random.uniform(low=-k, high=k, size=(self.out_channels, ))
+        self.bias = Parameter(data=bias_init)
+
+    def forward(self, data):
+        return op_conv2d(self.kernel_size, self.stride, self.padding)(data, self.weight, self.bias)[0]
+
+    def ext_repr(self, ):
+        return f'({self.in_channels}, {self.out_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding})'
+
+
