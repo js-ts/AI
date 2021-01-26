@@ -200,6 +200,9 @@ class Variable(object):
             self.grad = np.zeros_like(data)
 
     def backward(self, grad=1.):
+        if not isinstance(grad, Tensor):
+            grad = to_tensor(grad)
+
         self._engine._backward_fn(self.creator, grad)
 
     def zero_grad(self, ):
@@ -235,11 +238,11 @@ class Variable(object):
         other = to_variable(other)
         return Div()(self, other)[0]
 
-    def sum(self, ):
-        return Sum()(self)[0]
+    def sum(self, axis=None):
+        return Sum(axis)(self)[0]
     
-    def mean(self, ):
-        return Mean()(self)[0]
+    def mean(self, axis=None):
+        return Mean(axis)(self)[0]
 
     def pow(self, n):
         n = to_variable(n)
@@ -446,25 +449,71 @@ class Div(Function):
         return a_grad, b_grad
 
 
+class Max(Function):
+    '''Max
+    '''
+    def __init__(self, axis=None, keepdims=False):
+        if isinstance(axis, int):
+            axis = (axis, )
+        self.axis = axis
+        self.keepdims = keepdims
+        super().__init__()
+    
+    def forward(self, t: Tensor) -> Tensor:
+        self.t = t
+        return np.max(t, axis=self.axis, keepdims=self.keepdims)
+
+    def backward(self, grad: Tensor) -> Tensor:
+        out = self.t.max(axis=self.axis, keepdims=True)
+        mask = out == self.t 
+        return grad * mask
+
+
 class Sum(Function):
-    """ sum """
+    """ sum 
+    """
+    def __init__(self, axis):
+        if isinstance(axis, int):
+            axis = (axis, )
+        self.axis = axis
+
     def forward(self, t: Tensor):
         self.t_shape = t.shape
-        return t.sum()
+        return t.sum(self.axis)
 
     def backward(self, grad: Tensor):
-        print('mean')
-        return grad * np.ones(self.t_shape)
+        if self.axis is None:
+            self.axis = tuple(range(len(self.t_shape)))
+
+        shape = list(self.t_shape)
+        for ax in self.axis:
+            shape[ax] = 1
+        
+        return grad.reshape(shape) * np.ones(self.t_shape)
 
 
 class Mean(Function):
-    """ mean """
+    """ mean
+    """
+    def __init__(self, axis):
+        if isinstance(axis, int):
+            axis = (axis, )
+        self.axis = axis 
+
     def forward(self, t: Tensor):
-        self.t = t
-        return t.mean()
+        self.t_shape = t.shape
+        return t.mean(self.axis)
     
     def backward(self, grad: Tensor):
-        return grad * np.ones_like(self.t) / reduce(operator.mul, self.t.shape)
+        if self.axis is None:
+            self.axis = tuple(range(len(self.t_shape)))
+
+        shape = list(self.t_shape)
+        for ax in self.axis:
+            shape[ax] = 1
+        
+        ks = [self.t_shape[i] for i in self.axis]
+        return grad.reshape(shape) * np.ones(self.t_shape) / reduce(operator.mul, ks)
 
 
 class Pow(Function):
@@ -697,6 +746,8 @@ class op_conv2d(Function):
 
 
 class op_pool2d(Function):
+    '''pooling
+    '''
     def __init__(self, kernel, stride, padding, mode='max'):
         super().__init__()
         self.kernel = kernel
@@ -886,6 +937,8 @@ class Conv2d(Module):
 
 
 class Pool2d(Module):
+    '''pooling
+    '''
     def __init__(self, kernel_size, stride, padding, mode='max'):
 
         if isinstance(kernel_size, int):
@@ -908,4 +961,81 @@ class Pool2d(Module):
     def ext_repr(self, ):
         return f'(kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}, mode={self.mode})'
 
+
+
+class op_bn(Function):
+    '''bn
+    (x - mean) / (math.sqrt(var) + self.eps)'
+    '''
+    def __init__(self, mean, var, momentum=0.1, eps=1e-05, affine=True, track_running_stats=True, training=True):
+        self.running_mean = mean
+        self.running_var = var
+        self.momentum = momentum
+        self.eps = eps 
+        self.affine = affine
+        self.track_running_stats = track_running_stats
+        self.training = training
+
+    def forward(self, data, weight, bias):
+        if self.training:
+            mean = data.mean(axis=(0, 2, 3))
+            var = data.var(axis=(0, 2, 3))
+        else:
+            mean = self.running_mean
+            var = self.running_var
+
+        normed = (data - mean[np.newaxis, :, np.newaxis, np.newaxis]) / (np.sqrt(var[np.newaxis, :, np.newaxis, np.newaxis]) + self.eps)
+        out = weight[np.newaxis, :, np.newaxis, np.newaxis] * normed + bias[np.newaxis, :, np.newaxis, np.newaxis]
+
+        self.normed = normed
+
+        if self.track_running_stats:
+            self.running_mean *= (1 - self.momentum) + mean * self.momentum
+            self.running_var *= (1 - self.momentum) + var * self.momentum
+
+        return out
+
+
+    def backward(self, grad):
+        
+        grad_w = (grad * self.normed).sum(axis=(0, 2, 3))
+        grad_b = grad.sum(axis=(0, 2, 3))
+
+        raise NotImplementedError
+
+        # return grad, grad_w, grad_b
+
+
+class BatchNorm2d(Module):
+    '''bn
+    https://arxiv.org/abs/1502.03167
+    '''
+
+    def __init__(self, num_features, momentum=0.1, eps=1e-05, affine=True, track_running_stats=True, training=True):
+
+        self.num_features = num_features
+        self.momentum = momentum
+        self.eps = eps
+        self.affine = affine
+        self.track_running_stats = track_running_stats
+        self.training = training
+
+        self.gamma = Parameter(data=np.ones(shape=(num_features, )))
+        self.beta = Parameter(data=np.zeros(shape=(num_features, )))
+
+        if not self.affine:
+            self.gamma.requires_grad = False
+            self.beta.requires_grad = False
+
+        self.running_mean = np.zeros((num_features, )) # N, H, W
+        self.running_var = np.ones((num_features))
+
+        if not track_running_stats:
+            self.running_mean = None
+            self.running_var = None
+
+
+    def forward(self, data):
+        bn = op_bn(self.running_mean, self.running_var, self.momentum, self.eps, self.affine, self.track_running_stats, self.training)
+        return bn(data, self.gamma, self.beta)[0]
 
