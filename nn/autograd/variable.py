@@ -291,7 +291,7 @@ class Variable(object):
 
     def __div__(self, other):
         return self.div(other)
-        
+
     __truediv__ = __div__
 
     def __mul__(self, other):
@@ -1068,6 +1068,21 @@ class BatchNorm2d(Module):
 
 
     def forward(self, data):
-        bn = op_bn(self.running_mean, self.running_var, self.momentum, self.eps, self.affine, self.track_running_stats, self.training)
-        return bn(data, self.gamma, self.beta)[0]
+        # bn = op_bn(self.running_mean, self.running_var, self.momentum, self.eps, self.affine, self.track_running_stats, self.training)
+        # return bn(data, self.gamma, self.beta)[0]
+
+        mean = data.mean(axis=(0, 2, 3), keepdims=True)
+        var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
+        out = (data - mean) / (var.sqrt() + self.eps)
+
+        if self.affine:
+            out = self.gamma.reshape(1, -1, 1, 1) * out + self.beta.reshape(1, -1, 1, 1)
+
+        if self.track_running_stats:
+            self.running_mean *= (1 - self.momentum) + self.momentum * mean.data[0, :, 0, 0]
+            self.running_var *= (1 - self.momentum) + self.momentum * var.data[0, :, 0, 0]
+        
+        return out
+
+
 
