@@ -609,17 +609,15 @@ def im2col(data, kernel, stride, padding):
             matrix[:, :, i, j, :, :] = data[:, :, i:iend:stride[0], j:jend:stride[1]]
             # matrix[:, :, i, j, :, :] = data[:, :, i::stride[0], j::stride[1]]
         
-    matrix = matrix.transpose(0, 4, 5, 1, 2, 3).reshape(n * out_h * out_w, c * kernel[0] * kernel[1])
-
     return matrix, out_h, out_w
     
 
 def col2im(matrix, shape, kernel, stride, padding):
     '''
-    matrix  n, ho, wo  cin, hk, wk
+    matrix  n, ho, wo, cin, hk, wk
     '''
-    _, ho, wo, _, _, _ = matrix.shape
-    matrix = matrix.transpose(0, 3, 4, 5, 1, 2) # (n, c, hk, wk, ho, wo)
+    _, _, _, _, ho, wo = matrix.shape
+    # matrix = matrix.transpose(0, 3, 4, 5, 1, 2) # (n, c, hk, wk, ho, wo)
 
     hpad = (padding[0], padding[0])
     wpad = (padding[1], padding[1])
@@ -639,6 +637,7 @@ class op_conv2d(Function):
     '''conv
     '''
     def __init__(self, kernel, stride, padding):
+        super().__init__()
         self.kernel = kernel
         self.stride = stride
         self.padding = padding
@@ -652,10 +651,12 @@ class op_conv2d(Function):
         self.weight = weight
         self.data_shape = data.shape
 
-        n, _, _, _ = data.shape
+        n, c, _, _ = data.shape
         c_out, _, _, _ = weight.shape
         
         matrix, out_h, out_w = im2col(data, self.kernel, self.stride, self.padding) # -> n*hout*wout cin*hk*wk
+        matrix = matrix.transpose(0, 4, 5, 1, 2, 3).reshape(n * out_h * out_w, c * self.kernel[0] * self.kernel[1])
+
         weight = weight.transpose(1, 2, 3, 0).reshape(-1, c_out) # -> cin*hk*wk cout
         
         self.matrix = matrix
@@ -682,9 +683,52 @@ class op_conv2d(Function):
         weight = self.weight.transpose(1, 2, 3, 0).reshape(-1, cout)  # -> cin*hk*wk cout
         data_grad = grad_reverse @ weight.T # n*hout*wout cin*hk*wk
         data_grad = data_grad.reshape(n, hout, wout, cin, hk, wk)
+        data_grad = data_grad.transpose(0, 3, 4, 5, 1, 2) # (n, cin, hk, wk, hout, wout)
         data_grad = col2im(data_grad, self.data_shape, self.kernel, self.stride, self.padding)
 
         return data_grad, weight_grad, bias_grad
+
+
+class op_pool2d(Function):
+    def __init__(self, kernel, stride, padding, mode='max'):
+        super().__init__()
+        self.kernel = kernel
+        self.stride = stride
+        self.padding = padding
+        self.mode = mode
+
+    def forward(self, data: Tensor):
+        ''''''
+        self.shape = data.shape
+        n, c, _, _ = data.shape
+        matrix, out_h, out_w = im2col(data, self.kernel, self.stride, self.padding)
+        matrix = matrix.reshape(n, c, self.kernel[0] * self.kernel[1], out_h, out_w)
+        self.matrix = matrix
+
+        if self.mode.lower() == 'max':
+            out = np.max(matrix, axis=2)
+        elif self.mode.lower() == 'avg':
+            out = np.average(matrix, axis=2)
+        else:
+            raise RuntimeError
+    
+        return out
+
+
+    def backward(self, grad: Tensor):
+        n, c, oh, ow = grad.shape
+        grad = grad[:, :, np.newaxis, :, :]
+        if self.mode.lower() == 'max':
+            mask = self.matrix == np.max(self.matrix, axis=2, keepdims=True)
+            grad = grad * mask
+        elif self.mode.lower() == 'avg':
+            grad = grad * np.ones_like(self.matrix) / (self.kernel[0] * self.kernel[1])
+        else:
+            raise RuntimeError
+
+        grad = grad.reshape(n, c, self.kernel[0], self.kernel[1], oh, ow)
+
+        return col2im(grad, self.shape, self.kernel, self.stride, self.padding)
 
 
 # --- Module
@@ -797,3 +841,27 @@ class Conv2d(Module):
         return f'({self.in_channels}, {self.out_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding})'
 
 
+
+class Pool2d(Module):
+    def __init__(self, channels, kernel_size, stride, padding, mode='max'):
+        self.channels = channels
+
+        if isinstance(kernel_size, int):
+            kernel_size = (kernel_size, kernel_size)
+        self.kernel_size = kernel_size
+
+        if isinstance(stride, int):
+            stride = (stride, stride)
+        self.stride = stride
+
+        if isinstance(padding, int):
+            padding = (padding, padding)
+        self.padding = padding
+
+        self.mode = mode
+
+    def forward(self, data: Tensor):
+        return op_pool2d(self.kernel_size, self.stride, self.padding, self.mode)(data)[0]
+
+    def ext_repr(self, ):
+        return f'({self.channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}, mode={self.mode})'

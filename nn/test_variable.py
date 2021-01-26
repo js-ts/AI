@@ -56,3 +56,9 @@ print(out.shape)
 
 loss = out.mean()
 loss.backward()
+
+pool = autograd.variable.Pool2d(3, 3, 2, 1, mode='max')
+print(pool)
+out = pool(data)
+print(out.shape)
+out.mean().backward()
