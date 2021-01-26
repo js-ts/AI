@@ -477,7 +477,7 @@ class Pow(Function):
         return self.o
 
     def backward(self, grad: Tensor):
-        return grad * self.n * (self.t ** (self.n-1)), grad * self.o * np.log(self.t)
+        return grad * self.n * (self.t ** (self.n-1)), None # grad * self.o * np.log(self.t + 1e-15)
 
 
 class Exp(Function):
@@ -662,7 +662,8 @@ class op_conv2d(Function):
         self.matrix = matrix
 
         output = (matrix @ weight).reshape(n, out_h, out_w, c_out).transpose(0, 3, 1, 2)
-        return output
+        
+        return output + bias.reshape(1, -1, 1, 1)
 
     def backward(self, grad: Tensor):
         '''grad n cout hout wout
@@ -774,6 +775,39 @@ class Module(object):
         return ''
 
 
+class Tanh(Module):
+    '''tanh
+    '''
+    def __init__(self, ):
+        pass
+
+    def forward(self, data):
+        return op_tanh()(data)[0]
+
+    def ext_repr(self, ):
+        return ''
+
+
+class Simoid(Module):
+    '''sigmoid
+    ''' 
+    def forward(self, data):
+        return op_sigmoid()(data)[0]
+    
+    def ext_repr(self, ):
+        return ''
+
+
+class ReLU(Module):
+    '''relu
+    '''
+    def forward(self, data):
+        return op_relu()(data)[0]
+
+    def ext_repr(self, ):
+        return ''
+
+
 class Linear(Module):
     """Linear 
     """
@@ -843,8 +877,7 @@ class Conv2d(Module):
 
 
 class Pool2d(Module):
-    def __init__(self, channels, kernel_size, stride, padding, mode='max'):
-        self.channels = channels
+    def __init__(self, kernel_size, stride, padding, mode='max'):
 
         if isinstance(kernel_size, int):
             kernel_size = (kernel_size, kernel_size)
@@ -864,4 +897,6 @@ class Pool2d(Module):
         return op_pool2d(self.kernel_size, self.stride, self.padding, self.mode)(data)[0]
 
     def ext_repr(self, ):
-        return f'({self.channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}, mode={self.mode})'
+        return f'(kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding}, mode={self.mode})'
+
+
