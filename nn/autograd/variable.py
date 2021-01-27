@@ -403,7 +403,7 @@ class Add(Function):
     # TODO
     def backward(self, grad):
         # print(grad.shape, self.c_shape, self.a_shape, self.b_shape)
-        # assert self.c_shape == grad.shape, 'add' 
+        assert self.c_shape == grad.shape, 'add' 
         a_grad = broadcast_reverse(grad, self.a_shape)
         b_grad = broadcast_reverse(grad, self.b_shape)
 
@@ -462,13 +462,19 @@ class Div(Function):
     """
     def forward(self, a: Tensor, b: Tensor) -> Tensor:
         # np.testing.assert_almost_equal(b, 0)
+        c = a / b 
         self.a = a
         self.b = b
-        return a / b
+        self.c_shape = c.shape
+        return c
     
     def backward(self, grad: Tensor):
+        assert grad.shape == self.c_shape
         a_grad = grad / self.b
         b_grad = -grad * self.a / (self.b ** 2)
+        a_grad = broadcast_reverse(a_grad, self.a.shape)
+        b_grad = broadcast_reverse(b_grad, self.b.shape)
+
         return a_grad, b_grad
 
 
@@ -566,6 +572,8 @@ class Pow(Function):
 
 
 class RPow(Function):
+    '''a ** x
+    '''
     def __init__(self, a):
         self.a = a
 
@@ -576,6 +584,7 @@ class RPow(Function):
     
     def backward(self, grad: Tensor):
         return grad * self.out * np.log(self.t + 1e-10)
+
 
 class Exp(Function):
     """exp 
