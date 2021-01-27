@@ -462,18 +462,19 @@ class Mul(Function):
 class Div(Function):
     """div
     """
-    def forward(self, a: Tensor, b: Tensor) -> Tensor:
+    def forward(self, a: Tensor, b: Tensor, eps: float=1e-10) -> Tensor:
         # np.testing.assert_almost_equal(b, 0)
-        c = a / b 
+        c = a / b
         self.a = a
         self.b = b
         self.c_shape = c.shape
+        self.eps = eps
         return c
     
     def backward(self, grad: Tensor):
         assert grad.shape == self.c_shape
         a_grad = grad / self.b
-        b_grad = -grad * self.a / (self.b ** 2)
+        b_grad = -grad * self.a / (self.b ** 2 + 1e-10)
         a_grad = broadcast_reverse(a_grad, self.a.shape)
         b_grad = broadcast_reverse(b_grad, self.b.shape)
 
@@ -852,6 +853,41 @@ class op_pool2d(Function):
 # --- Module
 
 class Module(object):
+    '''Module
+    '''
+    # def __init__(self, ):
+    #     '''
+    #     '''
+    #     self._modules = OrderedDict()
+    #     self._parameters = OrderedDict()
+    #     self._buffers = OrderedDict()
+
+    # def __setattr__(self, k, v):
+    #     '''
+    #     '''
+    #     if isinstance(v, Parameter):
+    #         if k in self._parameters:
+    #             raise RuntimeError
+    #         self._parameters[k] = v 
+    #     elif isinstance(v, Module):
+    #         if k in self._modules:
+    #             raise RuntimeError
+    #         self._modules[k] = v
+    #     else:
+    #         object.__setattr__(self, k, v)
+
+    # def __delattr__(self, k):
+    #     '''
+    #     '''
+    #     if k in self._parameters:
+    #         del self._parameters[k]
+    #     elif k in self._buffers:
+    #         del self._buffers[k]
+    #     elif k in self._modules:
+    #         del self._modules[k]
+    #     else:
+    #         object.__delattr__(self, k)
+
 
     def named_parameters(self, ):
         for name, value in inspect.getmembers(self):
