@@ -265,6 +265,9 @@ class Variable(object):
     def mean(self, axis=None, keepdims=False):
         return Mean(axis, keepdims)(self)[0]
 
+    def var(self, axis=None, keepdims=False):
+        return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
+
 
     def sigmoid(self, ):
         return op_sigmoid()(self)[0]
@@ -391,8 +394,10 @@ class Add(Function):
         self.c_shape = c.shape
         return c
 
+    # TODO
     def backward(self, grad):
-        assert self.c_shape == grad.shape, ''
+        # print(grad.shape, self.c_shape, self.a_shape, self.b_shape)
+        # assert self.c_shape == grad.shape, 'add' 
         a_grad = broadcast_reverse(grad, self.a_shape)
         b_grad = broadcast_reverse(grad, self.b_shape)
 
@@ -414,18 +419,23 @@ class Sub(Function):
     """a-b
     """
     def forward(self, a: Tensor, b: Tensor) -> Tensor:
+        c = a - b
         self.a_shape = a.shape
         self.b_shape = b.shape
-        return a - b
+        self.c_shape = c.shape
+
+        return c
 
     def backward(self, grad):
+        assert grad.shape == self.c_shape, 'sub'
         a_grad = broadcast_reverse( grad, self.a_shape)
         b_grad = broadcast_reverse(-grad, self.b_shape)
         return a_grad, b_grad 
 
 
 class Mul(Function):
-    """MUL"""
+    """MUL
+    """
     def forward(self, a: Tensor, b: Tensor) -> Tensor:
         c = a * b
         self.a = a
@@ -434,7 +444,7 @@ class Mul(Function):
         return c
     
     def backward(self, grad):
-        assert self.c_shape == grad.shape
+        assert self.c_shape == grad.shape, 'mul'
         a_grad = broadcast_reverse(grad * self.b, self.a.shape)
         b_grad = broadcast_reverse(grad * self.a, self.b.shape)
 
@@ -448,7 +458,7 @@ class Div(Function):
         # np.testing.assert_almost_equal(b, 0)
         self.a = a
         self.b = b
-        return a / (b + 1e-20)
+        return a / b
     
     def backward(self, grad: Tensor):
         a_grad = grad / self.b
@@ -477,8 +487,8 @@ class Max(Function):
 
 
 class Sum(Function):
-    """ sum 
-    """
+    ''' sum 
+    '''
     def __init__(self, axis, keepdims):
         if isinstance(axis, int):
             axis = (axis, )
@@ -613,7 +623,7 @@ class Reshape(Function):
         return t.reshape(*self.shape)
     
     def backward(self, grad: Tensor) -> Tensor:
-        # grad = grad[...]
+        grad = grad[...]
         return grad.reshape(*self.t_shape)
 
 
@@ -634,7 +644,8 @@ class Transpose(Function):
 ## ----Activation
 
 class op_sigmoid(Function):
-    """sigmoid """
+    """sigmoid
+    """
     def forward(self, t: Tensor):
         self.out = 1. / (1. + np.exp(-t)) 
         return self.out
@@ -644,7 +655,8 @@ class op_sigmoid(Function):
 
 
 class op_relu(Function):
-    """relu """ 
+    """relu 
+    """ 
     def forward(self, t: Tensor) -> Tensor:
         self.mask = t > 0
         return t * self.mask
@@ -794,7 +806,7 @@ class op_pool2d(Function):
         matrix = matrix.reshape(n, c, self.kernel[0] * self.kernel[1], out_h, out_w)
         self.matrix = matrix
 
-        if self.mode.lower() == 'max':
+        if self.mode.lower() == 'max': # TODO
             out = np.max(matrix, axis=2)
         elif self.mode.lower() == 'avg':
             out = np.average(matrix, axis=2)
@@ -994,53 +1006,78 @@ class Pool2d(Module):
 
 
 
-class op_bn(Function):
-    '''bn
-    (x - mean) / (math.sqrt(var) + self.eps)'
-    '''
-    def __init__(self, mean, var, momentum=0.1, eps=1e-05, affine=True, track_running_stats=True, training=True):
-        self.running_mean = mean
-        self.running_var = var
-        self.momentum = momentum
-        self.eps = eps 
-        self.affine = affine
-        self.track_running_stats = track_running_stats
-        self.training = training
-
-    def forward(self, data, weight, bias):
-        if self.training:
-            mean = data.mean(axis=(0, 2, 3))
-            var = data.var(axis=(0, 2, 3))
-        else:
-            mean = self.running_mean
-            var = self.running_var
-
-        normed = (data - mean[np.newaxis, :, np.newaxis, np.newaxis]) / (np.sqrt(var[np.newaxis, :, np.newaxis, np.newaxis]) + self.eps)
-        out = weight[np.newaxis, :, np.newaxis, np.newaxis] * normed + bias[np.newaxis, :, np.newaxis, np.newaxis]
-
-        self.normed = normed
-
-        if self.track_running_stats:
-            # modify inference
-            self.running_mean *= (1 - self.momentum) + mean * self.momentum
-            self.running_var *= (1 - self.momentum) + var * self.momentum
-
-        return out
-
-
-    def backward(self, grad):
-        
-        grad_w = (grad * self.normed).sum(axis=(0, 2, 3))
-        grad_b = grad.sum(axis=(0, 2, 3))
-
-        raise NotImplementedError
-
-        # return grad, grad_w, grad_b
+# class op_bn(Function):
+#     '''bn
+#     (x - mean) / (math.sqrt(var) + self.eps)'
+#     '''
+#     def __init__(self, mean, var, momentum=0.1, eps=1e-05, affine=True, track_running_stats=True, training=True):
+#         self.running_mean = mean
+#         self.running_var = var
+#         self.momentum = momentum
+#         self.eps = eps 
+#         self.affine = affine
+#         self.track_running_stats = track_running_stats
+#         self.training = training
+#
+#     def forward(self, data, weight, bias):
+#         if self.training:
+#             mean = data.mean(axis=(0, 2, 3))
+#             var = data.var(axis=(0, 2, 3))
+#         else:
+#             mean = self.running_mean
+#             var = self.running_var
+#
+#         normed = (data - mean[np.newaxis, :, np.newaxis, np.newaxis]) / (np.sqrt(var[np.newaxis, :, np.newaxis, np.newaxis]) + self.eps)
+#         out = weight[np.newaxis, :, np.newaxis, np.newaxis] * normed + bias[np.newaxis, :, np.newaxis, np.newaxis]
+#
+#         self.normed = normed
+#
+#         if self.track_running_stats:
+#             # modify inference
+#             self.running_mean *= (1 - self.momentum) + mean * self.momentum
+#             self.running_var *= (1 - self.momentum) + var * self.momentum
+#
+#         return out
+#
+#
+#     def backward(self, grad):
+#       
+#         grad_w = (grad * self.normed).sum(axis=(0, 2, 3))
+#         grad_b = grad.sum(axis=(0, 2, 3))
+#
+#         raise NotImplementedError
+#         # return grad, grad_w, grad_b
 
 
 class BatchNorm2d(Module):
     '''bn
     https://arxiv.org/abs/1502.03167
+
+    from autograd import variable
+    import torch
+    import numpy as np
+
+    data = np.random.rand(3, 8, 10, 10).astype(np.float32)
+    bn = torch.nn.BatchNorm2d(8, eps=1e-5, momentum=0.1, affine=True, track_running_stats=True)
+    bn_var = variable.BatchNorm2d(8, eps=1e-5, momentum=0.1, affine=True, track_running_stats=True, training=True)
+
+    t = torch.tensor(data, requires_grad=True)
+    out_t = bn(t)
+    out_t.mean().backward()
+
+    print('-------------------------')
+
+    v = variable.Variable(data, requires_grad=True)
+    out_v = bn_var(v)
+    out_v.mean().backward()
+
+    np.testing.assert_almost_equal(out_t.data.numpy(), out_v.data, decimal=4)
+    np.testing.assert_almost_equal(bn.running_mean.data.numpy(), bn_var.running_mean, decimal=4)
+    np.testing.assert_almost_equal(bn.running_var.data.numpy(), bn_var.running_var, decimal=4)
+    np.testing.assert_almost_equal(bn.weight.data.numpy(), bn_var.weight.data, decimal=4)
+    np.testing.assert_almost_equal(bn.bias.data.numpy(), bn_var.bias.data, decimal=4)
+    np.testing.assert_almost_equal(t.grad.data.numpy(), v.grad, decimal=4)
+
     '''
 
     def __init__(self, num_features, momentum=0.1, eps=1e-05, affine=True, track_running_stats=True, training=True):
@@ -1052,37 +1089,42 @@ class BatchNorm2d(Module):
         self.track_running_stats = track_running_stats
         self.training = training
 
-        self.gamma = Parameter(data=np.ones(shape=(num_features, )))
-        self.beta = Parameter(data=np.zeros(shape=(num_features, )))
+        self.weight = Parameter(data=np.ones(shape=(num_features, )))
+        self.bias = Parameter(data=np.zeros(shape=(num_features, )))
 
         if not self.affine:
-            self.gamma.requires_grad = False
-            self.beta.requires_grad = False
+            self.weight.requires_grad = False
+            self.bias.requires_grad = False
 
-        self.running_mean = np.zeros((num_features, )) # N, H, W
-        self.running_var = np.ones((num_features))
+        self.running_mean = None
+        self.running_var = None
 
-        if not track_running_stats:
-            self.running_mean = None
-            self.running_var = None
+        if self.track_running_stats:
+            self.running_mean = np.zeros((num_features, )) # N, H, W
+            self.running_var = np.ones((num_features))
 
+    def ext_repr(self, ):
+        return f'(num_features={self.num_features}, affine={self.affine})'
 
     def forward(self, data):
         # bn = op_bn(self.running_mean, self.running_var, self.momentum, self.eps, self.affine, self.track_running_stats, self.training)
-        # return bn(data, self.gamma, self.beta)[0]
+        if self.training:
+            mean = data.mean(axis=(0, 2, 3), keepdims=True)
+            var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
+        else:
+            mean = self.running_mean
+            var = self.running_var
 
-        mean = data.mean(axis=(0, 2, 3), keepdims=True)
-        var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
-        out = (data - mean) / (var.sqrt() + self.eps)
+        out = (data - mean) / (var.sqrt() + self.eps) # .reshape(1, -1, 1, 1)
 
         if self.affine:
-            out = self.gamma.reshape(1, -1, 1, 1) * out + self.beta.reshape(1, -1, 1, 1)
+            out = self.weight.reshape(1, self.num_features, 1, 1) * out + self.bias.reshape(1, self.num_features, 1, 1)
 
-        if self.track_running_stats:
-            self.running_mean *= (1 - self.momentum) + self.momentum * mean.data[0, :, 0, 0]
-            self.running_var *= (1 - self.momentum) + self.momentum * var.data[0, :, 0, 0]
-        
+        if self.track_running_stats and self.training:
+            # self.running_mean *= (1 - self.momentum) + self.momentum * mean.data[0, :, 0, 0]
+            # self.running_var *= (1 - self.momentum) + self.momentum * var.data[0, :, 0, 0]
+            self.running_mean = self.running_mean * (1 - self.momentum) + mean.data[0, :, 0, 0] * self.momentum
+            self.running_var = self.running_var * (1 - self.momentum) + var.data[0, :, 0, 0] * self.momentum
+
         return out
-
-
 
