@@ -370,6 +370,9 @@ class Leaf(Function):
         return tuple()
 
 
+
+# operations
+# 
 def broadcast_reverse(grad: Tensor, shape: Tuple[int]) -> Tensor: 
     '''reverse grad to shape
     '''
@@ -386,7 +389,6 @@ def broadcast_reverse(grad: Tensor, shape: Tuple[int]) -> Tensor:
     return grad
 
 
-# operations
 
 class Add(Function):
     """add
@@ -723,7 +725,7 @@ def im2col(data, kernel, stride, padding):
 
 def col2im(matrix, shape, kernel, stride, padding):
     '''
-    matrix  n, ho, wo, cin, hk, wk
+    matrix: (n, cin, hk, wk, hout, wout)
     '''
     _, _, _, _, ho, wo = matrix.shape
     # matrix = matrix.transpose(0, 3, 4, 5, 1, 2) # (n, c, hk, wk, ho, wo)
@@ -1119,7 +1121,7 @@ class BatchNorm2d(Module):
             self.running_var = np.ones((num_features))
 
     def ext_repr(self, ):
-        return f'(num_features={self.num_features}, affine={self.affine})'
+        return f'(num_features={self.num_features}, training={self.training}, momentum={self.momentum}, affine={self.affine})'
 
     def forward(self, data):
         # bn = op_bn(self.running_mean, self.running_var, self.momentum, self.eps, self.affine, self.track_running_stats, self.training)
