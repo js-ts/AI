@@ -1181,3 +1181,26 @@ class BatchNorm2d(Module):
 
         return out
 
+
+
+"""
+./L 
+    /autograd
+        tensor.py
+        function.py
+        engine.py
+        operator.py
+    /nn
+        parameter.py
+        module.py
+        activation.py
+        pooling.py
+        convolution.py
+        normalization.py
+    /optim
+        optimizer.py
+        sgd.py
+        lr_scheduler.py
+"""
+
+
