@@ -215,6 +215,7 @@ class Variable(object):
         self.creator.remove_hook(name)
 
 
+    # shape op
     def reshape(self, *shape):
         return Reshape(*shape)(self)[0]
 
@@ -224,7 +225,7 @@ class Variable(object):
     def t(self, ):
         raise NotImplementedError
 
-
+    # basic op
     def add(self, other):
         other = to_variable(other)
         return Add()(self, other)[0]
@@ -234,7 +235,6 @@ class Variable(object):
 
     def sub(self, other):
         other = to_variable(other)
-        # return self.add(other.neg())
         return Sub()(self, other)[0]
 
     def mul(self, other):
@@ -259,6 +259,7 @@ class Variable(object):
         return Exp()(self)[0]
 
 
+    # statistics op
     def sum(self, axis=None, keepdims=False):
         return Sum(axis, keepdims)(self)[0]
     
@@ -269,11 +270,15 @@ class Variable(object):
         return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
 
 
+    # activation op
     def sigmoid(self, ):
         return op_sigmoid()(self)[0]
 
     def tanh(self, ):
         return op_tanh()(self)[0]
+
+    def relu(self, ):
+        return op_relu()(self)[0]
 
 
     # magic method
@@ -322,6 +327,7 @@ class Variable(object):
     __rtruediv__ = __rdiv__
 
 
+    # inspace
     def __iadd__(self, other):
         raise NotImplementedError
 
