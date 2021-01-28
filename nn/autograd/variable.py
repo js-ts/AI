@@ -223,7 +223,13 @@ class Variable(object):
         return Transpose(*dims)(self)[0]
 
     def t(self, ):
-        raise NotImplementedError
+        assert len(self.shape) == 2, ''
+        return self.transpose(1, 0)
+
+    @staticmethod
+    def T(self, ):
+        return self.t()
+
 
     # basic op
     def add(self, other):
@@ -1185,23 +1191,23 @@ class BatchNorm2d(Module):
 
 """TODO
 
-./L 
+/PDLL 
     /autograd
-        tensor.py
-        function.py
-        engine.py
-        operator.py
+        tensor
+        function
+        engine
+        operator
     /nn
-        parameter.py
-        module.py
-        activation.py
-        pooling.py
-        convolution.py
-        normalization.py
+        parameter
+        module
+        activation
+        pooling
+        convolution
+        normalization
     /optim
-        optimizer.py
-        sgd.py
-        lr_scheduler.py
+        optimizer
+        sgd
+        lr_scheduler
 """
 
 
