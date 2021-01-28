@@ -858,43 +858,91 @@ class op_pool2d(Function):
 
 # --- Module
 
+class Module_L(object):
+
+    def __init__(self, ):
+        '''
+        '''
+        self._modules = OrderedDict()
+        self._parameters = OrderedDict()
+        self._buffers = OrderedDict()
+
+    def __setattr__(self, k, v):
+        '''
+        '''
+        if isinstance(v, Parameter):
+            if k in self._parameters:
+                raise RuntimeError
+            self._parameters[k] = v 
+        elif isinstance(v, Module):
+            if k in self._modules:
+                raise RuntimeError
+            self._modules[k] = v
+        else:
+            object.__setattr__(self, k, v)
+
+    def __delattr__(self, k):
+        '''
+        '''
+        if k in self._parameters:
+            del self._parameters[k]
+        elif k in self._buffers:
+            del self._buffers[k]
+        elif k in self._modules:
+            del self._modules[k]
+        else:
+            object.__delattr__(self, k)
+        pass
+
+    def _named_modules(self, memo=None, prefix=''):
+        '''
+        '''
+        if memo is None:
+            memo = set()
+        if self not in memo:
+            memo.add(self)
+            yield prefix, self
+            for n, m in self._modules.items():
+                if m is None:
+                    continue
+
+                _prefix = prefix + ('.' if prefix else '') + n
+                for _m in self._named_modules(memo, _prefix):
+                    yield m
+        
+        pass
+
+    def _named_members(self, fn, prefix=''):
+        '''
+        '''
+        memo = set()
+        modules = self._named_modules(prefix)
+        for prefix, module in modules:
+            members = fn(module)
+            for k, v in members:
+                if v is None or v in memo:
+                    continue
+                memo.add(v)
+                name = prefix + ('.' if prefix else '') + k
+                yield name, v
+
+    def named_parameters(self, ):
+        '''
+        '''
+        _items = self._named_members(lambda module: module._paramters.items(), '')
+        for _i in _items:
+            yield _i
+    
+    def parameters(self, ):
+        '''
+        '''
+        for _, p in self.named_parameters():
+            yield p 
+
+
 class Module(object):
     '''Module
     '''
-    # def __init__(self, ):
-    #     '''
-    #     '''
-    #     self._modules = OrderedDict()
-    #     self._parameters = OrderedDict()
-    #     self._buffers = OrderedDict()
-
-    # def __setattr__(self, k, v):
-    #     '''
-    #     '''
-    #     if isinstance(v, Parameter):
-    #         if k in self._parameters:
-    #             raise RuntimeError
-    #         self._parameters[k] = v 
-    #     elif isinstance(v, Module):
-    #         if k in self._modules:
-    #             raise RuntimeError
-    #         self._modules[k] = v
-    #     else:
-    #         object.__setattr__(self, k, v)
-
-    # def __delattr__(self, k):
-    #     '''
-    #     '''
-    #     if k in self._parameters:
-    #         del self._parameters[k]
-    #     elif k in self._buffers:
-    #         del self._buffers[k]
-    #     elif k in self._modules:
-    #         del self._modules[k]
-    #     else:
-    #         object.__delattr__(self, k)
-
-
     def named_parameters(self, ):
         for name, value in inspect.getmembers(self):
             if isinstance(value, Parameter):
