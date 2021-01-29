@@ -74,6 +74,9 @@ class Variable(object):
     def pow(self, n):
         return Pow(n)(self)[0]
 
+    def sqrt(self, ):
+        return Pow(1/2.)(self)[0]
+        
     def exp(self, ):
         return Exp()(self)[0]
 
@@ -143,7 +146,10 @@ class Variable(object):
     def __rpow__(self, a):
         return self.rpow(a)
 
-        
+    def __getitem__(self, idx):
+        return GetItem(idx)(self)[0]
+
+
 from .utils import to_variable, to_tensor
 from .operator import Leaf
 from .operator import Add, Sub, Mul, Div
@@ -151,3 +157,4 @@ from .operator import Neg, Pow, Exp, RPow
 from .operator import Matmul
 from .operator import Sum, Mean
 from .operator import Reshape, Transpose
+from .operator import GetItem

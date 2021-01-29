@@ -57,12 +57,12 @@ class BatchNorm2d(Module):
         if self.track_running_stats:
             self.running_mean = np.zeros((num_features, )) # N, H, W
             self.running_var = np.ones((num_features))
+            self.running_num_batches = 0
 
     def ext_repr(self, ):
         return f'(num_features={self.num_features}, training={self.training}, momentum={self.momentum}, affine={self.affine})'
 
     def forward(self, data):
-        # bn = op_bn(self.running_mean, self.running_var, self.momentum, self.eps, self.affine, self.track_running_stats, self.training)
         if self.training:
             mean = data.mean(axis=(0, 2, 3), keepdims=True)
             var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
@@ -80,6 +80,7 @@ class BatchNorm2d(Module):
             # self.running_var *= (1 - self.momentum) + self.momentum * var.data[0, :, 0, 0]
             self.running_mean = self.running_mean * (1 - self.momentum) + mean.data[0, :, 0, 0] * self.momentum
             self.running_var = self.running_var * (1 - self.momentum) + var.data[0, :, 0, 0] * self.momentum
+            self.running_num_batches += 1
 
         return out
 
