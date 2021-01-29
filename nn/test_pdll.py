@@ -10,7 +10,7 @@ import unittest
 # ignoir
 class Testing(unittest.TestCase):
 
-    def test_add(self, ):
+    def test_ops(self, ):
         '''basic op
         '''
         a = np.random.rand(1, 2, 3)
@@ -28,6 +28,25 @@ class Testing(unittest.TestCase):
         t_c = 2 - 1 - t_a + t_b + 3 -2 
         t_c = 1 * -t_c * 3 / 3
         t_c = 1 / t_c
+        t_c.backward(torch.ones_like(t_c))
+
+        np.testing.assert_almost_equal(v_a.grad, t_a.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_b.grad, t_b.grad.data.numpy(), decimal=4)
+
+    def test_slice(self, ):
+        '''
+        '''
+        a = np.random.rand(5, 2, 3)
+        b = np.random.rand(6, 3, 4)
+
+        v_a = L.autograd.Variable(a[...], requires_grad=True)
+        v_b = L.autograd.Variable(b[...], requires_grad=True)
+        v_c = v_a[0, :2, :3] @ v_b[:3, 0, 1:3]
+        v_c.backward()
+
+        t_a = torch.tensor(a, requires_grad=True)
+        t_b = torch.tensor(b, requires_grad=True)
+        t_c = t_a[0, :2, :3] @ t_b[:3, 0, 1:3]
         t_c.backward(torch.ones_like(t_c))
 
         np.testing.assert_almost_equal(v_a.grad, t_a.grad.data.numpy(), decimal=4)
@@ -54,7 +73,7 @@ class Testing(unittest.TestCase):
         np.testing.assert_almost_equal(v_b.grad, t_b.grad.data.numpy(), decimal=4)
 
 
-    def test_sum(self, ):
+    def test_stats(self, ):
         '''stats
         '''
         a = np.random.rand(2, 3, 2) 
