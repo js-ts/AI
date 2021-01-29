@@ -243,6 +243,32 @@ class Transpose(Function):
         return grad.transpose(*idx_reverse)
 
 
+class Exp(Function):
+    """exp 
+    """
+    def forward(self, t: Tensor) -> Tensor:
+        self.out = np.exp(t)
+        return self.out
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        return grad * self.out
+
+
+class RPow(Function):
+    '''a ** x
+    '''
+    def __init__(self, a):
+        self.a = a
+
+    def forward(self, t: Tensor):
+        self.t = t
+        self.out = self.a ** t 
+        return self.out
+    
+    def backward(self, grad: Tensor):
+        return grad * self.out * np.log(self.a + 1e-10)
+
+
 class Leaf(Function):
     '''leaf
     '''

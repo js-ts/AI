@@ -56,7 +56,7 @@ class Testing(unittest.TestCase):
     def test_sum(self, ):
         '''stats
         '''
-        a = np.random.rand(2, 3, 2)
+        a = np.random.rand(2, 3, 2) 
 
         v_a = L.autograd.Variable(a[...], requires_grad=True)
         # v_c = v_a.sum().mean()
@@ -73,6 +73,38 @@ class Testing(unittest.TestCase):
         # print(a.var(), v_c.data, t_c.data.numpy())
         # print(v_a.grad)
         # print(t_a.grad)
+
+
+    def test_shape(self, ):
+        a = np.random.rand(2, 3, 2) * 4
+
+        v = L.autograd.Variable(a[...], requires_grad=True)
+        v1 = v.reshape(-1, 2).transpose(1, 0)
+        v1.mean().backward()
+
+        t = torch.tensor(a, requires_grad=True)
+        t1 = t.reshape(-1, 2).transpose(1, 0)
+        t1.mean().backward()
+
+        np.testing.assert_almost_equal(v1.data, t1.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad, t.grad.data.numpy(), decimal=4)
+
+
+    def test_pow(self):
+
+        a = np.random.rand(2, 3, 2) * 2 - 1
+
+        v = L.autograd.Variable(a[...], requires_grad=True)
+        v1 = 3 ** (v.exp() ** 2)
+        v1.mean().backward()
+
+        t = torch.tensor(a, requires_grad=True)
+        t1 = 3 ** (t.exp() ** 2)
+        t1.mean().backward()
+
+        np.testing.assert_almost_equal(v1.data, t1.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad, t.grad.data.numpy(), decimal=4)
+
 
 
 if __name__ == '__main__':
