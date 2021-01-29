@@ -14,6 +14,7 @@
         - mypy ./static/ --ignore-missing-imports
     - unittest
         - pytest
+        - https://docs.pytest.org/en/reorganize-docs/new-docs/user/directory_structure.html
 
 
 --- 
