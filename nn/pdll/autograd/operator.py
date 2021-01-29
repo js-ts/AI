@@ -215,6 +215,34 @@ class Pow(Function):
         return grad * self.n * (self.t ** (self.n-1))
 
 
+class Reshape(Function):
+    def __init__(self, *shape):
+        self.shape = shape
+        super().__init__()
+    
+    def forward(self, t: Tensor) -> Tensor:
+        self.t_shape = t.shape
+        return t.reshape(*self.shape)
+    
+    def backward(self, grad: Tensor) -> Tensor:
+        grad = grad[...]
+        return grad.reshape(*self.t_shape)
+
+
+class Transpose(Function):
+    def __init__(self, *dims):
+        super().__init__()
+        self.dims = dims
+    
+    def forward(self, t: Tensor):
+        assert len(self.dims) == len(t.shape)
+        return t.transpose(*self.dims)
+    
+    def backward(self, grad: Tensor):
+        idx_reverse = np.argsort(self.dims)
+        return grad.transpose(*idx_reverse)
+
+
 class Leaf(Function):
     '''leaf
     '''

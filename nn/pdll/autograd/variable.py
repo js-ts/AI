@@ -83,6 +83,13 @@ class Variable(object):
     def var(self, axis=None, keepdims=False):
         return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
 
+    def reshape(self, *shape):
+        return Reshape(*shape)(self)[0]
+
+    def transpose(self, *dims):
+        return Transpose(*dims)(self)[0]
+
+
     # magic-method
     def __add__(self, other):
         '''self + other
@@ -134,3 +141,4 @@ from .operator import Add, Sub, Mul, Div
 from .operator import Neg, Pow
 from .operator import Matmul
 from .operator import Sum, Mean
+from .operator import Reshape, Transpose
