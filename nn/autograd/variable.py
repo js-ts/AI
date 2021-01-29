@@ -588,11 +588,11 @@ class RPow(Function):
 
     def forward(self, t: Tensor):
         self.t = t
-        self.out = self.a ** t 
-        return self.out
+        self.y = self.a ** t 
+        return self.y
     
     def backward(self, grad: Tensor):
-        return grad * self.out * np.log(self.t + 1e-10)
+        return grad * self.y * np.log(self.a + 1e-10)
 
 
 class Exp(Function):
@@ -662,7 +662,7 @@ class Transpose(Function):
     
     def backward(self, grad: Tensor):
         idx_reverse = np.argsort(self.dims)
-        return grad.reshape(*idx_reverse)
+        return grad.transpose(*idx_reverse)
 
 
 ## ----Activation
