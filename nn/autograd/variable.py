@@ -675,7 +675,7 @@ class op_sigmoid(Function):
         return self.out
     
     def backward(self, grad):
-        return grad * self.out / (1. - self.out + 1e-10)
+        return grad * self.out * (1. - self.out + 1e-10)
 
 
 class op_relu(Function):
