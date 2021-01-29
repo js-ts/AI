@@ -2,7 +2,7 @@ import numpy as np
 
 from .parameter import Parameter
 from .module import Module
-
+from ..autograd import Variable
 
 class BatchNorm2d(Module):
     '''bn
@@ -35,7 +35,7 @@ class BatchNorm2d(Module):
 
     '''
 
-    def __init__(self, num_features, momentum=0.1, eps=1e-05, affine=True, track_running_stats=True, training=True):
+    def __init__(self, num_features: int, momentum: float=0.1, eps: float=1e-05, affine: bool=True, track_running_stats: bool=True, training=True):
 
         self.num_features = num_features
         self.momentum = momentum
@@ -59,10 +59,10 @@ class BatchNorm2d(Module):
             self.running_var = np.ones((num_features))
             self.running_num_batches = 0
 
-    def ext_repr(self, ):
+    def ext_repr(self, ) -> str:
         return f'(num_features={self.num_features}, training={self.training}, momentum={self.momentum}, affine={self.affine})'
 
-    def forward(self, data):
+    def forward(self, data: Variable) -> Variable:
         if self.training:
             mean = data.mean(axis=(0, 2, 3), keepdims=True)
             var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)

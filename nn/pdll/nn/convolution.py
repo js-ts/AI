@@ -4,7 +4,7 @@ import numpy as np
 from .parameter import Parameter
 from .module import Module
 from .functional import op_conv2d
-
+from ..autograd import Variable
 
 
 class Conv2d(Module):
@@ -14,7 +14,7 @@ class Conv2d(Module):
     output: C_out H_out W_out
     H_out = floor((H_in + 2 * padding[0] - dilation[0] * (kernel[0] - 1) - 1) / stride[0] + 1)
     '''
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, dilation=1, groups=1, bias=True):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int, stride: int, padding: int, dilation: int=1, groups: int=1, bias: bool=True):
         self.in_channels = in_channels
         self.out_channels = out_channels
 
@@ -44,9 +44,9 @@ class Conv2d(Module):
         else:
             self.bias = None
 
-    def forward(self, data):
+    def forward(self, data: Variable) -> Variable:
         return op_conv2d(self.kernel_size, self.stride, self.padding)(data, self.weight, self.bias)[0]
 
-    def ext_repr(self, ):
+    def ext_repr(self, ) -> str:
         return f'({self.in_channels}, {self.out_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding={self.padding})'
 

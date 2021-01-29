@@ -3,7 +3,7 @@ import numpy as np
 
 from .module import Module
 from .parameter import Parameter
-
+from ..autograd import Variable
 
 class Linear(Module):
     """Linear 
@@ -21,11 +21,11 @@ class Linear(Module):
             init_bias = np.random.uniform(low=-k, high=k, size=(output_dim, ))
             self.bias = Parameter(data=init_bias)
         
-    def forward(self, data):
+    def forward(self, data: Variable) -> Variable:
         if self.use_bias:
             return data @ self.weight + self.bias
         else:
             return data @ self.weight
 
-    def ext_repr(self, ):
+    def ext_repr(self, ) -> str:
         return f'({self.input_dim}, {self.output_dim})'    
