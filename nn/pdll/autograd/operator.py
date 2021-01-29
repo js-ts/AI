@@ -256,6 +256,7 @@ class Exp(Function):
 
 class RPow(Function):
     '''a ** x
+    (a ** x) * log(a)
     '''
     def __init__(self, a):
         self.a = a
