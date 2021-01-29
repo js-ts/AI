@@ -1,5 +1,6 @@
 import pdll 
 import pdll.autograd
+import pdll.nn
 import pdll as L 
 
 import torch
@@ -100,6 +101,22 @@ class Testing(unittest.TestCase):
 
         t = torch.tensor(a, requires_grad=True)
         t1 = 3 ** (t.exp() ** 2)
+        t1.mean().backward()
+
+        np.testing.assert_almost_equal(v1.data, t1.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad, t.grad.data.numpy(), decimal=4)
+
+
+    def test_activation(self):
+
+        a = np.random.rand(2, 3, 2) * 2 - 1
+
+        v = L.autograd.Variable(a[...], requires_grad=True)
+        v1 = L.nn.Tanh()(v)
+        v1.mean().backward()
+
+        t = torch.tensor(a, requires_grad=True)
+        t1 = torch.nn.Tanh()(t)
         t1.mean().backward()
 
         np.testing.assert_almost_equal(v1.data, t1.data.numpy(), decimal=4)
