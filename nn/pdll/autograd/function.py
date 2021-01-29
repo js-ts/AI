@@ -1,6 +1,9 @@
 from collections import OrderedDict
+from typing import Union, Tuple, List, Any, Iterable
 
 from .variable import Variable
+from .tensor import Tensor
+
 
 class Function(object):
 
@@ -9,30 +12,31 @@ class Function(object):
         self.output_ids = None
         self.needs_input_grad = None
 
-    def _do_forward(self, *inputs):
-        '''
+    def _do_forward(self, *inputs: Any) -> Iterable[Variable]:
+        '''Tuple[Varible, ...]
         '''
         # engine._backward_var
         # self.inputs = inputs 
-
         unpacked_input = []
         needs_input_grad = []
+        previous_functions = []
         for var in inputs:
             if isinstance(var, Variable):
                 unpacked_input.append(var.data)
                 needs_input_grad.append(var.creator.requires_grad)
+                previous_functions.append((var.creator, id(var)))
             else:
                 unpacked_input.append(var)
                 needs_input_grad.append(False)
-
-        raw_output = self.forward(*unpacked_input)
-
-        if not isinstance(raw_output, tuple):
-            raw_output = (raw_output, )
+                previous_functions.append((None, -1))
         
         self.needs_input_grad = needs_input_grad
-        self.requires_grad = any(self.needs_input_grad)
-        self.previous_functions = [(arg.creator, id(arg)) for arg in inputs]
+        self.requires_grad = any(needs_input_grad)
+        self.previous_functions = previous_functions
+
+        raw_output = self.forward(*unpacked_input)
+        if not isinstance(raw_output, tuple):
+            raw_output = (raw_output, )
 
         output = tuple(Variable(data, self) for data in raw_output)
 
@@ -42,16 +46,17 @@ class Function(object):
 
     __call__ = _do_forward
 
-    def _do_backward(self, grad_output):
+    def _do_backward(self, output_grad: Tensor) -> Tuple[Tensor, ...]:
         '''
         '''
-        grad_input = self.backward(grad_output) 
-        if not isinstance(grad_input, tuple):
-            grad_input = (grad_input, )
+        grad_inputs = self.backward(output_grad) 
+        if not isinstance(grad_inputs, tuple):
+            grad_inputs = (grad_inputs, )
         
-        assert len(grad_input) == len(self.previous_functions), f'{self.__class__.__name__}'
+        assert len(grad_inputs) == len(self.previous_functions), f'{self.__class__.__name__} _do_backward'
 
-        return grad_input
+        # grad_inputs = tuple(Variable(grad, self, requires_grad=False) for grad in grad_inputs)
+        return grad_inputs
 
     
     def forward(self, *inputs):
@@ -59,8 +64,11 @@ class Function(object):
         '''
         raise NotImplementedError
 
-    def backward(self, *grad_output):
+
+    def backward(self, grad_output):
         '''tensor -> tensor
         '''
         raise NotImplementedError
+
+
 

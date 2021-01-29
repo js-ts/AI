@@ -1,23 +1,29 @@
-from typing import Callable
-from .variable import Variable
+# from .variable import Variable
+# from .function import Function
+# from .tensor import Tensor
 
 class ExecuteEngine(object):
     
-    def __init__(self, ):
-        pass
+    def __init__(self, debug=False):
+        self.debug = debug
 
-    def _backward_var(self, var, grad):
+    def build_graph(self, ):
+        '''
+        '''
+        raise NotImplementedError
+
+    def backward_var(self, var, grad) -> None:
         ''' '''
         var.grad += grad
         grads_input = var.creator._do_backward(grad)
         for _i, _grad in enumerate(grads_input):
             if _grad is not None:
-                self._backward_var(var.creator.inputs[_i], _grad)
+                self.backward_var(var.creator.inputs[_i], _grad)
 
-    def _backward_fn(self, creator, grad):
+    def backward_fn(self, creator, grad) -> None:
         ''' '''
-        grads_input = creator._do_backward(grad.data)
+        grads_input = creator._do_backward(grad)
         for _i, _grad in enumerate(grads_input):
             if _grad is not None:
-                self._backward_fn(creator.previous_functions[_i][0], _grad)
+                self.backward_fn(creator.previous_functions[_i][0], _grad)
 
