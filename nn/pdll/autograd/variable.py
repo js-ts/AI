@@ -36,7 +36,6 @@ class Variable(object):
 
         self._engine.backward_fn(self.creator, grad.data)
 
-
     def zero_grad(self, ):
         self.grad[...] = 0
 
@@ -45,6 +44,9 @@ class Variable(object):
 
     def remove_hook(self, name):
         raise NotImplementedError 
+
+    def __repr__(self, ):
+        return f'Variable(data={self.data}, requires_grad={self.requires_grad})'
 
 
     # basic-op
