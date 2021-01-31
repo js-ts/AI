@@ -1,5 +1,5 @@
 import numpy as np 
-from typing import Union, List
+from typing import Union, List, Tuple, Iterable
 
 from .variable import Variable
 from .tensor import Tensor
@@ -31,3 +31,21 @@ def to_variable(data):
     
     else:
         raise RuntimeError('not support data type.')
+
+
+def broadcast_reverse(grad: Tensor, shape: Iterable[int]) -> Tensor: 
+    '''reverse grad to shape
+    '''
+    _extdims = grad.ndim - len(shape)
+    if _extdims:
+        grad = grad.sum(axis=tuple(range(_extdims)))
+
+    assert len(grad.shape) == len(shape), ''
+
+    _axis = (i for i, d in enumerate(shape) if d == 1)
+    if _axis:
+        grad = grad.sum(axis=tuple(_axis), keepdims=True)
+
+    assert grad.shape == shape, ''
+    
+    return grad

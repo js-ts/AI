@@ -1,27 +1,13 @@
+import numpy as np
 from typing import Tuple, Iterable, Iterator
+
+from functools import reduce as REDUCE
+from operator import mul as MUL
 
 from .tensor import Tensor
 from .function import Function
+from .utils import broadcast_reverse
 
-import numpy as np
-from functools import reduce
-import operator
-
-
-def broadcast_reverse(grad: Tensor, shape: Tuple[int, ...]) -> Tensor: 
-    '''reverse grad to shape
-    '''
-    _extdims = grad.ndim - len(shape)
-    for _ in range(_extdims):
-        grad = grad.sum(axis=0)
-    assert len(grad.shape) == len(shape), ''
-
-    for i, d in enumerate(shape):
-        if d == 1:
-            grad = grad.sum(axis=i, keepdims=True)
-    assert grad.shape == shape, ''
-    
-    return grad
 
 
 class Add(Function):
@@ -158,7 +144,6 @@ class GetItem(Function):
 
 
 
-
 class Sum(Function):
     ''' sum 
     '''
@@ -211,7 +196,7 @@ class Mean(Function):
                 shape[ax] = 1
         
         ks = [self.t_shape[i] for i in self.axis]
-        return grad.reshape(shape) * np.ones(self.t_shape) / reduce(operator.mul, ks)
+        return grad.reshape(shape) * np.ones(self.t_shape) / REDUCE(MUL, ks)
 
 
 class Pow(Function):
