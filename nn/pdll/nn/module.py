@@ -1,9 +1,47 @@
 import inspect
+from collections import OrderedDict
+
 from .parameter import Parameter
 
 class Module(object):
     '''Module
     '''
+    def __init__(self, ):
+        self._modules = OrderedDict()
+        self._params = OrderedDict()
+        self._buffers = OrderedDict()
+    
+    def __setattr__(self, key, value):
+        '''
+        '''
+        if isinstance(value, Parameter):
+            self._params[key] = value
+        elif isinstance(value, Module):
+            self._modules[key] = value
+        else:
+            pass
+        object.__setattr__(self, key, value)
+
+    def register_buffer(self, key, value):
+        '''
+        '''
+        if key in self._buffers:
+            raise RuntimeError
+        self._buffers[key] = value
+
+
+    def named_modules(self, modules=None, prefix=''):
+        '''
+        '''
+        if modules is None:
+            modules = set()
+        if self not in modules:
+            modules.add(self)
+            yield prefix, self
+        for name, module in self._modules.items():
+            _prefix = prefix + ('.' if prefix else '') + name
+            yield from module.named_modules(modules, _prefix)
+
     def named_parameters(self, ):
         for name, value in inspect.getmembers(self):
             if isinstance(value, Parameter):
@@ -30,13 +68,12 @@ class Module(object):
     def __repr__(self, ):
         '''str
         '''
-        s = self.__class__.__name__ + self.ext_repr()
-
-        for n, m in inspect.getmembers(self):
+        s = self.__class__.__name__ + self.ext_repr() + '\n'
+        # for n, m in inspect.getmembers(self):
+        #    _s = f'{n}'
+        for n, m in self.named_modules():
             if isinstance(m, Module):
-                _s = f'\n  {n} {str(m)}'
-                s += _s
-
+                s += f'{n} {m.__class__.__name__}{m.ext_repr()} \n'
         return s
     
     def ext_repr(self, ):

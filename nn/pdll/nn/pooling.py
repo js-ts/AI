@@ -10,6 +10,7 @@ class Pool2d(Module):
     '''pooling
     '''
     def __init__(self, kernel_size: Optional[int or Tuple[int]], stride: Optional[int or Tuple[int]], padding:Optional[int or Tuple[int]], mode: str='max'):
+        super().__init__()
 
         if isinstance(kernel_size, int):
             kernel_size = (kernel_size, kernel_size)

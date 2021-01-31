@@ -261,6 +261,21 @@ class Testing(unittest.TestCase):
             np.testing.assert_almost_equal(m_l.running_mean, buffers[0].data.numpy(), decimal=4)
             np.testing.assert_almost_equal(m_l.running_var, buffers[1].data.numpy(), decimal=4)
 
+    def test_module(self, ):
+        
+        class M(L.nn.Module):
+            def __init__(self, ):
+                super().__init__()
+
+                self.conv = L.nn.Conv2d(10, 10, 3, 2, 1)
+                self.l2 = L.nn.Linear(10, 10)
+                self.conv1 = L.nn.Conv2d(10, 20, 3, 2, 1)
+
+            def forward(self, ):
+                pass
+
+        m = M()
+        print(m)
 
 if __name__ == '__main__':
     

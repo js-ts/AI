@@ -6,7 +6,7 @@ class Tanh(Module):
     '''tanh
     '''
     def __init__(self, ):
-        pass
+        super().__init__()
 
     def forward(self, data: Variable) -> Variable:
         return op_tanh()(data)[0]
@@ -18,6 +18,9 @@ class Tanh(Module):
 class Simoid(Module):
     '''sigmoid
     ''' 
+    def __init__(self, ):
+        super().__init__()
+
     def forward(self, data: Variable) -> Variable: 
         return op_sigmoid()(data)[0]
     
@@ -28,6 +31,9 @@ class Simoid(Module):
 class ReLU(Module):
     '''relu
     '''
+    def __init__(self, ):
+        super().__init__()
+        
     def forward(self, data: Variable) -> Variable:
         return op_relu()(data)[0]
 

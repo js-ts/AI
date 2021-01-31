@@ -36,6 +36,7 @@ class BatchNorm2d(Module):
     '''
 
     def __init__(self, num_features: int, momentum: float=0.1, eps: float=1e-05, affine: bool=True, track_running_stats: bool=True, training=True):
+        super().__init__()
 
         self.num_features = num_features
         self.momentum = momentum
@@ -58,7 +59,8 @@ class BatchNorm2d(Module):
             self.running_mean = np.zeros((num_features, )) # N, H, W
             self.running_var = np.ones((num_features))
             self.running_num_batches = 0
-
+            self.register_buffer('running_mean', self.running_mean)
+            
     def ext_repr(self, ) -> str:
         return f'(num_features={self.num_features}, training={self.training}, momentum={self.momentum}, affine={self.affine})'
 

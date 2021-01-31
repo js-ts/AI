@@ -15,6 +15,8 @@ class Conv2d(Module):
     H_out = floor((H_in + 2 * padding[0] - dilation[0] * (kernel[0] - 1) - 1) / stride[0] + 1)
     '''
     def __init__(self, in_channels: int, out_channels: int, kernel_size: int, stride: int, padding: int, dilation: int=1, groups: int=1, bias: bool=True):
+        super().__init__()
+
         self.in_channels = in_channels
         self.out_channels = out_channels
 
