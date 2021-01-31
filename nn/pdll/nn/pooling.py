@@ -3,11 +3,13 @@ from .module import Module
 from .functional import op_pool2d
 from ..autograd import Variable
 
+from typing import Tuple, Optional
+
 
 class Pool2d(Module):
     '''pooling
     '''
-    def __init__(self, kernel_size: int, stride: int, padding:int, mode: str='max'):
+    def __init__(self, kernel_size: Optional[int or Tuple[int]], stride: Optional[int or Tuple[int]], padding:Optional[int or Tuple[int]], mode: str='max'):
 
         if isinstance(kernel_size, int):
             kernel_size = (kernel_size, kernel_size)
@@ -18,7 +20,14 @@ class Pool2d(Module):
         self.stride = stride
 
         if isinstance(padding, int):
-            padding = (padding, padding)
+            padding = (padding, padding, padding, padding)
+        elif isinstance(padding, (tuple, list)) and len(padding) == 2:
+            padding = (padding[0], padding[0], padding[1], padding[1])
+        elif isinstance(padding, (tuple, list)) and len(padding) == 4:
+            padding = tuple(padding)
+        else:
+            raise RuntimeError('not suppot padding format')
+
         self.padding = padding
 
         self.mode = mode

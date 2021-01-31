@@ -1,18 +1,18 @@
 
 import numpy as np 
 import math
-
+from typing import Tuple
 from ..autograd import Function, Tensor
 
 
 class op_sigmoid(Function):
     """sigmoid
     """
-    def forward(self, t: Tensor):
+    def forward(self, t: Tensor) -> Tensor:
         self.out = 1. / (1. + np.exp(-t)) 
         return self.out
     
-    def backward(self, grad):
+    def backward(self, grad: Tensor) -> Tensor:
         return grad * self.out * (1. - self.out)
 
 
@@ -43,61 +43,59 @@ class op_tanh(Function):
 
 # 
 
-def im2col(data, kernel, stride, padding):
+def im2col(data: Tensor, kernel: Tuple[int], stride: Tuple[int], padding: Tuple[int], dilation: int=1):
     '''im2col
     N C H W -> n h w c k k
     '''
     n, c, h, w = data.shape
-    out_h = math.floor((h + 2 * padding[0] - kernel[0]) / stride[0] + 1)
-    out_w = math.floor((w + 2 * padding[1] - kernel[1]) / stride[1] + 1)
+    out_h = math.floor((h + 2 * padding[0] - dilation * (kernel[0] - 1) - 1) / stride[0] + 1)
+    out_w = math.floor((w + 2 * padding[1] - dilation * (kernel[1] - 1) - 1) / stride[1] + 1)
 
     # hpad = (padding[0]//2, padding[0] - padding[0]//2)
     # wpad = (padding[1]//2, padding[1] - padding[1]//2)
-    hpad = (padding[0], padding[0])
-    wpad = (padding[1], padding[1])
+    hpad = (padding[0], padding[1])
+    wpad = (padding[2], padding[3])
     data = np.pad(data, pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant')
     
     matrix = np.zeros((n, c, kernel[0], kernel[1], out_h, out_w))
 
-    for i in range(kernel[0]):
-        iend = i + stride[0] * out_h
-        for j in range(kernel[1]):
-            jend = j + stride[1] * out_w
-            matrix[:, :, i, j, :, :] = data[:, :, i:iend:stride[0], j:jend:stride[1]]
-            # matrix[:, :, i, j, :, :] = data[:, :, i::stride[0], j::stride[1]]
+    for i, i_data in enumerate(range(dilation * (kernel[0] - 1) + 1)[::dilation]):
+        for j, j_data in enumerate(range(dilation * (kernel[1] - 1) + 1)[::dilation]):
+            matrix[:, :, i, j, :, :] = data[:, :, i_data::stride[0], j_data::stride[1]][:, :, :out_h, :out_w]
         
     return matrix, out_h, out_w
     
 
-def col2im(matrix, shape, kernel, stride, padding):
+def col2im(matrix: Tensor, shape: Tuple[int], kernel: Tuple[int], stride: Tuple[int], padding: Tuple[int], dilation: int=1):
     '''
     matrix: (n, cin, hk, wk, hout, wout)
     '''
     _, _, _, _, ho, wo = matrix.shape
     # matrix = matrix.transpose(0, 3, 4, 5, 1, 2) # (n, c, hk, wk, ho, wo)
 
-    hpad = (padding[0], padding[0])
-    wpad = (padding[1], padding[1])
+    hpad = (padding[0], padding[1])
+    wpad = (padding[2], padding[3])
     data = np.pad(np.zeros(shape), pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant',)
     _, _, H, W = data.shape
     
-    for i in range(kernel[0]):
-        iend = i + stride[0] * ho
-        for j in range(kernel[1]):
-            jend = j + stride[1] * wo
-            data[:, :, i:iend:stride[0], j:jend:stride[1]] += matrix[:, :, i, j, :, :]
+    for i, i_data in enumerate(range(dilation * (kernel[0] - 1) + 1)[::dilation]):
+        iend = i_data + stride[0] * ho
+        for j, j_data in enumerate(range(dilation * (kernel[1] - 1) + 1)[::dilation]):
+            jend = j_data + stride[1] * wo
+            data[:, :, i_data:iend:stride[0], j_data:jend:stride[1]] += matrix[:, :, i, j, :, :]
 
-    return data[:, :, padding[0]:H-padding[0], padding[1]:W-padding[1]]
+    return data[:, :, hpad[0]:H-hpad[1], wpad[0]:W-wpad[1]]
 
 
 class op_conv2d(Function):
     '''conv
     '''
-    def __init__(self, kernel, stride, padding):
+    def __init__(self, kernel, stride, padding, dilation):
         super().__init__()
         self.kernel = kernel
         self.stride = stride
         self.padding = padding
+        self.dilation = dilation
 
     def forward(self, data: Tensor, weight: Tensor, bias: Tensor) -> Tensor:
         '''
@@ -111,7 +109,7 @@ class op_conv2d(Function):
         n, c, _, _ = data.shape
         c_out, _, _, _ = weight.shape
         
-        matrix, out_h, out_w = im2col(data, self.kernel, self.stride, self.padding) # -> n*hout*wout cin*hk*wk
+        matrix, out_h, out_w = im2col(data, self.kernel, self.stride, self.padding, self.dilation) # -> n*hout*wout cin*hk*wk
         matrix = matrix.transpose(0, 4, 5, 1, 2, 3).reshape(n * out_h * out_w, c * self.kernel[0] * self.kernel[1])
 
         weight = weight.transpose(1, 2, 3, 0).reshape(-1, c_out) # -> cin*hk*wk cout
