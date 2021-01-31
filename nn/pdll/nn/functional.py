@@ -116,10 +116,6 @@ class op_conv2d(Function):
         # weight = weight.transpose(1, 2, 3, 0).reshape(-1, cout) # -> cin*hk*wk cout  [groups * cout/groups * cin
         # self.matrix = matrix
         # output = (matrix @ weight).reshape(n, out_h, out_w, cout).transpose(0, 3, 1, 2)
-        # if bias is not None:
-        #     return output + bias.reshape(1, -1, 1, 1)
-        # else:
-        #     return output
 
         matrix = matrix.reshape(n, self.groups, cin//self.groups, self.kernel[0], self.kernel[1], out_h, out_w)
         matrix = matrix.transpose(1, 0, 5, 6, 2, 3, 4).reshape(self.groups, n * out_h * out_w, cin//self.groups * self.kernel[0] * self.kernel[1])
