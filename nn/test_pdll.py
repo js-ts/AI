@@ -168,10 +168,10 @@ class Testing(unittest.TestCase):
 
     def test_conv(self):
 
-        data = np.random.rand(8, 3, 100, 100).astype(np.float32) * 2 - 1
+        data = np.random.rand(8, 16, 100, 100).astype(np.float32) * 2 - 1
 
-        m_l = L.nn.Conv2d(3, 8, 5, 2, 1, dilation=3)
-        m_t = torch.nn.Conv2d(3, 8, 5, 2, 1, dilation=3)
+        m_l = L.nn.Conv2d(16, 16, 5, 2, 1, dilation=3, groups=16)
+        m_t = torch.nn.Conv2d(16, 16, 5, 2, 1, dilation=3, groups=16)
 
         v = L.autograd.Variable(data[...], requires_grad=True)
         t = torch.tensor(data, requires_grad=True)

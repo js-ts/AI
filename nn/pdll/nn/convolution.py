@@ -53,7 +53,7 @@ class Conv2d(Module):
             self.bias = None
 
     def forward(self, data: Variable) -> Variable:
-        return op_conv2d(self.kernel_size, self.stride, self.padding, self.dilation)(data, self.weight, self.bias)[0]
+        return op_conv2d(self.kernel_size, self.stride, self.padding, self.dilation, self.groups)(data, self.weight, self.bias)[0]
 
 
     def ext_repr(self, ) -> str:
