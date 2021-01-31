@@ -115,13 +115,29 @@ class Matmul(Function):
     t1.T @ grad [3, 2] [2, 5] -> [3, 5]
     '''
     def forward(self, t1: Tensor, t2: Tensor) -> Tensor:
-        assert t1.ndim == t1.ndim, ''
+        # assert t1.ndim == t1.ndim, ''
+        out = t1 @ t2
         self.t1 = t1
         self.t2 = t2
-        return t1 @ t2
+        self.out_shape = out.shape
+        return out
     
     def backward(self, grad: Tensor) -> Tuple[Tensor]:
-        return grad @ self.t2.T, self.t1.T @ grad
+        assert grad.shape == self.out_shape, ''
+
+        t1_shape = self.t1.shape
+        t2_shape = self.t2.shape
+        t1_shape_t_idx = list(range(len(t1_shape)-2)) + list(range(len(t1_shape)-2, len(t1_shape)))[::-1]
+        t2_shape_t_idx = list(range(len(t2_shape)-2)) + list(range(len(t2_shape)-2, len(t2_shape)))[::-1]
+        
+        grad_t1 = grad @ self.t2.transpose(t2_shape_t_idx)
+        grad_t2 = self.t1.transpose(t1_shape_t_idx) @ grad
+
+        grad_t1 = broadcast_reverse(grad_t1, self.t1.shape)
+        grad_t2 = broadcast_reverse(grad_t2, self.t2.shape)
+
+        # return grad @ self.t2.T, self.t1.T @ grad
+        return grad_t1, grad_t2
 
 
 class GetItem(Function):

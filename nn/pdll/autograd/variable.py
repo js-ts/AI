@@ -28,13 +28,13 @@ class Variable(object):
         '''backward
         '''
         if grad == None:
-            grad = to_variable(np.ones_like(self.data))
+            grad = to_tensor(np.ones_like(self.data))
         elif isinstance(grad, (int, float)):
-            grad = to_variable(grad)
+            grad = to_tensor(grad)
         else:
-            assert isinstance(grad, Variable) and grad.shape == self.shape, ''
+            assert isinstance(grad, Tensor) and grad.shape == self.shape
 
-        self._engine.backward_fn(self.creator, grad.data)
+        self._engine.backward_fn(self.creator, grad)
 
     def zero_grad(self, ):
         self.grad[...] = 0
