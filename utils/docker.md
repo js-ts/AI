@@ -13,7 +13,7 @@
 ---
 - docker start [container-name]
 - docker attach [container-name]
-- docker exec [container-name] -it /bin/bash
+- docker exec -it [container-name] /bin/bash
 - exit / ctrl+D
 
 
