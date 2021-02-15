@@ -5,7 +5,7 @@ from .convolution import Conv2d
 from .pooling import Pool2d, AvgPool2d, MaxPool2d
 from .linear import Linear
 from .dropout import Dropout
-from .loss import Softmax, CrossEntropyLoss
+from .loss import Softmax, CrossEntropyLoss, MSELoss
 
 __all__ = [
     'Module',
@@ -16,5 +16,5 @@ __all__ = [
     'Dropout',
     'Linear',
     'Softmax',
-    'CrossEntropyLoss'
+    'CrossEntropyLoss', 'MSELoss', 
 ]

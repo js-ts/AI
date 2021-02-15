@@ -97,3 +97,8 @@ class Module(object):
                 self.__dict__['training'] = False
             elif isinstance(value, Module):
                 value.eval()
+
+    def state_dict(self, ):
+        '''
+        '''
+        raise NotImplementedError
