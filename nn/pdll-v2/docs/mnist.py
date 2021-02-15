@@ -48,12 +48,7 @@ def train(args, model, train_loader, optimizer, epoch):
 
         optimizer.zero_grad()
         loss.backward()
-
-        # TODO  
-        # optimizer.step()
-
-        for p in model.parameters():
-            p.data = p.data - p.grad * args.lr
+        optimizer.step()
 
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -78,15 +73,17 @@ def test(model, test_loader):
 
 def main():
     # Training settings
-    parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+    parser = argparse.ArgumentParser(description='MNIST Example')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=100, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=3, metavar='N',
+    parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train (default: 14)')
-    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                         help='learning rate (default: 0.01)')
+    parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
+                        help='momentum (default: 0.9)')
     parser.add_argument('--log-interval', type=int, default=5, metavar='N',
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
@@ -102,10 +99,16 @@ def main():
     train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    optimizer = optim.SGD(model.parameters(), lr=args.lr)
+    print(len(list(model.parameters())))
+
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[2, 4])
+
     for epoch in range(1, args.epochs + 1):
         train(args, model, train_loader, optimizer, epoch)
         test(model, test_loader)
+        scheduler.step()
+        print(epoch, optimizer.lr)
 
 if __name__ == '__main__':
     main()
