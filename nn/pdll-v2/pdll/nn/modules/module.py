@@ -98,7 +98,13 @@ class Module(object):
             elif isinstance(value, Module):
                 value.eval()
 
+
     def state_dict(self, ):
+        '''
+        '''
+        raise NotImplementedError
+
+    def load_state_dict(self, ):
         '''
         '''
         raise NotImplementedError

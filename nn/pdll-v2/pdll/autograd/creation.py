@@ -6,7 +6,7 @@ from .variable import Variable
 from typing import Tuple
 
 __all__ = [
-    'rand', 'randn',
+    'rand', 'randn', 'eye',
     'ones', 'ones_like',
     'zeros', 'zeros_like',
     'from_numpy',
@@ -57,4 +57,11 @@ def ones_like(v: Variable, requires_grad=False) -> Variable:
 def from_numpy(data: Tensor, requires_grad=False) -> Variable:
     '''
     '''
+    return Variable(data, requires_grad=requires_grad)
+
+
+def eye(*shape, requires_grad=False):
+    '''
+    '''
+    data = np.eye(shape)
     return Variable(data, requires_grad=requires_grad)

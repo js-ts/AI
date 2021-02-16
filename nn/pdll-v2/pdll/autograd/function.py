@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from typing import Union, Tuple, List, Any, Iterable
 
-# from ..backend import Tensor
 from pdll.backend import Tensor
 from .variable import Variable
 
@@ -42,6 +41,7 @@ class Function(object):
 
         output = tuple(Variable(data, creator=self) for data in raw_output)
 
+        self.input_ids = {id(var): i for i, var in enumerate(inputs)}
         self.output_ids = {id(var): i for i, var in enumerate(output)}
 
         return output
@@ -58,6 +58,7 @@ class Function(object):
         assert len(grad_inputs) == len(self.previous_functions), f'{self.__class__.__name__} _do_backward'
 
         return grad_inputs
+
 
     def forward(self, *inputs):
         '''tensor -> tensor

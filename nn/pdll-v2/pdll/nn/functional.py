@@ -3,8 +3,8 @@ from typing import Tuple, Union
 import operator
 import functools
 
-from ..backend import Tensor, np
-from ..autograd import Function, Variable, register
+from pdll.backend import Tensor, np
+from pdll.autograd import Function, Variable, register
 from .utils import im2col, col2im
 
 class _Sigmoid(Function):

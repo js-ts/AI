@@ -1,8 +1,8 @@
 from typing import Tuple
 import math
 
-from ..backend import Tensor
-from ..backend import np
+from pdll.backend import Tensor
+from pdll.backend import np
 
 
 def im2col(data: Tensor, kernel: Tuple[int], stride: Tuple[int], padding: Tuple[int], dilation: int=1):

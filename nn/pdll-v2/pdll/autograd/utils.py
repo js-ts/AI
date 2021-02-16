@@ -58,7 +58,7 @@ def register(cls=Variable):
         @functools.wraps(func)
         def wraps(*args, **kwargs):
             return func(*args, **kwargs)
-        assert func.__name__ not in cls.__dict__, f'exist ({func.__name__}) already in ({cls.__name__})'
+        assert func.__name__ not in cls.__dict__, f'{func.__name__} already in ({cls.__name__})'
         setattr(cls, func.__name__, wraps)
         return wraps
     return decorator

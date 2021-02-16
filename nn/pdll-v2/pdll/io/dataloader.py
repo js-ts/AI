@@ -4,6 +4,7 @@ import random
 
 from .dataset import Dataset
 
+
 class DataLoader(object):
     '''dataloader
     '''
@@ -12,36 +13,57 @@ class DataLoader(object):
         self.shuffle = shuffle
         self.batch_size = batch_size
         self.drop_last = drop_last
-        self.perms = np.arange(len(dataset))
-        self.batch_idx = -1 
-        if shuffle:
-            self.perms = np.random.permutation(np.arange(len(self.dataset)))
+        self.indices = np.arange(len(dataset))
+        self._iterator = None
 
     def __iter__(self):
+        '''
+        '''
+        if self._iterator is None:
+            self._iterator = _BaseDataLoaderIter(self)
+        else:
+            self._iterator.reset()
+
+        return self._iterator
+
+    def __len__(self, ):
+        return len(self.dataset)
+
+
+class _BaseDataLoaderIter(object):
+    def __init__(self, loader: DataLoader):
+        self.loader = loader
+        self.indices = loader.indices
+        self.batch_size = loader.batch_size
+        self.drop_last = loader.drop_last
+        self.batch_idx = -1
+        self.shuffle = loader.shuffle
+
+        if self.shuffle:
+            random.shuffle(self.indices)
+
+    def __iter__(self, ):
         return self
 
     def __next__(self, ):
         '''
         '''
         self.batch_idx += 1
-        if self.batch_idx >= math.ceil(len(self.dataset) // self.batch_size):
-            self.batch_size = -1
-            if self.shuffle:
-                random.shuffle(self.perms)
+        if self.batch_idx >= len(self.indices) // self.batch_size:
             raise StopIteration
 
-        batch = self.dataset[self.perms[self.batch_idx * self.batch_size: (self.batch_idx + 1) * self.batch_size]]
-        
-        return batch
+        _idx = self.indices[self.batch_idx * self.batch_size: (self.batch_idx + 1) * self.batch_size]
+        batch = [self.loader.dataset[i] for i in _idx]
+
+        if not isinstance(batch[0], tuple):
+            return batch
+        else:
+            batch = list(zip(*batch))
+            return batch
 
 
     def reset(self, ):
-        '''
-        '''
-        self.batch_size = -1
-
-
-    def next_batch(self, ):
-        '''
-        '''
-        pass
+        self.batch_idx = -1
+        if self.shuffle:
+            random.shuffle(self.indices)
+    

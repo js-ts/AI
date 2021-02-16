@@ -1,7 +1,7 @@
 from typing import Tuple
 
-from ..autograd import Variable
-from ..backend import np
+from pdll.autograd import Variable
+from pdll.backend import np
 
 class Parameter(Variable):
     '''parameter

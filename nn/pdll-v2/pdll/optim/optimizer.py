@@ -1,7 +1,7 @@
 
 from typing import Iterable
 
-from ..nn import Parameter
+from pdll.nn import Parameter
 
 
 class _Optimizer(object):
@@ -31,16 +31,25 @@ class SGD(_Optimizer):
         # _params should not is generator
         # after loop, none
         for i, p in enumerate(self.params):
-            self.velocity[i] = self.momentum * self.velocity[i] + (self.lr if self.velocity else 1.0) * p.grad
-            p.data[...] = p.data - (1.0 if self.velocity else self.lr) * self.velocity[i]
             # if not self.nesterov:
             #     self.velocity[i] = self.momentum * self.velocity[i] + p.grad
             #     p.data[...] = p.data - self.lr * self.velocity[i]
             # else:
             #     self.velocity[i] = self.momentum * self.velocity[i] + self.lr * p.grad
             #     p.data[...] = p.data - self.velocity[i]
+            self.velocity[i] = self.momentum * self.velocity[i] + (self.lr if self.velocity else 1.0) * p.grad
+            p.data[...] = p.data - (1.0 if self.velocity else self.lr) * self.velocity[i]
 
     def state_dict(self, ):
         '''
         '''
         raise NotImplementedError
+
+
+
+class Adam(_Optimizer):
+    def __init__(self, params, lr):
+        super.__init__(params, lr)
+
+    def step(self, ):
+        pass
