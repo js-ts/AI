@@ -18,6 +18,10 @@
 
 - exit / ctrl+D
 
+---
+
+- docker stop [id]
+- docker rm [id]
 
 ---
 
