@@ -43,6 +43,7 @@ class Leaf(object):
         if self.requires_grad:
             if self.variable.grad is None:
                 self.variable.grad = np.zeros(self.variable.shape)
+                # self.variable.grad = type(self.variable)(np.zeros(self.variable.shape))
             self.variable.grad[...] += grad_output[0]
         return tuple()
 
@@ -96,23 +97,3 @@ class Variable(object):
     #         self.grad = np.zeros(self.shape)
     #     object.__setattr__(self, name, value)
 
-    def zeros_(self, ):
-        self.data[...] = 0
-    
-    def add_(self, other: Union['Variable', Tensor]) -> None:
-        if isinstance(other, Variable):
-            self.data[...] += other.data
-        elif isinstance(other, Tensor):
-            self.data[...] += other
-
-    def sub_(self, other: Union['Variable', Tensor]) -> None:
-        if isinstance(other, Variable):
-            self.data[...] -= other.data
-        elif isinstance(other, Tensor):
-            self.data[...] -= other
-
-    def mul_(self, other: Union['Variable', Tensor]) -> None:
-        if isinstance(other, Variable):
-            self.data[...] *= other.data
-        elif isinstance(other, Tensor):
-            self.data[...] *= other

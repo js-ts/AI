@@ -37,11 +37,11 @@ class MNIST(Dataset):
         test_labels_idx1_ubyte_file = os.path.join(root, 't10k-labels-idx1-ubyte.gz')
         
         if train:
-            images, labels = self.__load_mnist(train_images_idx3_ubyte_file, train_labels_idx1_ubyte_file)
+            images, labels = self._load_mnist(train_images_idx3_ubyte_file, train_labels_idx1_ubyte_file)
         else:
-            images, labels = self.__load_mnist(test_images_idx3_ubyte_file, test_labels_idx1_ubyte_file)
+            images, labels = self._load_mnist(test_images_idx3_ubyte_file, test_labels_idx1_ubyte_file)
         
-        self.images = self.__normalize_image(images).reshape(-1, 1, 28, 28)
+        self.images = self._normalize_image(images).reshape(-1, 1, 28, 28)
         self.labels = labels
     
     def __getitem__(self, idx):
@@ -50,24 +50,24 @@ class MNIST(Dataset):
     def __len__(self, ):
         return len(self.labels)
 
-    def __load_mnist(self, data_file, label_file):
-        data = self.__read_image(data_file)
-        label = self.__read_label(label_file)
+    def _load_mnist(self, data_file, label_file):
+        data = self._read_image(data_file)
+        label = self._read_label(label_file)
         return data, label
 
-    def __read_image(self, path):
+    def _read_image(self, path):
         with gzip.open(path, 'rb') as f:
-            magic, num, rows, cols = struct.unpack('>4I', f.read(16))
+            _, num, rows, cols = struct.unpack('>4I', f.read(16))
             img=np.frombuffer(f.read(), dtype=np.uint8).reshape(num, 28*28)
         return img
 
-    def __read_label(self, path):
+    def _read_label(self, path):
         with gzip.open(path, 'rb') as f:
-            magic, num = struct.unpack('>2I', f.read(8))
+            _, num = struct.unpack('>2I', f.read(8))
             lab = np.frombuffer(f.read(), dtype=np.uint8)
         return lab
     
-    def __normalize_image(self, image):
+    def _normalize_image(self, image):
         img = image.astype(np.float32) / 255.0
         return img
 

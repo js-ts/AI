@@ -46,7 +46,8 @@ class MSELoss(Module):
         '''
         '''
         if self.reduction == 'mean':
-            return ((data - target) ** 2).sum() / data.shape[0]
+            # return ((data - target) ** 2).sum() / data.shape[0]
+            return ((data - target) ** 2).mean()
 
         elif self.reduction == 'sum':
             return ((data - target) ** 2).sum()

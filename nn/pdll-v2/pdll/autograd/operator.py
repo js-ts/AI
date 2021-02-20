@@ -1,4 +1,4 @@
-from typing import Tuple, Iterable, Iterator
+from typing import Tuple, Iterable, Iterator, Union
 
 from functools import reduce as REDUCE
 from operator import mul as MUL
@@ -415,3 +415,32 @@ def __rpow__(self, a):
 @register(Variable)
 def __getitem__(self, idx):
     return _GetItem(idx)(self)[0]
+
+
+
+# ---- inspace op
+
+@register()
+def zeros_(self, ):
+    self.data[...] = 0
+
+@register()
+def add_(self, other: Union['Variable', Tensor]) -> None:
+    if isinstance(other, Variable):
+        self.data[...] += other.data
+    elif isinstance(other, Tensor):
+        self.data[...] += other
+
+@register()
+def sub_(self, other: Union['Variable', Tensor]) -> None:
+    if isinstance(other, Variable):
+        self.data[...] -= other.data
+    elif isinstance(other, Tensor):
+        self.data[...] -= other
+
+@register()
+def mul_(self, other: Union['Variable', Tensor]) -> None:
+    if isinstance(other, Variable):
+        self.data[...] *= other.data
+    elif isinstance(other, Tensor):
+        self.data[...] *= other

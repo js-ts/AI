@@ -66,7 +66,7 @@ class Function(object):
         raise NotImplementedError
 
 
-    def backward(self, grad_output):
+    def backward(self, grad_output: Tensor):
         '''tensor -> tensor
         '''
         raise NotImplementedError

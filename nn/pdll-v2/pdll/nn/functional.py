@@ -7,6 +7,7 @@ from pdll.backend import Tensor, np
 from pdll.autograd import Function, Variable, register
 from .utils import im2col, col2im
 
+
 class _Sigmoid(Function):
     """sigmoid
     """
@@ -321,3 +322,70 @@ def dropout(v: Variable, p: float, training: bool=True, inspace: bool=True) -> V
     '''
     return _Dropout(p, training, inspace)(v)[0]
 
+
+
+class _Padding(Function):
+    '''
+    '''
+    def __init__(self, pad: Union[int, Tuple[int, ...]], mode: str='constant', value: float=0):
+        super().__init__()
+        if isinstance(pad, int):
+            pad = (pad, )
+        else:
+            assert len(pad) % 2 == 0, ''
+        self.pad = tuple(pad)
+        self.mode = mode
+        self.value = value
+        assert self.mode in ('constant')
+
+    def forward(self, data: Tensor) -> Tensor:
+        '''
+        '''
+        pad = self.pad
+        shape = data.shape
+
+        assert len(shape) >= len(pad)//2, ''
+        if len(pad) == 1:
+            pad = tuple([pad[0], ] * (2 * len(shape)))
+        else:
+            pad = pad + (0, ) * (2 * len(shape) - len(pad))
+        
+        assert len(pad) == 2 * len(shape), ''
+        
+        padding = list(zip(pad[0::2][::-1], pad[1::2][::-1]))
+
+        self.shape = shape
+        self.padding = padding
+
+        return np.pad(data, pad_width=padding, mode=self.mode, constant_values=self.value)
+
+    def backward(self, grad: Tensor) -> Tensor:
+        '''
+        '''
+        slices = []
+        for pad in self.padding:
+            if pad[1] == 0:
+                slices.append(slice(pad[0], None))
+            else:
+                slices.append(slice(pad[0], -pad[1]))
+
+        return grad[tuple(slices)]
+
+
+def zero_pad2d(data: Variable, padding: Union[int, Tuple[int, int, int, int]]):
+    '''zero pad2d
+    '''
+    assert len(data.shape) == 4, ''
+    if isinstance(padding, int):
+        padding = (padding, ) * 4
+
+    return _Padding(padding, mode='constant', value=0)(data)[0]
+
+
+def constant_pad2d(data: Variable, padding: Union[int, Tuple[int, int, int, int]], value: float=0):
+    '''constant pad2d
+    '''
+    assert len(data.shape) == 4, ''
+    if isinstance(padding, int):
+        padding = (padding, ) * 4
+    return _Padding(padding, mode='constant', value=value)(data)[0]

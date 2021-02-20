@@ -9,6 +9,7 @@ from .modules.pooling import Pool2d, AvgPool2d, MaxPool2d
 from .modules.linear import Linear
 from .modules.dropout import Dropout
 from .modules.loss import Softmax, CrossEntropyLoss
+from .modules.padding import ZeroPad2d, ConstantPad2d
 
 __all__ = [
     'Parameter',
@@ -18,8 +19,9 @@ __all__ = [
     'BatchNorm2d',
     'Conv2d',
     'Pool2d', 'AvgPool2d', 'MaxPool2d', 
+    'ZeroPad2d', 'ConstantPad2d', 
     'Dropout',
     'Linear',
     'Softmax',
-    'CrossEntropyLoss'
+    'CrossEntropyLoss',
 ]
