@@ -36,7 +36,7 @@
 - git push 
 
 ---
-git push origin newbranch:newbranch
+- git push origin newbranch:newbranch
 
 
 ## branch
