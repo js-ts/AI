@@ -23,7 +23,7 @@ class Testing(unittest.TestCase):
                 return len(self.data)
 
         dataset = DB()
-        dataloader = L.io.dataloader.DataLoader(dataset, batch_size=20, num_workers=8, shuffle=True)
+        dataloader = L.io.DataLoader(dataset, batch_size=20, num_workers=8, shuffle=True)
 
         start = time.time()
 
