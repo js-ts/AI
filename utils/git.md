@@ -35,6 +35,10 @@
 - git merge newbranch
 - git push 
 
+---
+git push origin newbranch:newbranch
+
+
 ## branch
 - git checkout xxx
 - git branch -d xxx
