@@ -8,7 +8,7 @@
 
 ---
 
-- docker run --name [container-name] --shm-size=4g --network localhost -v $PWD:/master -it [image:tag]/[image-id] /bin/bash
+- docker run --name [container-name] --shm-size=4g --network host -v $PWD:/master -it [image:tag]/[image-id] /bin/bash
 
 ---
 - docker start [container-name]
@@ -18,6 +18,10 @@
 
 - exit / ctrl+D
 
+---
+
+- docker stop [id]
+- docker rm [id]
 
 ---
 

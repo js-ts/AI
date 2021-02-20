@@ -11,3 +11,8 @@
 
 - scp -r /path/to/file user@ip:/home/path/to/file
 - scp -r user@ip:/home/path/to/file /path/to/file
+
+
+---
+
+ df -lh /
