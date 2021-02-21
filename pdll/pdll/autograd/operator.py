@@ -3,8 +3,8 @@ from typing import Tuple, Iterable, Iterator, Union
 from functools import reduce as REDUCE
 from operator import mul as MUL
 
-from ..backend import np
-from ..backend import Tensor
+from pdll.backend import np
+from pdll.backend import Tensor
 
 from .function import Function
 from .variable import Variable

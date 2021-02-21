@@ -1,33 +1,9 @@
 from typing import Union
-from ..backend import Tensor
-from ..backend import np
 
+from pdll.backend import Tensor
+from pdll.backend import np
 
-class ExecuteEngine(object):
-    
-    def __init__(self, debug=False):
-        self.debug = debug
-
-    def build_graph(self, ):
-        '''
-        '''
-        raise NotImplementedError
-
-    def backward_var(self, var, grad) -> None:
-        ''' '''
-        var.grad += grad
-        grads_input = var.creator._do_backward(grad)
-        for _i, _grad in enumerate(grads_input):
-            if _grad is not None:
-                self.backward_var(var.creator.inputs[_i], _grad)
-
-    def backward_fn(self, creator, grad) -> None:
-        ''' '''
-        grads_input = creator._do_backward(grad)
-        for _i, _grad in enumerate(grads_input):
-            if _grad is not None:
-                self.backward_fn(creator.previous_functions[_i][0], _grad)
-
+from .backpropag import ExecuteEngine
 
 class Leaf(object):
     '''leaf
@@ -43,6 +19,7 @@ class Leaf(object):
         if self.requires_grad:
             if self.variable.grad is None:
                 self.variable.grad = np.zeros(self.variable.shape)
+                # self.variable.grad = type(self.variable)(np.zeros(self.variable.shape))
             self.variable.grad[...] += grad_output[0]
         return tuple()
 
