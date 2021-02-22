@@ -63,3 +63,13 @@
 - Pull is not possible because you have unmerged files.
 - git reset --hard FETCH_HEAD
 - git pull
+
+
+## detach
+
+- git branch -b tmp
+- git checkout dev
+- git merge tmp
+- git push /dev
+
+
