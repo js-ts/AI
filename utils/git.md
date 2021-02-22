@@ -35,9 +35,24 @@
 - git merge newbranch
 - git push 
 
+---
+- git push origin newbranch:newbranch
+- git push origin :newbranch
+
 ## branch
 - git checkout xxx
 - git branch -d xxx
+
+## tag
+- git tag xx
+- git tag -a xx -m 'xx'
+- git push origin xx
+- git show xx
+---
+- git tag -d xx
+- git push origin :xx
+---
+- git checkout -b [new-brach-name] [tag-name]
 
 ## commit
 - git commit -m ""
