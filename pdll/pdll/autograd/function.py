@@ -22,7 +22,7 @@ class Function(object):
         previous_functions = []
         for var in inputs:
             if isinstance(var, Variable):
-                unpacked_input.append(var.data)
+                unpacked_input.append(var.tensor)
                 needs_input_grad.append(var.creator.requires_grad)
                 previous_functions.append((var.creator, id(var)))
             else:
@@ -39,7 +39,7 @@ class Function(object):
         if not isinstance(raw_output, tuple):
             raw_output = (raw_output, )
 
-        output = tuple(Variable(data, creator=self) for data in raw_output)
+        output = tuple(Variable(tensor, creator=self) for tensor in raw_output)
 
         self.input_ids = {id(var): i for i, var in enumerate(inputs)}
         self.output_ids = {id(var): i for i, var in enumerate(output)}
@@ -48,16 +48,23 @@ class Function(object):
 
     __call__ = _do_forward
 
-    def _do_backward(self, output_grad: Tensor) -> Tuple[Tensor, ...]:
+    def _do_backward(self, output_grad: Variable) -> Tuple[Variable, ...]:
         '''
-        '''
-        grad_inputs = self.backward(output_grad) 
-        if not isinstance(grad_inputs, tuple):
-            grad_inputs = (grad_inputs, )
+        '''        
+        _grad_inputs = self.backward(output_grad.tensor) 
+        if not isinstance(_grad_inputs, tuple):
+            _grad_inputs = (_grad_inputs, )
         
-        assert len(grad_inputs) == len(self.previous_functions), f'{self.__class__.__name__} _do_backward'
+        assert len(_grad_inputs) == len(self.previous_functions), f'{self.__class__.__name__} _do_backward'
 
-        return grad_inputs
+        grad_inputs = []
+        for _grad in _grad_inputs:
+            if _grad is not None:
+                grad_inputs.append(Variable(_grad))
+            else:
+                grad_inputs.append(_grad)
+
+        return tuple(grad_inputs)
 
 
     def forward(self, *inputs):

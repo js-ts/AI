@@ -11,6 +11,7 @@ import unittest
 
 import os 
 
+
 class Testing(unittest.TestCase):
 
     def test_ops(self, ):
@@ -33,8 +34,8 @@ class Testing(unittest.TestCase):
         t_c = 1 / t_c
         t_c.backward(torch.ones_like(t_c))
 
-        np.testing.assert_almost_equal(v_a.grad, t_a.grad.data.numpy(), decimal=4)
-        np.testing.assert_almost_equal(v_b.grad, t_b.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_a.grad.numpy(), t_a.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_b.grad.numpy(), t_b.grad.data.numpy(), decimal=4)
 
     def test_slice(self, ):
         '''
@@ -52,8 +53,8 @@ class Testing(unittest.TestCase):
         t_c = t_a[0, :2, :3] @ t_b[:3, 0, 1:3]
         t_c.backward(torch.ones_like(t_c))
 
-        np.testing.assert_almost_equal(v_a.grad, t_a.grad.data.numpy(), decimal=4)
-        np.testing.assert_almost_equal(v_b.grad, t_b.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_a.grad.numpy(), t_a.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_b.grad.numpy(), t_b.grad.data.numpy(), decimal=4)
 
 
     def test_matmul(self, ):
@@ -72,8 +73,8 @@ class Testing(unittest.TestCase):
         t_c = t_a @ t_b
         t_c.backward(torch.ones_like(t_c))
 
-        np.testing.assert_almost_equal(v_a.grad, t_a.grad.data.numpy(), decimal=4)
-        np.testing.assert_almost_equal(v_b.grad, t_b.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_a.grad.numpy(), t_a.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v_b.grad.numpy(), t_b.grad.data.numpy(), decimal=4)
 
 
     def test_stats(self, ):
@@ -91,8 +92,8 @@ class Testing(unittest.TestCase):
         t_c = t_a.var()
         t_c.backward(torch.ones_like(t_c))
         
-        np.testing.assert_almost_equal(v_c.data, t_c.data.numpy(), decimal=2)
-        np.testing.assert_almost_equal(v_a.grad, t_a.grad.data.numpy(), decimal=2)
+        np.testing.assert_almost_equal(v_c.data.numpy(), t_c.data.numpy(), decimal=2)
+        np.testing.assert_almost_equal(v_a.grad.numpy(), t_a.grad.data.numpy(), decimal=2)
         # print(a.var(), v_c.data, t_c.data.numpy())
         # print(v_a.grad)
         # print(t_a.grad)
@@ -109,8 +110,8 @@ class Testing(unittest.TestCase):
         t1 = t.reshape(-1, 2).transpose(1, 0)
         t1.mean().backward()
 
-        np.testing.assert_almost_equal(v1.data, t1.data.numpy(), decimal=4)
-        np.testing.assert_almost_equal(v.grad, t.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v1.data.numpy(), t1.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad.numpy(), t.grad.data.numpy(), decimal=4)
 
 
     def test_pow(self):
@@ -125,8 +126,8 @@ class Testing(unittest.TestCase):
         t1 = 3 ** (t.exp() ** 2)
         t1.mean().backward()
 
-        np.testing.assert_almost_equal(v1.data, t1.data.numpy(), decimal=4)
-        np.testing.assert_almost_equal(v.grad, t.grad.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v1.data.numpy(), t1.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad.numpy(), t.grad.data.numpy(), decimal=4)
 
 if __name__ == '__main__':
     
