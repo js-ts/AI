@@ -88,3 +88,38 @@ class BatchNorm2d(Module):
         return out
 
 
+
+
+
+class GroupNorm2d(Module):
+
+    def __init__(self, num_features, num_groups, eps=1e-6, use_bias=True):
+        super().__init__()
+
+        self.num_groups = num_groups
+        self.num_features = num_features
+        self.weight = Parameter(np.ones((1, num_features, 1, 1)))
+        if use_bias:
+            self.bias = Parameter(np.zeros((1, num_features, 1, 1)))
+        self.eps = eps
+        self.use_bias = use_bias
+
+    def forward(self, data: Variable) -> Variable:
+
+        n, c, h, w = data.shape
+        assert c == self.num_features, ''
+        assert c % self.num_groups == 0, ''
+
+        data = data.reshape(n, self.num_groups, -1)
+
+        mean = data.mean(axis=-1, keepdims=True)
+        var = data.var(axis=-1, keepdims=True)
+
+        data = (data - mean) / (var.sqrt() + self.eps)
+
+        if self.use_bias:
+            out = data * self.weight + self.bias
+        else:
+            out = data * self.weight
+
+        return out.reshape(n, c, h, w)
