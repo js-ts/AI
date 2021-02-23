@@ -284,7 +284,6 @@ class _RPow(Function):
 @register(Variable)
 def add(self, other):
     other = to_variable(other)
-    print(type(other))
     return _Add()(self, other)[0]
 
 @register(Variable)

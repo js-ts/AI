@@ -36,6 +36,10 @@ class Variable(object):
     def shape(self, ):
         return self.tensor.shape
 
+    @property
+    def dtype(self, ):
+        return self.tensor.dtype
+        
     def backward(self, grad=None):
         '''backward
         '''

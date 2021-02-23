@@ -12,8 +12,12 @@ b = L.randn(3, 4, requires_grad=True)
 c = a @ b
 c = mm(c)
 
+print(type(c))
+
+c + 0.1
+
 c.sum().backward()
 
-print(a.grad)
-print(b.grad)
-mm.zero_grad()
+# print(a.grad)
+# print(b.grad)
+# mm.zero_grad()

@@ -81,8 +81,6 @@ class BatchNorm2d(Module):
             out = self.weight.reshape(1, self.num_features, 1, 1) * out + self.bias.reshape(1, self.num_features, 1, 1)
 
         if self.track_running_stats and self.training:
-            # self.running_mean *= (1 - self.momentum) + self.momentum * mean.data[0, :, 0, 0]
-            # self.running_var *= (1 - self.momentum) + self.momentum * var.data[0, :, 0, 0]
             self.running_mean = self.running_mean * (1 - self.momentum) + mean.data[0, :, 0, 0] * self.momentum
             self.running_var = self.running_var * (1 - self.momentum) + var.data[0, :, 0, 0] * self.momentum
             self.running_num_batches += 1

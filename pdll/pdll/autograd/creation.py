@@ -43,14 +43,14 @@ def ones(*shape: Tuple[int], requires_grad=False) -> Variable:
 def zeros_like(v: Variable, requires_grad=False) -> Variable:
     '''
     '''
-    data = np.zeros(v.shape)
+    data = np.zeros(v.shape, dtype=v.dtype)
     return Variable(data, requires_grad=requires_grad)
 
 
 def ones_like(v: Variable, requires_grad=False) -> Variable:
     '''
     '''
-    data = np.ones(v.shape)
+    data = np.ones(v.shape, dtype=v.dtype)
     return Variable(data, requires_grad=requires_grad)
 
 
