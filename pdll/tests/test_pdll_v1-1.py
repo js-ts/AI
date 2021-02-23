@@ -5,19 +5,12 @@ import torch
 import numpy as np
 
 
-mm = L.nn.Linear(4, 10)
-a = L.randn(2, 3, requires_grad=True)
-b = L.randn(3, 4, requires_grad=True)
+import pdll as L
 
-c = a @ b
-c = mm(c)
+a = L.rand(2, 2, 3, requires_grad=True)
+b = L.rand(3, 3)
+c = a @ b + L.rand(2, 3)
+d = (c ** 2) * 2 - L.ones_like(c)
+d.mean().backward()
 
-print(type(c))
-
-c + 0.1
-
-c.sum().backward()
-
-# print(a.grad)
-# print(b.grad)
-# mm.zero_grad()
+print(a.grad.shape)

@@ -28,6 +28,7 @@
         - [x] bn2d
             - [x] running_mean/var
             - [x] training/eval
+        - [x] gn2d
         - [x] conv2d
             - [x] group
             - [x] dilation
