@@ -51,7 +51,7 @@ def train(args, model, train_loader, optimizer, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, _idx * data.shape[0], len(train_loader.dataset),
                 100. * _idx * data.shape[0] / len(train_loader.dataset), 
-                loss.data))
+                loss.tensor))
 
 
 def test(model, test_loader):
@@ -59,13 +59,12 @@ def test(model, test_loader):
 
     correct = 0
     for data, label in test_loader:
-        # data = L.from_numpy(data.data.numpy())
         data = L.from_numpy(np.array(data))
         label = np.array(label)
         
         output = model(data)
 
-        correct += (output.data.argmax(axis=1) == label).sum()
+        correct += (output.tensor.argmax(axis=1) == label).sum()
 
 
     print('\nAccuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset)))
@@ -74,7 +73,7 @@ def test(model, test_loader):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
@@ -92,12 +91,12 @@ def main():
     test_kwargs = {'batch_size': args.test_batch_size, 'shuffle': False, 'num_workers': 8}
 
     model = Net()
-    L.io.save(model, '../data/mnist.pickle')
+    L.io.save(model, '../../dataset/mnist.pickle')
     del model
-    model = L.io.load('../data/mnist.pickle')
+    model = L.io.load('../../dataset/mnist.pickle')
 
-    train_dataset = L.io.dataset.MNIST(root='../data/MNIST/raw/', train=True)
-    test_dataset = L.io.dataset.MNIST(root='../data/MNIST/raw/', train=False)
+    train_dataset = L.io.dataset.MNIST(root='../../dataset/', train=True)
+    test_dataset = L.io.dataset.MNIST(root='../../dataset/', train=False)
 
     train_loader = L.io.DataLoader(train_dataset, **train_kwargs)
     test_loader = L.io.DataLoader(test_dataset, **test_kwargs)
