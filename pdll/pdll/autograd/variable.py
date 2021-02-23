@@ -1,7 +1,7 @@
 from typing import Union
 
 from pdll.backend import Tensor
-from pdll.backend import np
+from pdll.backend import np, support_types
 
 from .backpropag import ExecuteEngine
 from .backpropag import Leaf
@@ -13,15 +13,14 @@ class Variable(object):
     _engine = ExecuteEngine()
     
     def __init__(self, data, creator=None, requires_grad=False):
-        # assert isinstance(data, (Tensor, np.float32, np.float64)), f'{data} {type(data)}'
+        assert isinstance(data, support_types), f'{data} {type(data)}'
         assert isinstance(requires_grad, bool), ''
 
         if creator is None:
             creator = Leaf(self, requires_grad)
         self.creator = creator
-        self.tensor = data
+        self.tensor = data # storage
         self.grad = None
-        self.shape = data.shape
         self.requires_grad = self.creator.requires_grad
 
     @property
@@ -33,27 +32,29 @@ class Variable(object):
         '''
         return self.tensor[...]
 
+    @property
+    def shape(self, ):
+        return self.tensor.shape
 
     def backward(self, grad=None):
         '''backward
         '''
         if grad is None:
-            grad = Variable(np.ones_like(self.tensor))
+            grad = self.__class__(np.ones_like(self.tensor))
         elif isinstance(grad, (int, float)):
-            grad = Variable(np.array([grad]))
+            grad = self.__class__(np.array([grad]))
         elif isinstance(grad, Tensor):
-            grad = Variable(grad)
+            grad = self.__class__(grad)
         elif isinstance(grad, Variable):
-            assert grad.shape == self.shape
+            assert grad.shape == self.shape, ''
         else:
-            raise RuntimeError('-------')
+            raise RuntimeError('type(grad) dont support.')
         
         self._engine.backward_fn(self.creator, grad)
 
     def zero_grad(self, ):
-        # assert self.grad is not None, ''
         if self.grad is not None:
-            self.grad._data[...] = 0
+            self.grad.tensor[...] = 0
 
     def register_hook(self, name, hook):
         raise NotImplementedError
@@ -68,7 +69,3 @@ class Variable(object):
         else:
             s += ')'
         return s
-
-    # def __setattr__(self, name, value):
-        # assert name in self.__doc__, ''
-        # object.__setattr__(self, name, value)

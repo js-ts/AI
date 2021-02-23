@@ -26,7 +26,6 @@ class Function(object):
                 needs_input_grad.append(var.creator.requires_grad)
                 previous_functions.append((var.creator, id(var)))
             else:
-                # print('-----_do_forward-----', self.__class__.__name__)
                 unpacked_input.append(var)
                 needs_input_grad.append(False)
                 previous_functions.append((None, -1))

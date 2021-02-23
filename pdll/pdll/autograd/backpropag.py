@@ -40,8 +40,5 @@ class Leaf(object):
         if self.requires_grad:
             if self.variable.grad is None:
                 self.variable.grad = type(self.variable)(np.zeros(self.variable.shape))
-            
-            print(type(grad_output[0]))
-            print(type(self.variable.grad))
             self.variable.grad.tensor += grad_output[0].tensor
         return tuple()

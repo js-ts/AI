@@ -8,6 +8,7 @@ from pdll.backend import Tensor
 
 from .function import Function
 from .variable import Variable
+from .backpropag import Leaf
 
 from .utils import broadcast_reverse
 from .utils import register
@@ -130,7 +131,6 @@ class _Matmul(Function):
         grad_t1 = broadcast_reverse(grad_t1, self.t1.shape)
         grad_t2 = broadcast_reverse(grad_t2, self.t2.shape)
 
-        # return grad @ self.t2.T, self.t1.T @ grad
         return grad_t1, grad_t2
 
 
@@ -334,6 +334,7 @@ def sum(self, axis=None, keepdims=False):
 def mean(self, axis=None, keepdims=False):
     return _Mean(axis, keepdims)(self)[0]
 
+# TODO
 @register(Variable)
 def var(self, axis=None, keepdims=False):
     return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
@@ -420,27 +421,37 @@ def __getitem__(self, idx):
 
 # ---- inspace op
 
-@register()
+def gaurantee_inspace(var: Variable):
+    '''
+    '''
+    if isinstance(var.creator, Leaf) and var.requires_grad is True:
+        raise RuntimeError('')
+
+@register(Variable)
 def zeros_(self, ):
-    self.data[...] = 0
+    gaurantee_inspace(self)
+    self.tensor[...] = 0
 
-@register()
+@register(Variable)
 def add_(self, other: Union['Variable', Tensor]) -> None:
+    gaurantee_inspace(self)
     if isinstance(other, Variable):
-        self.data[...] += other.data
+        self.tensor[...] += other.tensor
     elif isinstance(other, Tensor):
-        self.data[...] += other
+        self.tensor[...] += other
 
-@register()
+@register(Variable)
 def sub_(self, other: Union['Variable', Tensor]) -> None:
+    gaurantee_inspace(self)
     if isinstance(other, Variable):
-        self.data[...] -= other.data
+        self.tensor[...] -= other.tensor
     elif isinstance(other, Tensor):
-        self.data[...] -= other
+        self.tensor[...] -= other
 
-@register()
+@register(Variable)
 def mul_(self, other: Union['Variable', Tensor]) -> None:
+    gaurantee_inspace(self)
     if isinstance(other, Variable):
-        self.data[...] *= other.data
+        self.tensor[...] *= other.tensor
     elif isinstance(other, Tensor):
-        self.data[...] *= other
+        self.tensor[...] *= other
