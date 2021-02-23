@@ -2,10 +2,15 @@
 
 - find ./ -name "*.py" -or -name "*.cpp" | xargs grep "xxx" | wc 
 
+---
 - nohup command &
-- jobs -l
-
 - ps aux 
+
+---
+- command &
+- jobs -l
+- fg %num
+- kill %num
 
 ---
 
