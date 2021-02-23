@@ -73,3 +73,9 @@
 - git push /dev
 
 
+## tmux
+- tmux new -s L
+- tmux detach
+- tmux attach -t L
+
+
