@@ -43,6 +43,17 @@
 - git checkout xxx
 - git branch -d xxx
 
+## tag
+- git tag xx
+- git tag -a xx -m 'xx'
+- git push origin xx
+- git show xx
+---
+- git tag -d xx
+- git push origin :xx
+---
+- git checkout -b [new-brach-name] [tag-name]
+
 ## commit
 - git commit -m ""
 - git commit --amend
@@ -52,3 +63,13 @@
 - Pull is not possible because you have unmerged files.
 - git reset --hard FETCH_HEAD
 - git pull
+
+
+## detach
+
+- git branch -b tmp
+- git checkout dev
+- git merge tmp
+- git push /dev
+
+
