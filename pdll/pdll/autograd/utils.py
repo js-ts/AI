@@ -6,7 +6,7 @@ from ..backend import Tensor
 from .variable import Variable
 
 
-def to_tensor(data, dtype=np.float64):
+def to_tensor(data, dtype=np.float32):
     if isinstance(data, Tensor):
         return data.astype(dtype)
     else:
