@@ -1,7 +1,7 @@
 
 import math
 
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..functional import softmax
 from .module import Module
@@ -13,7 +13,7 @@ class Attention(Module):
     def __init__(self, ):
         pass
 
-    def forward(self, q: Variable, k: Variable, v: Variable) -> Variable:
+    def forward(self, q: Tensor, k: Tensor, v: Tensor) -> Tensor:
         pass
 
 

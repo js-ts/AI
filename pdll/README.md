@@ -15,7 +15,7 @@ In [6]: d.mean().backward()
 
 In [7]: a.grad
 Out[7]: 
-Variable([[[0.71458999 0.87984239 0.73015823]
+Tensor([[[0.71458999 0.87984239 0.73015823]
   [0.76491385 1.04176047 0.89780678]]
   
  [[1.07044392 1.33654949 1.12387667]
@@ -24,6 +24,8 @@ Variable([[[0.71458999 0.87984239 0.73015823]
 ```
 
 - [More Examples](./examples/)
+- [Completed Functions](./docs/todolist.md)
+
 
 Name | Performance | Commits 
 ---|---|---
@@ -35,8 +37,8 @@ PDLL is a python deep learning library.
 
 Module | Description
 ---|---
-[pdll.backend]() | a tensor library, like numpy or others.
-[pdll.autograd]() | an automatic differentiation library, that record operations on variable type. 
+[pdll.backend]() | a numpy-like library, types ans operations.
+[pdll.autograd]() | an automatic differentiation library, that record operations on **Tensor** type. 
 [pdll.nn]() | a neural network library based on autograd
 [pdll.optim]() | an optimizer library for deep learning
 [pdll.io]() | dataset, dataloader and serialization
@@ -44,4 +46,10 @@ Module | Description
 To learn more about contributing to PDLL, please contact me.
 
 ## About Me
- - Email
+- Email
+- LinkedIn
+
+
+## Citation
+> caffe  
+> pytorch

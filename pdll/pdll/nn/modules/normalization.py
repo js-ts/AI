@@ -1,6 +1,6 @@
 
 from pdll.backend import np
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..parameter import Parameter
 from .module import Module
@@ -24,7 +24,7 @@ class BatchNorm2d(Module):
 
     print('-------------------------')
 
-    v = variable.Variable(data, requires_grad=True)
+    v = variable.Tensor(data, requires_grad=True)
     out_v = bn_var(v)
     out_v.mean().backward()
 
@@ -58,15 +58,15 @@ class BatchNorm2d(Module):
         self.running_var = None
 
         if self.track_running_stats:
-            self.running_mean = Variable(np.zeros((num_features, ))) # N, H, W
-            self.running_var = Variable(np.ones((num_features)))
+            self.running_mean = Tensor(np.zeros((num_features, ))) # N, H, W
+            self.running_var = Tensor(np.ones((num_features)))
             self.running_num_batches = 0
             self.register_buffer('running_mean', self.running_mean)
             
     def ext_repr(self, ) -> str:
         return f'(num_features={self.num_features}, training={self.training}, momentum={self.momentum}, affine={self.affine})'
 
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         if self.training:
             mean = data.mean(axis=(0, 2, 3), keepdims=True)
             var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
@@ -104,7 +104,7 @@ class GroupNorm2d(Module):
         self.eps = eps
         self.use_bias = use_bias
 
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
 
         n, c, h, w = data.shape
         assert c == self.num_features, ''

@@ -1,8 +1,8 @@
 from collections import OrderedDict
 from typing import Union, Tuple, List, Any, Iterable
 
-from pdll.backend import Tensor
-from .variable import Variable
+from pdll.backend import support_types, np
+from .tensor import Tensor
 
 
 class Function(object):
@@ -14,15 +14,15 @@ class Function(object):
         self.input_ids = None
         self.needs_input_grad = None
 
-    def _do_forward(self, *inputs: Any) -> Iterable[Variable]:
+    def _do_forward(self, *inputs: Any) -> Iterable[Tensor]:
         '''Tuple[Varible, ...]
         '''
         unpacked_input = []
         needs_input_grad = []
         previous_functions = []
         for var in inputs:
-            if isinstance(var, Variable):
-                unpacked_input.append(var.tensor)
+            if isinstance(var, Tensor):
+                unpacked_input.append(var.storage)
                 needs_input_grad.append(var.creator.requires_grad)
                 previous_functions.append((var.creator, id(var)))
             else:
@@ -38,7 +38,7 @@ class Function(object):
         if not isinstance(raw_output, tuple):
             raw_output = (raw_output, )
 
-        output = tuple(Variable(tensor, creator=self) for tensor in raw_output)
+        output = tuple(Tensor(data, creator=self) for data in raw_output)
 
         self.input_ids = {id(var): i for i, var in enumerate(inputs)}
         self.output_ids = {id(var): i for i, var in enumerate(output)}
@@ -47,10 +47,10 @@ class Function(object):
 
     __call__ = _do_forward
 
-    def _do_backward(self, output_grad: Variable) -> Tuple[Variable, ...]:
+    def _do_backward(self, output_grad: Tensor) -> Tuple[Tensor, ...]:
         '''
         '''        
-        _grad_inputs = self.backward(output_grad.tensor) 
+        _grad_inputs = self.backward(output_grad.storage) 
         if not isinstance(_grad_inputs, tuple):
             _grad_inputs = (_grad_inputs, )
         
@@ -59,7 +59,7 @@ class Function(object):
         grad_inputs = []
         for _grad in _grad_inputs:
             if _grad is not None:
-                grad_inputs.append(Variable(_grad))
+                grad_inputs.append(Tensor(_grad))
             else:
                 grad_inputs.append(_grad)
 
@@ -67,13 +67,13 @@ class Function(object):
 
 
     def forward(self, *inputs):
-        '''tensor -> tensor
+        '''backen.types -> backen.types
         '''
         raise NotImplementedError
 
 
     def backward(self, grad_output: Tensor):
-        '''tensor -> tensor
+        '''backen.types -> backen.types
         '''
         raise NotImplementedError
 

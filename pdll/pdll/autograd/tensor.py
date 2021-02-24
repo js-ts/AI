@@ -1,13 +1,12 @@
 from typing import Union
 
-from pdll.backend import Tensor
 from pdll.backend import np, support_types
 
 from .backpropag import ExecuteEngine
 from .backpropag import Leaf
 
 
-class Variable(object):
+class Tensor(object):
     '''
     '''
     _engine = ExecuteEngine()
@@ -19,37 +18,38 @@ class Variable(object):
         if creator is None:
             creator = Leaf(self, requires_grad)
         self.creator = creator
-        self.tensor = data # storage
+        self.storage = data # storage
         self.grad = None
         self.requires_grad = self.creator.requires_grad
 
     @property
     def data(self, ):
-        return Variable(self.tensor)
+        return Tensor(self.storage)
 
     def numpy(self, ):
         '''numpy
         '''
-        return self.tensor[...]
+        return self.storage[...]
 
     @property
     def shape(self, ):
-        return self.tensor.shape
+        return self.storage.shape
 
     @property
     def dtype(self, ):
-        return self.tensor.dtype
+        return self.storage.dtype
+        
         
     def backward(self, grad=None):
         '''backward
         '''
         if grad is None:
-            grad = self.__class__(np.ones_like(self.tensor))
+            grad = self.__class__(np.ones_like(self.storage))
         elif isinstance(grad, (int, float)):
             grad = self.__class__(np.array([grad]))
-        elif isinstance(grad, Tensor):
+        elif isinstance(grad, support_types):
             grad = self.__class__(grad)
-        elif isinstance(grad, Variable):
+        elif isinstance(grad, self.__class__):
             assert grad.shape == self.shape, ''
         else:
             raise RuntimeError('type(grad) dont support.')
@@ -58,7 +58,7 @@ class Variable(object):
 
     def zero_grad(self, ):
         if self.grad is not None:
-            self.grad.tensor[...] = 0
+            self.grad.storage[...] = 0
 
     def register_hook(self, name, hook):
         raise NotImplementedError
@@ -67,7 +67,7 @@ class Variable(object):
         raise NotImplementedError 
 
     def __repr__(self, ):
-        s = f'Variable({self.tensor}'
+        s = f'Tensor({self.storage}'
         if self.requires_grad:
             s += f', requires_grad={self.requires_grad})'
         else:

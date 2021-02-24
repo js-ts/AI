@@ -20,7 +20,7 @@ class Testing(unittest.TestCase):
         grad = torch.rand(2, 3)
         out.backward(grad)
         
-        v = L.autograd.Variable(data.data.numpy(), requires_grad=True)
+        v = L.autograd.Tensor(data.data.numpy(), requires_grad=True)
         softmax = L.nn.Softmax(0)
         p = softmax(v)
         p.backward(grad.data.numpy())
@@ -39,7 +39,7 @@ class Testing(unittest.TestCase):
         output = loss(logit, target)
         output.backward(torch.zeros_like(output) + 0.6)
 
-        v = L.autograd.Variable(logit.data.numpy(), requires_grad=True)
+        v = L.autograd.Tensor(logit.data.numpy(), requires_grad=True)
         label = np.eye(5)[target.data.numpy()]
 
         mm = L.nn.CrossEntropyLoss()

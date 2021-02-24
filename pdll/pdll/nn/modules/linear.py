@@ -1,7 +1,7 @@
 import math
 
 from pdll.backend import np
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..parameter import Parameter
 from .module import Module
@@ -23,7 +23,7 @@ class Linear(Module):
             init_bias = np.random.uniform(low=-k, high=k, size=(output_dim, ))
             self.bias = Parameter(data=init_bias)
         
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         if self.use_bias:
             return data @ self.weight + self.bias
         else:

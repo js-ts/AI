@@ -1,5 +1,5 @@
 
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..functional import relu, sigmoid, tanh
 from .module import Module
@@ -15,7 +15,7 @@ class Tanh(Module):
     def __init__(self, ):
         super().__init__()
 
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         return data.tanh()
 
     def ext_repr(self, ) -> str:
@@ -28,7 +28,7 @@ class Sigmoid(Module):
     def __init__(self, ):
         super().__init__()
 
-    def forward(self, data: Variable) -> Variable: 
+    def forward(self, data: Tensor) -> Tensor: 
         return data.sigmoid()
     
     def ext_repr(self, ) -> str:
@@ -41,7 +41,7 @@ class ReLU(Module):
     def __init__(self, ):
         super().__init__()
         
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         return data.relu()
 
     def ext_repr(self, ) -> str:

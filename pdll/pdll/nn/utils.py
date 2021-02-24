@@ -1,11 +1,10 @@
-from typing import Tuple
+from typing import Tuple, Union
 import math
 
-from pdll.backend import Tensor
-from pdll.backend import np
+from pdll.backend import np, support_types
 
 
-def im2col(data: Tensor, kernel: Tuple[int], stride: Tuple[int], padding: Tuple[int], dilation: int=1):
+def im2col(data: Union[support_types], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):
     '''im2col
     N C H W -> n h w c k k
     '''
@@ -28,7 +27,7 @@ def im2col(data: Tensor, kernel: Tuple[int], stride: Tuple[int], padding: Tuple[
     return matrix, out_h, out_w
     
 
-def col2im(matrix: Tensor, shape: Tuple[int], kernel: Tuple[int], stride: Tuple[int], padding: Tuple[int], dilation: int=1):
+def col2im(matrix: Union[support_types], shape: Tuple[int, ...], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):
     '''
     matrix: (n, cin, hk, wk, hout, wout)
     '''
