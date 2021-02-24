@@ -19,7 +19,7 @@ class Tensor(object):
             creator = Leaf(self, requires_grad)
         self.creator = creator
         self.storage = data # storage
-        self.grad = None
+        self._grad = None
 
     @property
     def data(self, ):
@@ -34,6 +34,17 @@ class Tensor(object):
         '''numpy
         '''
         return self.storage[...]
+
+    @property
+    def grad(self, ):
+        return self._grad
+    
+    @grad.setter
+    def grad(self, value):
+        '''set grad
+        '''
+        assert isinstance(value, Tensor), ''
+        self._grad = value
 
     @property
     def shape(self, ):
