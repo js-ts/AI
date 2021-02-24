@@ -38,3 +38,7 @@ try:
         support_types = (cupy.ndarray, cupy.float, cupy.float32, cupy.float64, cupy.int, cupy.bool)
 except:
     print('Cannot import cupy')
+
+
+print(ENGINES)
+print(list(ENGINES.keys()))

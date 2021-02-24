@@ -1,6 +1,0 @@
-
-# + - * / 
-# ufunc
-# broadcasting
-# @
-# 
