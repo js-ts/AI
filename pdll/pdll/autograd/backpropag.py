@@ -11,6 +11,11 @@ class ExecuteEngine(object):
         '''
         raise NotImplementedError
 
+    def destroy_graph(self, ):
+        '''
+        '''
+        raise NotImplementedError
+
     def backward_var(self, var, grad) -> None:
         ''' 
         '''
@@ -27,6 +32,9 @@ class ExecuteEngine(object):
         for _i, _grad in enumerate(grads_input):
             if _grad is not None:
                 self.backward_fn(creator.previous_functions[_i][0], _grad)
+        
+        # self.destroy_graph()
+
 
 class Leaf(object):
     '''leaf

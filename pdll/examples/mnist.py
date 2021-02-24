@@ -64,7 +64,7 @@ def test(model, test_loader):
         
         output = model(data)
 
-        correct += (output.tensor.argmax(axis=1) == label).sum()
+        correct += (output.data.numpy().argmax(axis=1) == label).sum()
 
 
     print('\nAccuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset)))
