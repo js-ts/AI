@@ -10,3 +10,6 @@ c.mean().backward()
 
 print(c.data)
 
+
+a.requires_grad = False
+

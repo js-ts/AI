@@ -20,11 +20,15 @@ class Tensor(object):
         self.creator = creator
         self.storage = data # storage
         self.grad = None
-        self.requires_grad = self.creator.requires_grad
 
     @property
     def data(self, ):
         return Tensor(self.storage)
+
+    @data.setter
+    def data(self, value):
+        assert isinstance(value, Tensor), ''
+        self = value
 
     def numpy(self, ):
         '''numpy
@@ -39,7 +43,16 @@ class Tensor(object):
     def dtype(self, ):
         return self.storage.dtype
         
-        
+    @property
+    def requires_grad(self, ):
+        return self.creator.requires_grad
+
+    @requires_grad.setter
+    def requires_grad(self, value):
+        assert isinstance(value, bool), ''
+        self.creator.requires_grad = value
+    
+
     def backward(self, grad=None):
         '''backward
         '''
