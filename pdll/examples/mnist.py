@@ -38,7 +38,7 @@ def train(args, model, train_loader, optimizer, epoch):
 
         data = L.from_numpy(np.array(data))
         label = np.array(label)
-        label = L.Variable(np.eye(10)[label])
+        label = L.Tensor(np.eye(10)[label])
 
         output = model(data)
         loss = F.cross_entropy(output, label)
@@ -51,7 +51,7 @@ def train(args, model, train_loader, optimizer, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, _idx * data.shape[0], len(train_loader.dataset),
                 100. * _idx * data.shape[0] / len(train_loader.dataset), 
-                loss.tensor))
+                loss.data.numpy()))
 
 
 def test(model, test_loader):
