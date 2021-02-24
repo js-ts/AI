@@ -18,6 +18,7 @@ class Tensor(object):
         if creator is None:
             creator = Leaf(self, requires_grad)
         self.creator = creator
+
         self.storage = data # storage
         self._grad = None
 
@@ -31,7 +32,7 @@ class Tensor(object):
         self = value
 
     def numpy(self, ):
-        '''numpy
+        '''cpu numpy
         '''
         return self.storage[...]
 
@@ -63,6 +64,9 @@ class Tensor(object):
         assert isinstance(value, bool), ''
         self.creator.requires_grad = value
     
+    @property
+    def device():
+        return 'cpu'
 
     def backward(self, grad=None):
         '''backward
