@@ -1,10 +1,10 @@
 from typing import Union
 
-from pdll.backend.executor import np, support_types
+from pdll.backend import executor # executor.np, executor.support_types
 
-from .backpropag import ExecuteEngine
-from .backpropag import Leaf
+from .backpropag import ExecuteEngine, Leaf
 
+print(executor.np)
 
 class Tensor(object):
     '''
@@ -12,7 +12,7 @@ class Tensor(object):
     _engine = ExecuteEngine()
     
     def __init__(self, data, creator=None, requires_grad=False):
-        assert isinstance(data, support_types), ''
+        assert isinstance(data, executor.support_types), ''
         assert isinstance(requires_grad, bool), ''
 
         if creator is None:
@@ -56,7 +56,7 @@ class Tensor(object):
     
     @storage.setter
     def storage(self, value):
-        assert isinstance(value, support_types), ''
+        assert isinstance(value, executor.support_types), ''
         self._storage = value
     
     @property
@@ -81,10 +81,10 @@ class Tensor(object):
         '''backward
         '''
         if grad is None:
-            grad = self.__class__(np.ones_like(self.storage))
+            grad = self.__class__(executor.np.ones_like(self.storage))
         elif isinstance(grad, (int, float)):
-            grad = self.__class__(np.array([grad]))
-        elif isinstance(grad, support_types):
+            grad = self.__class__(executor.np.array([grad]))
+        elif isinstance(grad, executor.support_types):
             grad = self.__class__(grad)
         elif isinstance(grad, self.__class__):
             assert grad.shape == self.shape, ''
