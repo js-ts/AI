@@ -48,17 +48,18 @@ except:
 
 np = None
 support_types = None
-
+engine_name = None
 
 class Engine(object):
     np = None
     support_types = None
+    engine_name = None
 
     @classmethod
     def set_engine(cls, name='numpy'):
         '''
         '''
-        global np, support_types
+        global np, support_types, engine_name
 
         assert name in ENGINES, f'{name} not registe.'
 
@@ -67,7 +68,7 @@ class Engine(object):
 
         cls.np = np 
         cls.support_types = support_types
-
+        cls.engine_name = name
 
 engine = Engine()
 set_engine = engine.set_engine

@@ -36,7 +36,12 @@ class Tensor(object):
     def numpy(self, ):
         '''numpy
         '''
-        return self._storage[...]
+        if executor.engine.engine_name == 'numpy':
+            return self._storage[...]
+        elif executor.engine.engine_name == 'cupy':
+            return self._storage.get()
+        else:
+            raise RuntimeError
 
     @property
     def grad(self, ):

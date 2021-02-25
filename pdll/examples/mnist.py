@@ -1,11 +1,12 @@
 import argparse
-import numpy as np 
+# import numpy as executor.np. 
 
 import _init_path
 import pdll as L
 import pdll.nn as nn
 import pdll.optim as optim
 import pdll.nn.functional as F
+from pdll.backend import executor
 
 
 class Net(nn.Module):
@@ -35,10 +36,12 @@ def train(args, model, train_loader, optimizer, epoch):
     model.train()
 
     for _idx, (data, label) in enumerate(train_loader):
+        data = list(data)
+        label = list(label)
 
-        data = L.from_numpy(np.array(data))
-        label = np.array(label)
-        label = L.Tensor(np.eye(10)[label])
+        data = L.from_numpy(executor.np.array(data))
+        label = executor.np.array(label)
+        label = L.Tensor(executor.np.eye(10)[label])
 
         output = model(data)
         loss = F.cross_entropy(output, label)
@@ -59,8 +62,12 @@ def test(model, test_loader):
 
     correct = 0
     for data, label in test_loader:
-        data = L.from_numpy(np.array(data))
-        label = np.array(label)
+
+        data = list(data)
+        label = list(label)
+
+        data = L.from_numpy(executor.np.array(data))
+        label = executor.np.array(label)
         
         output = model(data)
 
@@ -74,9 +81,9 @@ def main():
     # Training settings
     parser = argparse.ArgumentParser(description='MNIST Example')
     parser.add_argument('--batch-size', type=int, default=128, metavar='N',
-                        help='input batch size for training (default: 64)')
+                        help='iexecutor.np.ut batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
-                        help='input batch size for testing (default: 1000)')
+                        help='iexecutor.np.ut batch size for testing (default: 1000)')
     parser.add_argument('--epochs', type=int, default=5, metavar='N',
                         help='number of epochs to train (default: 14)')
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
