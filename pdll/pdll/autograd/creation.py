@@ -1,9 +1,10 @@
 
-from ..backend import np, support_types
-from .tensor import Tensor
-
 from typing import Tuple, Union
 from copy import deepcopy
+
+from pdll.backend.executor import np, support_types
+from .tensor import Tensor
+
 
 __all__ = [
     'rand', 'randn', 'eye',

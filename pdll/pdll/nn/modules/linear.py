@@ -1,6 +1,6 @@
 import math
 
-from pdll.backend import np
+from pdll.backend.executor import np, support_types
 from pdll.autograd import Tensor
 
 from ..parameter import Parameter

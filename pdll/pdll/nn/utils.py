@@ -1,7 +1,7 @@
 from typing import Tuple, Union
 import math
 
-from pdll.backend import np, support_types
+from pdll.backend.executor import np, support_types
 
 
 def im2col(data: Union[support_types], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):

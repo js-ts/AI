@@ -1,7 +1,7 @@
 from typing import Tuple, Union
 
 from pdll.autograd import Tensor
-from pdll.backend import np, support_types
+from pdll.backend.executor import np, support_types
 
 class Parameter(Tensor):
     '''parameter

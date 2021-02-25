@@ -3,7 +3,7 @@ from typing import Tuple, Union
 import operator
 import functools
 
-from pdll.backend import support_types, np
+from pdll.backend.executor import np, support_types
 from pdll.autograd import Function, Tensor, register
 
 from .parameter import Parameter

@@ -13,4 +13,3 @@
 
 
 from .executor import engine, set_engine
-from .executor import np, support_types

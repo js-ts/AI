@@ -2,7 +2,7 @@ import math
 from typing import Union, Tuple
 
 from pdll.autograd import Tensor
-from pdll.backend import np
+from pdll.backend.executor import np, support_types
 
 from ..parameter import Parameter
 from ..functional import conv2d

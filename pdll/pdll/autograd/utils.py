@@ -1,7 +1,8 @@
 from typing import Union, List, Tuple, Iterable
 import functools
 
-from ..backend import np, support_types
+from pdll.backend.executor import np, support_types
+
 from .tensor import Tensor
 
 __all__ = [
