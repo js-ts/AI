@@ -12,7 +12,7 @@ class Tensor(object):
     _engine = ExecuteEngine()
     
     def __init__(self, data, creator=None, requires_grad=False):
-        assert isinstance(data, executor.support_types), ''
+        assert isinstance(data, executor.support_types), f'{type(data)} not in {executor.support_types}'
         assert isinstance(requires_grad, bool), ''
 
         if creator is None:
