@@ -2,10 +2,10 @@ import math
 from typing import Union, Tuple
 
 from pdll.autograd import Tensor
-from pdll.backend import executor
 
 from ..parameter import Parameter
 from ..functional import conv2d
+from ..initialization import uniform
 from .module import Module
 
 
@@ -47,11 +47,11 @@ class Conv2d(Module):
         assert in_channels % groups == 0, 'k * 1/k * 1/k'
 
         k = math.sqrt(1. / (groups * in_channels * kernel_size[0] * kernel_size[1]))
-        weight_init = executor.np.random.uniform(low=-k, high=k, size=(out_channels, int(in_channels/groups), kernel_size[0], kernel_size[1]))
+        weight_init = uniform(low=-k, high=k, size=(out_channels, int(in_channels/groups), kernel_size[0], kernel_size[1]))
         self.weight = Parameter(data=weight_init)
         
         if bias:
-            bias_init = executor.np.random.uniform(low=-k, high=k, size=(self.out_channels, ))
+            bias_init = uniform(low=-k, high=k, size=(self.out_channels, ))
             self.bias = Parameter(data=bias_init)
         else:
             self.bias = None

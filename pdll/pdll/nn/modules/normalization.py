@@ -1,8 +1,7 @@
 
-# from pdll.backend.executor import np, support_types
-from pdll.backend import executor
 from pdll.autograd import Tensor
 
+from ..initialization import ones, zeros
 from ..parameter import Parameter
 from .module import Module
 
@@ -48,8 +47,8 @@ class BatchNorm2d(Module):
         self.track_running_stats = track_running_stats
         self.training = training
 
-        self.weight = Parameter(data=executor.np.ones(shape=(num_features, )))
-        self.bias = Parameter(data=executor.np.zeros(shape=(num_features, )))
+        self.weight = Parameter(data=ones(shape=(num_features, )))
+        self.bias = Parameter(data=zeros(shape=(num_features, )))
 
         if not self.affine:
             self.weight.requires_grad = False
@@ -59,8 +58,8 @@ class BatchNorm2d(Module):
         self.running_var = None
 
         if self.track_running_stats:
-            self.running_mean = Tensor(executor.np.zeros((num_features, ))) # N, H, W
-            self.running_var = Tensor(executor.np.ones((num_features)))
+            self.running_mean = Tensor(zeros((num_features, ))) # N, H, W
+            self.running_var = Tensor(ones((num_features)))
             self.running_num_batches = 0
             self.register_buffer('running_mean', self.running_mean)
             
@@ -99,9 +98,9 @@ class GroupNorm2d(Module):
 
         self.num_groups = num_groups
         self.num_features = num_features
-        self.weight = Parameter(executor.np.ones((1, num_features, 1, 1)))
+        self.weight = Parameter(ones((1, num_features, 1, 1)))
         if use_bias:
-            self.bias = Parameter(executor.np.zeros((1, num_features, 1, 1)))
+            self.bias = Parameter(zeros((1, num_features, 1, 1)))
         self.eps = eps
         self.use_bias = use_bias
 
