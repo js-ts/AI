@@ -12,14 +12,18 @@ class Tensor(object):
     _engine = ExecuteEngine()
     
     def __init__(self, data, creator=None, requires_grad=False):
-        assert isinstance(data, support_types), f'{data} {type(data)}'
+        assert isinstance(data, support_types), ''
         assert isinstance(requires_grad, bool), ''
 
         if creator is None:
             creator = Leaf(self, requires_grad)
-        self.creator = creator
-        self.storage = data # storage
+        self._creator = creator
+        self._storage = data
         self._grad = None
+
+    @property
+    def creator(self, ):
+        return self._creator
 
     @property
     def data(self, ):
@@ -33,7 +37,7 @@ class Tensor(object):
     def numpy(self, ):
         '''numpy
         '''
-        return self.storage[...]
+        return self._storage[...]
 
     @property
     def grad(self, ):
@@ -47,12 +51,21 @@ class Tensor(object):
         self._grad = value
 
     @property
+    def storage(self, ):
+        return self._storage
+    
+    @storage.setter
+    def storage(self, value):
+        assert isinstance(value, support_types), ''
+        self._storage = value
+    
+    @property
     def shape(self, ):
-        return self.storage.shape
+        return self._storage.shape
 
     @property
     def dtype(self, ):
-        return self.storage.dtype
+        return self._storage.dtype
         
     @property
     def requires_grad(self, ):
