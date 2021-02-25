@@ -1,5 +1,5 @@
 
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..functional import softmax 
 from ..functional import cross_entropy
@@ -14,7 +14,7 @@ class Softmax(Module):
         super().__init__()
         self.axis = axis
 
-    def forward(self, data: Variable) -> Variable: 
+    def forward(self, data: Tensor) -> Tensor: 
         return softmax(data, self.axis)
     
     def ext_repr(self, ) -> str:
@@ -30,7 +30,7 @@ class CrossEntropyLoss(Module):
         self.axis = axis
         self.reduction = reduction
 
-    def forward(self, data: Variable, target: Variable) -> Variable: 
+    def forward(self, data: Tensor, target: Tensor) -> Tensor: 
         return cross_entropy(data, target, axis=self.axis, reduction=self.reduction)
 
     def ext_repr(self, ) -> str:
@@ -42,7 +42,7 @@ class MSELoss(Module):
         super().__init__()
         self.reduction = reduction.lower()
 
-    def forward(self, data: Variable, target: Variable):
+    def forward(self, data: Tensor, target: Tensor):
         '''
         '''
         if self.reduction == 'mean':

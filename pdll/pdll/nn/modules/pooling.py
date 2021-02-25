@@ -1,6 +1,6 @@
 from typing import Tuple, Union, Union
 
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..functional import pool2d
 from .module import Module
@@ -33,7 +33,7 @@ class Pool2d(Module):
         self.dilation = dilation
         self.mode = mode
 
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         return pool2d(data, self.kernel_size, self.stride, self.padding, self.dilation, self.mode)
         
     def ext_repr(self, ) -> str:

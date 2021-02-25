@@ -1,6 +1,6 @@
 from typing import Tuple, Optional
 
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 
 from ..functional import dropout
 from .module import Module
@@ -16,7 +16,7 @@ class Dropout(Module):
         self.training = training
         self.inspace = inspace
 
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         return dropout(data, self.p, self.training, self.inspace)
 
     def ext_repr(self, ) -> str:

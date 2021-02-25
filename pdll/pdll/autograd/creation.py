@@ -1,67 +1,72 @@
 
-from ..backend import np 
-from ..backend import Tensor
-from .variable import Variable
+from ..backend import np, support_types
+from .tensor import Tensor
 
-from typing import Tuple
+from typing import Tuple, Union
+from copy import deepcopy
 
 __all__ = [
     'rand', 'randn', 'eye',
     'ones', 'ones_like',
     'zeros', 'zeros_like',
-    'from_numpy',
+    'from_numpy', 'tensor',
 ]
 
-def rand(*shape: Tuple[int], requires_grad=False) -> Variable:
+
+def tensor(data: Union[support_types]) -> Tensor:
+    return Tensor(deepcopy(data))
+
+
+def rand(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
     data = np.random.rand(*shape)
-    return Variable(data, requires_grad=requires_grad)
+    return Tensor(data, requires_grad=requires_grad)
 
 
-def randn(*shape: Tuple[int], requires_grad=False) -> Variable:
+def randn(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
     data = np.random.randn(*shape)
-    return Variable(data, requires_grad=requires_grad)
+    return Tensor(data, requires_grad=requires_grad)
 
 
-def zeros(*shape: Tuple[int], requires_grad=False) -> Variable:
+def zeros(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
     data = np.zeros(shape)
-    return Variable(data, requires_grad=requires_grad)
+    return Tensor(data, requires_grad=requires_grad)
 
 
-def ones(*shape: Tuple[int], requires_grad=False) -> Variable:
+def ones(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
     data = np.ones(shape)
-    return Variable(data, requires_grad=requires_grad)
+    return Tensor(data, requires_grad=requires_grad)
 
 
-def zeros_like(v: Variable, requires_grad=False) -> Variable:
+def zeros_like(v: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.zeros_like(v.data)
-    return Variable(data, requires_grad=requires_grad)
+    data = np.zeros(v.shape, dtype=v.dtype)
+    return Tensor(data, requires_grad=requires_grad)
 
 
-def ones_like(v: Variable, requires_grad=False) -> Variable:
+def ones_like(v: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.ones_like(v.data)
-    return Variable(data, requires_grad=requires_grad)
+    data = np.ones(v.shape, dtype=v.dtype)
+    return Tensor(data, requires_grad=requires_grad)
 
 
-def from_numpy(data: Tensor, requires_grad=False) -> Variable:
+def from_numpy(data: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    return Variable(data, requires_grad=requires_grad)
+    return Tensor(data, requires_grad=requires_grad)
 
 
 def eye(*shape, requires_grad=False):
     '''
     '''
     data = np.eye(shape)
-    return Variable(data, requires_grad=requires_grad)
+    return Tensor(data, requires_grad=requires_grad)

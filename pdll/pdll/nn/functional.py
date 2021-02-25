@@ -3,30 +3,32 @@ from typing import Tuple, Union
 import operator
 import functools
 
-from pdll.backend import Tensor, np
-from pdll.autograd import Function, Variable, register
+from pdll.backend import support_types, np
+from pdll.autograd import Function, Tensor, register
+
+from .parameter import Parameter
 from .utils import im2col, col2im
 
 
 class _Sigmoid(Function):
     """sigmoid
     """
-    def forward(self, t: Tensor) -> Tensor:
+    def forward(self, t: Union[support_types]) -> Union[support_types]:
         self.out = 1. / (1. + np.exp(-t)) 
         return self.out
     
-    def backward(self, grad: Tensor) -> Tensor:
+    def backward(self, grad: Union[support_types]) -> Union[support_types]:
         return grad * self.out * (1. - self.out)
 
 
 class _ReLU(Function):
     """relu 
     """ 
-    def forward(self, t: Tensor) -> Tensor:
+    def forward(self, t: Union[support_types]) -> Union[support_types]:
         self.mask = t > 0
         return t * self.mask
     
-    def backward(self, grad: Tensor) -> Tensor:
+    def backward(self, grad: Union[support_types]) -> Union[support_types]:
         return grad * self.mask
 
 
@@ -35,23 +37,23 @@ class _Tanh(Function):
     formul: (exp(x) + exp(-x)) / (exp(x) - exp(-x))
     derive : 1 - tanh(x) ** 2
     """
-    def forward(self, t: Tensor) -> Tensor:
+    def forward(self, t: Union[support_types]) -> Union[support_types]:
         self.out = np.tanh(t)
         return self.out
     
-    def backward(self, grad: Tensor) -> Tensor:
+    def backward(self, grad: Union[support_types]) -> Union[support_types]:
         return grad  * (1 - self.out ** 2)
 
 
-@register(Variable)
+@register(Tensor)
 def relu(self, ):
     return _ReLU()(self)[0]
 
-@register(Variable)
+@register(Tensor)
 def tanh(self, ):
     return _Tanh()(self)[0]
 
-@register(Variable)
+@register(Tensor)
 def sigmoid(self, ):
     return _Sigmoid()(self)[0]
 
@@ -67,7 +69,7 @@ class _Conv2d(Function):
         self.dilation = dilation
         self.groups = groups
 
-    def forward(self, data: Tensor, weight: Tensor, bias: Tensor) -> Tensor:
+    def forward(self, data: Union[support_types], weight: Union[support_types], bias: Union[support_types]) -> Union[support_types]:
         '''
         n c h w
         co ci kh kw
@@ -104,7 +106,7 @@ class _Conv2d(Function):
             return output
 
 
-    def backward(self, grad: Tensor):
+    def backward(self, grad: Union[support_types]):
         '''grad n cout hout wout
         '''
         n, cout, hout, wout = grad.shape
@@ -144,7 +146,7 @@ class _Conv2d(Function):
         return data_grad, weight_grad, bias_grad
 
 
-def conv2d(v: Variable, w: Variable, b: Variable, kernel: Union[int, Tuple[int, ...]], stride: Union[int, Tuple[int, ...]], padding: Union[int, Tuple[int, ...]], dilation: int, groups: int):
+def conv2d(v: Tensor, w: Parameter, b: Parameter, kernel: Union[int, Tuple[int, ...]], stride: Union[int, Tuple[int, ...]], padding: Union[int, Tuple[int, ...]], dilation: int, groups: int):
     '''conv2d
     '''
     return _Conv2d(kernel, stride, padding, dilation, groups)(v, w, b)[0]
@@ -162,7 +164,7 @@ class _Pool2d(Function):
         self.dilation = dilation
         self.mode = mode
 
-    def forward(self, data: Tensor):
+    def forward(self, data: Union[support_types]):
         ''''''
         self.shape = data.shape
         n, c, _, _ = data.shape
@@ -180,7 +182,7 @@ class _Pool2d(Function):
         return out
 
 
-    def backward(self, grad: Tensor):
+    def backward(self, grad: Union[support_types]):
         n, c, oh, ow = grad.shape
         grad = grad[:, :, np.newaxis, :, :]
         if self.mode.lower() == 'max':
@@ -197,7 +199,7 @@ class _Pool2d(Function):
 
 
 
-def pool2d(v: Variable, kernel: Union[int, Tuple[int, ...]], stride: Union[int, Tuple[int, ...]], padding: Union[int, Tuple[int, ...]]=0, dilation: int=1, mode: str='max') -> Variable:
+def pool2d(v: Tensor, kernel: Union[int, Tuple[int, ...]], stride: Union[int, Tuple[int, ...]], padding: Union[int, Tuple[int, ...]]=0, dilation: int=1, mode: str='max') -> Tensor:
     '''pool2d
     '''
     if isinstance(kernel, int):
@@ -244,8 +246,8 @@ class _Softmax(Function):
         return self.a * (grad - (grad * self.a).sum(axis=self.axis, keepdims=True))
         
 
-@register(Variable)
-def softmax(self: Variable, axis: int) -> Variable:
+@register(Tensor)
+def softmax(self: Tensor, axis: int) -> Tensor:
     '''softmax
     '''
     return _Softmax(axis)(self)[0]
@@ -286,7 +288,7 @@ class _CrossEntropy(Function):
         return grad_logit, None
 
 
-def cross_entropy(logit: Variable, label: Variable, axis: int=-1, reduction: str='mean') -> Variable:
+def cross_entropy(logit: Tensor, label: Tensor, axis: int=-1, reduction: str='mean') -> Tensor:
     '''
     '''
     return _CrossEntropy(axis, reduction)(logit, label)[0]
@@ -301,7 +303,7 @@ class _Dropout(Function):
         self.training = training
         self.inspace = inspace
 
-    def forward(self, t: Tensor) -> Tensor:
+    def forward(self, t: Union[support_types]) -> Union[support_types]:
         '''
         '''
         if not self.training:
@@ -317,7 +319,7 @@ class _Dropout(Function):
         return grad * self.mask / (1 - self.p)
 
 
-def dropout(v: Variable, p: float, training: bool=True, inspace: bool=True) -> Variable:
+def dropout(v: Tensor, p: float, training: bool=True, inspace: bool=True) -> Tensor:
     '''dropout
     '''
     return _Dropout(p, training, inspace)(v)[0]
@@ -338,7 +340,7 @@ class _Padding(Function):
         self.value = value
         assert self.mode in ('constant')
 
-    def forward(self, data: Tensor) -> Tensor:
+    def forward(self, data: Union[support_types]) -> Union[support_types]:
         '''
         '''
         pad = self.pad
@@ -359,7 +361,7 @@ class _Padding(Function):
 
         return np.pad(data, pad_width=padding, mode=self.mode, constant_values=self.value)
 
-    def backward(self, grad: Tensor) -> Tensor:
+    def backward(self, grad: Union[support_types]) -> Union[support_types]:
         '''
         '''
         slices = []
@@ -372,7 +374,7 @@ class _Padding(Function):
         return grad[tuple(slices)]
 
 
-def zero_pad2d(data: Variable, padding: Union[int, Tuple[int, int, int, int]]):
+def zero_pad2d(data: Tensor, padding: Union[int, Tuple[int, int, int, int]]):
     '''zero pad2d
     '''
     assert len(data.shape) == 4, ''
@@ -382,7 +384,7 @@ def zero_pad2d(data: Variable, padding: Union[int, Tuple[int, int, int, int]]):
     return _Padding(padding, mode='constant', value=0)(data)[0]
 
 
-def constant_pad2d(data: Variable, padding: Union[int, Tuple[int, int, int, int]], value: float=0):
+def constant_pad2d(data: Tensor, padding: Union[int, Tuple[int, int, int, int]], value: float=0):
     '''constant pad2d
     '''
     assert len(data.shape) == 4, ''

@@ -1,39 +1,38 @@
 from typing import Union, List, Tuple, Iterable
 import functools
 
-from ..backend import np
-from ..backend import Tensor
-from .variable import Variable
+from ..backend import np, support_types
+from .tensor import Tensor
+
+__all__ = [
+    'to_tensor',
+    'broadcast_reverse',
+    'register',
+]
 
 
-def to_tensor(data, dtype=np.float64):
-    if isinstance(data, Tensor):
-        return data.astype(dtype)
-    else:
-        return np.array(data).astype(dtype)
+def _to_numpy(data, dtype=np.float32):
+    return np.array(data).astype(dtype)
 
-def to_variable(data):
-    '''make sure data is variable
+def to_tensor(data):
+    '''make sure data is Tensor
     '''
     if isinstance(data, (int, float)):
-        data = to_tensor(data)
-        return Variable(data)
+        data = _to_numpy(data)
+        return Tensor(data)
 
     elif isinstance(data, (list, tuple)):
-        data = to_tensor(data)
-        return Variable(data)
-
-    elif isinstance(data, Tensor):
-        return Variable(data)
+        data = _to_numpy(data)
+        return Tensor(data)
         
-    elif isinstance(data, Variable):
+    elif isinstance(data, Tensor):
         return data
 
     else:
         raise RuntimeError('not support data type.')
 
 
-def broadcast_reverse(grad: Tensor, shape: Iterable[int]) -> Tensor: 
+def broadcast_reverse(grad, shape: Iterable[int]): 
     '''reverse grad to shape
     '''
     _extdims = grad.ndim - len(shape)
@@ -51,7 +50,7 @@ def broadcast_reverse(grad: Tensor, shape: Iterable[int]) -> Tensor:
     return grad
 
 
-def register(cls=Variable):
+def register(cls=Tensor):
     '''register
     '''
     def decorator(func):

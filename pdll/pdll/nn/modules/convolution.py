@@ -1,7 +1,7 @@
 import math
 from typing import Union, Tuple
 
-from pdll.autograd import Variable
+from pdll.autograd import Tensor
 from pdll.backend import np
 
 from ..parameter import Parameter
@@ -56,7 +56,7 @@ class Conv2d(Module):
         else:
             self.bias = None
 
-    def forward(self, data: Variable) -> Variable:
+    def forward(self, data: Tensor) -> Tensor:
         return conv2d(data, self.weight, self.bias, self.kernel_size, self.stride, self.padding, self.dilation, self.groups)
 
     def ext_repr(self, ) -> str:
