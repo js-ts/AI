@@ -36,11 +36,9 @@ def train(args, model, train_loader, optimizer, epoch):
     model.train()
 
     for _idx, (data, label) in enumerate(train_loader):
-        data = list(data)
-        label = list(label)
 
-        data = L.from_numpy(executor.np.array(data))
-        label = executor.np.array(label)
+        data = L.from_numpy(executor.np.array(list(data)))
+        label = executor.np.array(list(label))
         label = L.Tensor(executor.np.eye(10)[label])
 
         output = model(data)
@@ -63,11 +61,8 @@ def test(model, test_loader):
     correct = 0
     for data, label in test_loader:
 
-        data = list(data)
-        label = list(label)
-
-        data = L.from_numpy(executor.np.array(data))
-        label = executor.np.array(label)
+        data = L.from_numpy(executor.np.array(list(data)))
+        label = executor.np.array(list(label))
         
         output = model(data)
 
