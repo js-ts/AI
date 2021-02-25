@@ -1,6 +1,5 @@
 
-from pdll.backend import engine
-np = engine.np
+from pdll.backend import np
 
 
 class ExecuteEngine(object):
