@@ -1,6 +1,5 @@
 import math
 
-from pdll.backend import executor
 from pdll.autograd import Tensor
 
 from ..parameter import Parameter
