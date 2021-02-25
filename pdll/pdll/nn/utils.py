@@ -1,10 +1,9 @@
 from typing import Tuple, Union
 import math
 
-from pdll.backend.executor import np, support_types
+from pdll.backend import executor
 
-
-def im2col(data: Union[support_types], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):
+def im2col(data: Union[executor.support_types], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):
     '''im2col
     N C H W -> n h w c k k
     '''
@@ -16,9 +15,9 @@ def im2col(data: Union[support_types], kernel: Tuple[int, ...], stride: Tuple[in
     # wpad = (padding[1]//2, padding[1] - padding[1]//2)
     hpad = (padding[0], padding[1])
     wpad = (padding[2], padding[3])
-    data = np.pad(data, pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant')
+    data = executor.np.pad(data, pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant')
     
-    matrix = np.zeros((n, c, kernel[0], kernel[1], out_h, out_w))
+    matrix = executor.np.zeros((n, c, kernel[0], kernel[1], out_h, out_w))
 
     for i, i_data in enumerate(range(dilation * (kernel[0] - 1) + 1)[::dilation]):
         for j, j_data in enumerate(range(dilation * (kernel[1] - 1) + 1)[::dilation]):
@@ -27,7 +26,7 @@ def im2col(data: Union[support_types], kernel: Tuple[int, ...], stride: Tuple[in
     return matrix, out_h, out_w
     
 
-def col2im(matrix: Union[support_types], shape: Tuple[int, ...], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):
+def col2im(matrix: Union[executor.support_types], shape: Tuple[int, ...], kernel: Tuple[int, ...], stride: Tuple[int, ...], padding: Tuple[int, ...], dilation: int=1):
     '''
     matrix: (n, cin, hk, wk, hout, wout)
     '''
@@ -36,7 +35,7 @@ def col2im(matrix: Union[support_types], shape: Tuple[int, ...], kernel: Tuple[i
 
     hpad = (padding[0], padding[1])
     wpad = (padding[2], padding[3])
-    data = np.pad(np.zeros(shape), pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant',)
+    data = executor.np.pad(executor.np.zeros(shape), pad_width=((0, 0), (0, 0), hpad, wpad), mode='constant',)
     _, _, H, W = data.shape
     
     for i, i_data in enumerate(range(dilation * (kernel[0] - 1) + 1)[::dilation]):

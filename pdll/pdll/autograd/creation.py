@@ -2,7 +2,6 @@
 from typing import Tuple, Union
 from copy import deepcopy
 
-from pdll.backend.executor import np, support_types
 from pdll.backend import executor
 
 from .tensor import Tensor
@@ -30,35 +29,35 @@ def rand(*shape: Tuple[int], requires_grad=False) -> Tensor:
 def randn(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.random.randn(*shape)
+    data = executor.np.random.randn(*shape)
     return Tensor(data, requires_grad=requires_grad)
 
 
 def zeros(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.zeros(shape)
+    data = executor.np.zeros(shape)
     return Tensor(data, requires_grad=requires_grad)
 
 
 def ones(*shape: Tuple[int], requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.ones(shape)
+    data = executor.np.ones(shape)
     return Tensor(data, requires_grad=requires_grad)
 
 
 def zeros_like(v: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.zeros(v.shape, dtype=v.dtype)
+    data = executor.np.zeros(v.shape, dtype=v.dtype)
     return Tensor(data, requires_grad=requires_grad)
 
 
 def ones_like(v: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    data = np.ones(v.shape, dtype=v.dtype)
+    data = executor.np.ones(v.shape, dtype=v.dtype)
     return Tensor(data, requires_grad=requires_grad)
 
 
@@ -71,5 +70,5 @@ def from_numpy(data: Tensor, requires_grad=False) -> Tensor:
 def eye(*shape, requires_grad=False):
     '''
     '''
-    data = np.eye(shape)
+    data = executor.np.eye(shape)
     return Tensor(data, requires_grad=requires_grad)

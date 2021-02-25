@@ -1,6 +1,6 @@
 from typing import Union
 
-from pdll.backend import executor # executor.np, executor.support_types
+from pdll.backend import executor 
 
 from .backpropag import ExecuteEngine, Leaf
 

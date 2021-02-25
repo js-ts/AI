@@ -3,7 +3,7 @@ from typing import Tuple, Iterable, Iterator, Union
 from functools import reduce as REDUCE
 from operator import mul as MUL
 
-from pdll.backend.executor import np, support_types
+from pdll.backend import executor
 
 from .function import Function
 from .tensor import Tensor
@@ -24,14 +24,14 @@ class _Add(Function):
     add broadcast
     [1, 3] + [2, 4, 3] -> [2, 4, 3]
     '''
-    def forward(self, a: Union[support_types], b: Union[support_types]) -> Union[support_types]:
+    def forward(self, a: Union[executor.support_types], b: Union[executor.support_types]) -> Union[executor.support_types]:
         c = a + b
         self.a_shape = a.shape
         self.b_shape = b.shape
         self.c_shape = c.shape
         return c
 
-    def backward(self, grad: Union[support_types]) -> Tuple[Union[support_types], Union[support_types]]:
+    def backward(self, grad: Union[executor.support_types]) -> Tuple[Union[executor.support_types], Union[executor.support_types]]:
         assert self.c_shape == grad.shape, 'add' 
         a_grad = broadcast_reverse(grad, self.a_shape)
         b_grad = broadcast_reverse(grad, self.b_shape)
@@ -41,7 +41,7 @@ class _Add(Function):
 class _Sub(Function):
     '''a - b
     '''
-    def forward(self, a: Union[support_types], b: Union[support_types]) -> Union[support_types]:
+    def forward(self, a: Union[executor.support_types], b: Union[executor.support_types]) -> Union[executor.support_types]:
         c = a - b
         self.a_shape = a.shape
         self.b_shape = b.shape
@@ -58,17 +58,17 @@ class _Sub(Function):
 class _Neg(Function):
     '''-t 
     '''
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
         return -t 
     
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         return -grad
 
 
 class _Mul(Function):
     '''a * b
     '''
-    def forward(self, a: Union[support_types], b: Union[support_types]) -> Union[support_types]:
+    def forward(self, a: Union[executor.support_types], b: Union[executor.support_types]) -> Union[executor.support_types]:
         c = a * b
         self.a = a
         self.b = b
@@ -85,8 +85,8 @@ class _Mul(Function):
 class _Div(Function):
     '''a / b
     '''
-    def forward(self, a: Union[support_types], b: Union[support_types], eps: float=1e-10) -> Union[support_types]:
-        # np.testing.assert_almost_equal(b, 0)
+    def forward(self, a: Union[executor.support_types], b: Union[executor.support_types], eps: float=1e-10) -> Union[executor.support_types]:
+        # executor.np.testing.assert_almost_equal(b, 0)
         c = a / b
         self.a = a
         self.b = b
@@ -94,7 +94,7 @@ class _Div(Function):
         self.eps = eps
         return c
     
-    def backward(self, grad: Union[support_types]):
+    def backward(self, grad: Union[executor.support_types]):
         assert grad.shape == self.c_shape
         a_grad = grad / self.b
         b_grad = -grad * self.a / (self.b ** 2 + 1e-10)
@@ -109,7 +109,7 @@ class _Matmul(Function):
     grad @ t2.T [2, 5] [5, 3] -> [2, 3]
     t1.T @ grad [3, 2] [2, 5] -> [3, 5]
     '''
-    def forward(self, t1: Union[support_types], t2: Union[support_types]) -> Union[support_types]:
+    def forward(self, t1: Union[executor.support_types], t2: Union[executor.support_types]) -> Union[executor.support_types]:
         # assert t1.ndim == t1.ndim, ''
         out = t1 @ t2
         self.t1 = t1
@@ -117,7 +117,7 @@ class _Matmul(Function):
         self.out_shape = out.shape
         return out
     
-    def backward(self, grad: Union[support_types]) -> Tuple[Union[support_types]]:
+    def backward(self, grad: Union[executor.support_types]) -> Tuple[Union[executor.support_types]]:
         assert grad.shape == self.out_shape, ''
 
         t1_shape = self.t1.shape
@@ -141,12 +141,12 @@ class _GetItem(Function):
         self.index = index
         super().__init__()
     
-    def forward(self, t: Union[support_types]):
+    def forward(self, t: Union[executor.support_types]):
         self.t_shape = t.shape
         return t[self.index]
     
     def backward(self, grad):
-        _grad = np.zeros(shape=self.t_shape)
+        _grad = executor.np.zeros(shape=self.t_shape)
         _grad[self.index] = grad
         return _grad
 
@@ -161,11 +161,11 @@ class _Sum(Function):
         self.axis = axis
         self.keepdims = keepdims
 
-    def forward(self, t: Union[support_types]):
+    def forward(self, t: Union[executor.support_types]):
         self.t_shape = t.shape
         return t.sum(self.axis, keepdims=self.keepdims)
 
-    def backward(self, grad: Union[support_types]):
+    def backward(self, grad: Union[executor.support_types]):
         if self.axis is None:
             self.axis = tuple(range(len(self.t_shape)))
 
@@ -176,7 +176,7 @@ class _Sum(Function):
             for ax in self.axis:
                 shape[ax] = 1
         
-        return grad.reshape(shape) * np.ones(self.t_shape)
+        return grad.reshape(shape) * executor.np.ones(self.t_shape)
 
 
 class _Mean(Function):
@@ -188,11 +188,11 @@ class _Mean(Function):
         self.axis = axis 
         self.keepdims = keepdims
 
-    def forward(self, t: Union[support_types]):
+    def forward(self, t: Union[executor.support_types]):
         self.t_shape = t.shape
         return t.mean(self.axis, keepdims=self.keepdims)
     
-    def backward(self, grad: Union[support_types]):
+    def backward(self, grad: Union[executor.support_types]):
         if self.axis is None:
             self.axis = tuple(range(len(self.t_shape)))
 
@@ -204,7 +204,7 @@ class _Mean(Function):
                 shape[ax] = 1
         
         ks = [self.t_shape[i] for i in self.axis]
-        return grad.reshape(shape) * np.ones(self.t_shape) / REDUCE(MUL, ks)
+        return grad.reshape(shape) * executor.np.ones(self.t_shape) / REDUCE(MUL, ks)
 
 
 class _Pow(Function):
@@ -219,8 +219,8 @@ class _Pow(Function):
         self.t = t
         return t ** self.n
 
-    def backward(self, grad: Union[support_types]):
-        # grad * self.o * np.log(self.t + 1e-15)
+    def backward(self, grad: Union[executor.support_types]):
+        # grad * self.o * executor.np.log(self.t + 1e-15)
         return grad * self.n * (self.t ** (self.n-1))
 
 
@@ -229,11 +229,11 @@ class _Reshape(Function):
         self.shape = shape
         super().__init__()
     
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
         self.t_shape = t.shape
         return t.reshape(*self.shape)
     
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         grad = grad[...]
         return grad.reshape(*self.t_shape)
 
@@ -243,23 +243,23 @@ class _Transpose(Function):
         super().__init__()
         self.dims = dims
     
-    def forward(self, t: Union[support_types]):
+    def forward(self, t: Union[executor.support_types]):
         assert len(self.dims) == len(t.shape)
         return t.transpose(*self.dims)
     
-    def backward(self, grad: Union[support_types]):
-        idx_reverse = np.argsort(self.dims)
+    def backward(self, grad: Union[executor.support_types]):
+        idx_reverse = executor.np.argsort(self.dims)
         return grad.transpose(*idx_reverse)
 
 
 class _Exp(Function):
     """exp 
     """
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
-        self.out = np.exp(t)
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
+        self.out = executor.np.exp(t)
         return self.out
     
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         return grad * self.out
 
 
@@ -270,13 +270,13 @@ class _RPow(Function):
     def __init__(self, a):
         self.a = a
 
-    def forward(self, t: Union[support_types]):
+    def forward(self, t: Union[executor.support_types]):
         self.t = t
         self.out = self.a ** t 
         return self.out
     
-    def backward(self, grad: Union[support_types]):
-        return grad * self.out * np.log(self.a + 1e-10)
+    def backward(self, grad: Union[executor.support_types]):
+        return grad * self.out * executor.np.log(self.a + 1e-10)
 
 
 # ------ register method
@@ -437,7 +437,7 @@ def add_(self, other) -> None:
     gaurantee_inspace(self)
     if isinstance(other, ):
         self.storage[...] += other.storage
-    elif isinstance(other, Union[support_types]):
+    elif isinstance(other, Union[executor.support_types]):
         self.storage[...] += other
 
 @register()
@@ -445,7 +445,7 @@ def sub_(self, other) -> None:
     gaurantee_inspace(self)
     if isinstance(other, ):
         self.storage[...] -= other.storage
-    elif isinstance(other, Union[support_types]):
+    elif isinstance(other, Union[executor.support_types]):
         self.storage[...] -= other
 
 @register()
@@ -453,5 +453,5 @@ def mul_(self, other) -> None:
     gaurantee_inspace(self)
     if isinstance(other, ):
         self.storage[...] *= other.storage
-    elif isinstance(other, Union[support_types]):
+    elif isinstance(other, Union[executor.support_types]):
         self.storage[...] *= other
