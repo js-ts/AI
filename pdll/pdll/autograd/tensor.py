@@ -4,7 +4,6 @@ from pdll.backend import executor
 
 from .backpropag import ExecuteEngine, Leaf
 
-print(executor.np)
 
 class Tensor(object):
     '''
