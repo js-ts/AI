@@ -3,7 +3,9 @@ import _init_path
 
 
 import pdll as L
-from pdll.backend import np 
+
+from pdll.backend.executor import np
+
 import torch
 import numpy 
 

@@ -1,5 +1,6 @@
 
-from pdll.backend import np 
+from pdll.backend import engine
+np, support_types = engine.np, engine.support_types 
 
 class ExecuteEngine(object):
     
