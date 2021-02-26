@@ -29,3 +29,8 @@
 - tmux new -s L
 - tmux detach
 - tmux attach -t L
+
+
+## fuser
+- fuser -v /dev/nvidia*
+- 
