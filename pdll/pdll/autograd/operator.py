@@ -286,6 +286,12 @@ def add(self, other):
     other = to_tensor(other)
     return _Add()(self, other)[0]
 
+
+@register()
+def iadd(self, other):
+    other = to_tensor(other)
+    return _Add()(self, other)[0]
+
 @register()
 def sub(self, other):
     other = to_tensor(other)
