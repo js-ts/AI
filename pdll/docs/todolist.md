@@ -44,6 +44,9 @@
             - [x] zero, constant
         - [x] softmax
         - [x] dropout
+        - [x] attention
+            - [x] multi-head
+            - [x] self-attention
     - [x] loss
         - [x] mse
         - [x] cross entropy
