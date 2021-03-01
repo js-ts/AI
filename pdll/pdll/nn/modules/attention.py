@@ -76,7 +76,7 @@ class MultiHeadAttention(Module):
 
         output, attn = _attention(query, key, value, dropout=self.dropout)
 
-        output = output.reshape(n, self.num_heads, l, -1).transpose(2, 0, 1, 3).reshape(l, n, -1)
+        output = output.transpose(1, 0, 2).reshape(l, n, -1)
         output = self.out_proj(output)
 
         return output, attn
