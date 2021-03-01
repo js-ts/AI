@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Union, Tuple, List, Any, Iterable
 
-from pdll.backend import support_types, np
+
 from .tensor import Tensor
 
 

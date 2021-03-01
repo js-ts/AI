@@ -1,13 +1,14 @@
 from typing import Tuple, Union
 
 from pdll.autograd import Tensor
-from pdll.backend import np, support_types
+
+from .initialization import uniform, zeros
 
 class Parameter(Tensor):
     '''parameter
     '''
-    def __init__(self, *shape, data: Union[support_types]=None):
+    def __init__(self, *shape, data):
         if shape:
-            data = np.random.rand(shape) * 2 - 1
+            data = uniform(-1, 1, size=shape)
         super().__init__(data, requires_grad=True)
-        self.grad = Tensor(np.zeros(self.shape))
+        self.grad = Tensor(zeros(self.shape))

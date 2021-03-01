@@ -1,7 +1,7 @@
 
-from pdll.backend import np
 from pdll.autograd import Tensor
 
+from ..initialization import ones, zeros
 from ..parameter import Parameter
 from .module import Module
 
@@ -14,7 +14,7 @@ class BatchNorm2d(Module):
     import torch
     import numpy as np
 
-    data = np.random.rand(3, 8, 10, 10).astype(np.float32)
+    data = executor.np.random.rand(3, 8, 10, 10).astype(executor.np.float32)
     bn = torch.nn.BatchNorm2d(8, eps=1e-5, momentum=0.1, affine=True, track_running_stats=True)
     bn_var = variable.BatchNorm2d(8, eps=1e-5, momentum=0.1, affine=True, track_running_stats=True, training=True)
 
@@ -28,12 +28,12 @@ class BatchNorm2d(Module):
     out_v = bn_var(v)
     out_v.mean().backward()
 
-    np.testing.assert_almost_equal(out_t.data.numpy(), out_v.data, decimal=4)
-    np.testing.assert_almost_equal(bn.running_mean.data.numpy(), bn_var.running_mean, decimal=4)
-    np.testing.assert_almost_equal(bn.running_var.data.numpy(), bn_var.running_var, decimal=4)
-    np.testing.assert_almost_equal(bn.weight.data.numpy(), bn_var.weight.data, decimal=4)
-    np.testing.assert_almost_equal(bn.bias.data.numpy(), bn_var.bias.data, decimal=4)
-    np.testing.assert_almost_equal(t.grad.data.numpy(), v.grad, decimal=4)
+    executor.np.testing.assert_almost_equal(out_t.data.numpy(), out_v.data, decimal=4)
+    executor.np.testing.assert_almost_equal(bn.running_mean.data.numpy(), bn_var.running_mean, decimal=4)
+    executor.np.testing.assert_almost_equal(bn.running_var.data.numpy(), bn_var.running_var, decimal=4)
+    executor.np.testing.assert_almost_equal(bn.weight.data.numpy(), bn_var.weight.data, decimal=4)
+    executor.np.testing.assert_almost_equal(bn.bias.data.numpy(), bn_var.bias.data, decimal=4)
+    executor.np.testing.assert_almost_equal(t.grad.data.numpy(), v.grad, decimal=4)
 
     '''
 
@@ -47,8 +47,8 @@ class BatchNorm2d(Module):
         self.track_running_stats = track_running_stats
         self.training = training
 
-        self.weight = Parameter(data=np.ones(shape=(num_features, )))
-        self.bias = Parameter(data=np.zeros(shape=(num_features, )))
+        self.weight = Parameter(data=ones(shape=(num_features, )))
+        self.bias = Parameter(data=zeros(shape=(num_features, )))
 
         if not self.affine:
             self.weight.requires_grad = False
@@ -58,8 +58,8 @@ class BatchNorm2d(Module):
         self.running_var = None
 
         if self.track_running_stats:
-            self.running_mean = Tensor(np.zeros((num_features, ))) # N, H, W
-            self.running_var = Tensor(np.ones((num_features)))
+            self.running_mean = Tensor(zeros((num_features, ))) # N, H, W
+            self.running_var = Tensor(ones((num_features)))
             self.running_num_batches = 0
             self.register_buffer('running_mean', self.running_mean)
             
@@ -98,9 +98,9 @@ class GroupNorm2d(Module):
 
         self.num_groups = num_groups
         self.num_features = num_features
-        self.weight = Parameter(np.ones((1, num_features, 1, 1)))
+        self.weight = Parameter(ones((1, num_features, 1, 1)))
         if use_bias:
-            self.bias = Parameter(np.zeros((1, num_features, 1, 1)))
+            self.bias = Parameter(zeros((1, num_features, 1, 1)))
         self.eps = eps
         self.use_bias = use_bias
 

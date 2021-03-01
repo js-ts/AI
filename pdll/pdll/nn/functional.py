@@ -3,7 +3,8 @@ from typing import Tuple, Union
 import operator
 import functools
 
-from pdll.backend import support_types, np
+from pdll.backend import executor
+
 from pdll.autograd import Function, Tensor, register
 
 from .parameter import Parameter
@@ -13,22 +14,22 @@ from .utils import im2col, col2im
 class _Sigmoid(Function):
     """sigmoid
     """
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
-        self.out = 1. / (1. + np.exp(-t)) 
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
+        self.out = 1. / (1. + executor.np.exp(-t)) 
         return self.out
     
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         return grad * self.out * (1. - self.out)
 
 
 class _ReLU(Function):
     """relu 
     """ 
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
         self.mask = t > 0
         return t * self.mask
     
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         return grad * self.mask
 
 
@@ -37,11 +38,11 @@ class _Tanh(Function):
     formul: (exp(x) + exp(-x)) / (exp(x) - exp(-x))
     derive : 1 - tanh(x) ** 2
     """
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
-        self.out = np.tanh(t)
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
+        self.out = executor.np.tanh(t)
         return self.out
     
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         return grad  * (1 - self.out ** 2)
 
 
@@ -69,7 +70,7 @@ class _Conv2d(Function):
         self.dilation = dilation
         self.groups = groups
 
-    def forward(self, data: Union[support_types], weight: Union[support_types], bias: Union[support_types]) -> Union[support_types]:
+    def forward(self, data: Union[executor.support_types], weight: Union[executor.support_types], bias: Union[executor.support_types]) -> Union[executor.support_types]:
         '''
         n c h w
         co ci kh kw
@@ -106,7 +107,7 @@ class _Conv2d(Function):
             return output
 
 
-    def backward(self, grad: Union[support_types]):
+    def backward(self, grad: Union[executor.support_types]):
         '''grad n cout hout wout
         '''
         n, cout, hout, wout = grad.shape
@@ -115,7 +116,7 @@ class _Conv2d(Function):
 
         bias_grad = grad.sum(axis=(0, 2, 3))
 
-        # indx_reverse = np.argsort([0, 3, 1, 2])
+        # indx_reverse = executor.np.argsort([0, 3, 1, 2])
         # grad_reverse = grad.transpose(0, 2, 3, 1)
         # grad_reverse = grad_reverse.reshape(n * hout * wout, cout)
         
@@ -164,7 +165,7 @@ class _Pool2d(Function):
         self.dilation = dilation
         self.mode = mode
 
-    def forward(self, data: Union[support_types]):
+    def forward(self, data: Union[executor.support_types]):
         ''''''
         self.shape = data.shape
         n, c, _, _ = data.shape
@@ -173,23 +174,23 @@ class _Pool2d(Function):
         self.matrix = matrix
 
         if self.mode.lower() == 'max': # TODO
-            out = np.max(matrix, axis=2)
+            out = executor.np.max(matrix, axis=2)
         elif self.mode.lower() == 'avg':
-            out = np.average(matrix, axis=2)
+            out = executor.np.average(matrix, axis=2)
         else:
             raise RuntimeError
     
         return out
 
 
-    def backward(self, grad: Union[support_types]):
+    def backward(self, grad: Union[executor.support_types]):
         n, c, oh, ow = grad.shape
-        grad = grad[:, :, np.newaxis, :, :]
+        grad = grad[:, :, executor.np.newaxis, :, :]
         if self.mode.lower() == 'max':
-            mask = self.matrix == np.max(self.matrix, axis=2, keepdims=True)
+            mask = self.matrix == executor.np.max(self.matrix, axis=2, keepdims=True)
             grad = grad * mask
         elif self.mode.lower() == 'avg':
-            grad = grad * np.ones_like(self.matrix) / (self.kernel[0] * self.kernel[1])
+            grad = grad * executor.np.ones_like(self.matrix) / (self.kernel[0] * self.kernel[1])
         else:
             raise RuntimeError
 
@@ -232,7 +233,7 @@ class _Softmax(Function):
         '''softmax(x-c)
         -c: deal with overflow inf problem
         '''
-        t = np.exp(data - data.max(axis=self.axis, keepdims=True))
+        t = executor.np.exp(data - data.max(axis=self.axis, keepdims=True))
         a = t / (t.sum(axis=self.axis, keepdims=True))
         self.a = a 
         return a
@@ -263,25 +264,25 @@ class _CrossEntropy(Function):
     def forward(self, logit, label):
         '''label one-hot
         '''
-        t = np.exp(logit - logit.max(axis=self.axis, keepdims=True))
+        t = executor.np.exp(logit - logit.max(axis=self.axis, keepdims=True))
         a = t / (t.sum(axis=self.axis, keepdims=True))
 
         self.a = a
         self.label = label
 
         if self.reduction == 'sum':
-            return (-label * np.log(a)).sum()
+            return (-label * executor.np.log(a)).sum()
 
         elif self.reduction == 'mean':
-            return (-label * np.log(a)).sum() / functools.reduce(operator.mul, logit.shape[:-1])
+            return (-label * executor.np.log(a)).sum() / functools.reduce(operator.mul, logit.shape[:-1])
         
     def backward(self, grad=1.):
         '''grad = 1.
         '''
         if self.reduction == 'sum':
-            grad = grad * np.ones_like(self.a)
+            grad = grad * executor.np.ones_like(self.a)
         elif self.reduction == 'mean':
-            grad = grad / functools.reduce(operator.mul, self.a.shape[:-1]) * np.ones_like(self.a)
+            grad = grad / functools.reduce(operator.mul, self.a.shape[:-1]) * executor.np.ones_like(self.a)
             
         grad_logit = grad * (self.a - self.label)
 
@@ -303,12 +304,12 @@ class _Dropout(Function):
         self.training = training
         self.inspace = inspace
 
-    def forward(self, t: Union[support_types]) -> Union[support_types]:
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
         '''
         '''
         if not self.training:
             self.p = 0. 
-        mask = np.random.rand(*t.shape) > self.p
+        mask = executor.np.random.rand(*t.shape) > self.p
         self.mask = mask 
 
         return t * mask / (1 - self.p)
@@ -340,7 +341,7 @@ class _Padding(Function):
         self.value = value
         assert self.mode in ('constant')
 
-    def forward(self, data: Union[support_types]) -> Union[support_types]:
+    def forward(self, data: Union[executor.support_types]) -> Union[executor.support_types]:
         '''
         '''
         pad = self.pad
@@ -359,9 +360,9 @@ class _Padding(Function):
         self.shape = shape
         self.padding = padding
 
-        return np.pad(data, pad_width=padding, mode=self.mode, constant_values=self.value)
+        return executor.np.pad(data, pad_width=padding, mode=self.mode, constant_values=self.value)
 
-    def backward(self, grad: Union[support_types]) -> Union[support_types]:
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
         '''
         '''
         slices = []

@@ -1,5 +1,6 @@
 
-from pdll.backend import np 
+from pdll.backend import executor
+
 
 class ExecuteEngine(object):
     
@@ -49,6 +50,6 @@ class Leaf(object):
         assert len(grad_output) == 1, ''
         if self.requires_grad:
             if self.tensor.grad is None:
-                self.tensor.grad = type(self.tensor)(np.zeros(self.tensor.shape))
+                self.tensor.grad = type(self.tensor)(executor.np.zeros(self.tensor.shape))
             self.tensor.grad.storage += grad_output[0].storage
         return tuple()

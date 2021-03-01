@@ -1,7 +1,8 @@
 from typing import Union, List, Tuple, Iterable
 import functools
 
-from ..backend import np, support_types
+from pdll.backend import executor
+
 from .tensor import Tensor
 
 __all__ = [
@@ -11,8 +12,8 @@ __all__ = [
 ]
 
 
-def _to_numpy(data, dtype=np.float32):
-    return np.array(data).astype(dtype)
+def _to_numpy(data, dtype=executor.np.float32):
+    return executor.np.array(data).astype(dtype)
 
 def to_tensor(data):
     '''make sure data is Tensor
