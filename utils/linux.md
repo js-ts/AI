@@ -32,5 +32,6 @@
 
 
 ## fuser
+- apt install psmisc
 - fuser -v /dev/nvidia*
 - 
