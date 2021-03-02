@@ -279,147 +279,201 @@ class _RPow(Function):
         return grad * self.out * executor.np.log(self.a + 1e-10)
 
 
+
+class _Var(Function):
+    '''sample variance
+    '''
+    def __init__(self, axis, keepdims):
+        if isinstance(axis, int):
+            axis = (axis, )
+        self.axis = axis 
+        self.keepdims = keepdims
+
+    def forward(self, t):
+        '''
+        '''
+        self.t_shape = t.shape
+
+        if self.axis == None:
+            self.n = REDUCE(MUL, self.t_shape)
+        else:
+            _shape = [d for i, d in enumerate(self.t_shape) if i in self.axis]
+            self.n = REDUCE(MUL, _shape)
+
+        t_minus_mean = t - t.mean(self.axis, keepdims=True)
+        self.t_minus_mean = t_minus_mean
+
+        return (t_minus_mean ** 2).sum(self.axis, keepdims=self.keepdims) / (self.n - 1)
+
+    def backward(self, grad):
+        '''
+        '''
+        _axis = self.axis
+        if self.axis is None:
+            _axis = tuple(range(len(self.t_shape)))
+        
+        if self.keepdims:
+            _shape = self.t_shape
+        else:
+            _shape = [(1 if i in _axis else d) for i, d in enumerate(self.t_shape)]
+        
+        grad = grad.reshape(*_shape)
+
+        return grad * 2 / (self.n - 1) * self.t_minus_mean
+
+
+
 # ------ register method
 
-@register()
+@register(Tensor)
 def add(self, other):
     other = to_tensor(other)
     return _Add()(self, other)[0]
 
+# @register(Tensor)
+# def iadd(self, other):
+#     other = to_tensor(other)
+#     return _Add()(self, other)[0]
 
-@register()
-def iadd(self, other):
-    other = to_tensor(other)
-    return _Add()(self, other)[0]
-
-@register()
+@register(Tensor)
 def sub(self, other):
     other = to_tensor(other)
     return _Sub()(self, other)[0]
 
-@register()
+@register(Tensor)
 def neg(self, ):
     return _Neg()(self)[0]
 
-@register()
+@register(Tensor)
 def mul(self, other):
     other = to_tensor(other)
     return _Mul()(self, other)[0]
 
-@register()
+@register(Tensor)
 def div(self, other):
     other = to_tensor(other)
     return _Div()(self, other)[0]
 
-@register()
+@register(Tensor)
 def matmul(self, other):
     # other = to_tensor(other)
     return _Matmul()(self, other)[0]
 
-@register()
+@register(Tensor)
 def pow(self, n):
     return _Pow(n)(self)[0]
 
-@register()
+@register(Tensor)
 def sqrt(self, ):
     return _Pow(1/2.)(self)[0]
 
-@register()    
+@register(Tensor)    
 def exp(self, ):
     return _Exp()(self)[0]
 
-@register()
+@register(Tensor)
 def rpow(self, a):
     return _RPow(a)(self)[0]
 
-@register()
+@register(Tensor)
 def sum(self, axis=None, keepdims=False):
     return _Sum(axis, keepdims)(self)[0]
 
-@register()
+@register(Tensor)
 def mean(self, axis=None, keepdims=False):
     return _Mean(axis, keepdims)(self)[0]
 
 # TODO
-@register()
-def var(self, axis=None, keepdims=False):
-    return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
+# @register(Tensor)
+# def var(self, axis=None, keepdims=False):
+#     return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
 
-@register()
+@register(Tensor)
+def var(self, axis=None, keepdims=False):
+    return _Var(axis=axis, keepdims=keepdims)(self)[0]
+
+
+@register(Tensor)
 def reshape(self, *shape):
     return _Reshape(*shape)(self)[0]
 
-@register()
+@register(Tensor)
 def transpose(self, *dims):
     return _Transpose(*dims)(self)[0]
 
+@register(Tensor)
+def t(self, ):
+    dims = self.shape[::-1]
+    return _Transpose(*dims)(self)[0]
+
+
 # magic-method
-@register()
+@register(Tensor)
 def __add__(self, other):
     '''self + other
     '''
     return self.add(other)
 
-@register()
+@register(Tensor)
 def __radd__(self, other):
     '''other + self
     '''
     other = to_tensor(other)
     return other.add(self)
 
-@register()
+@register(Tensor)
 def __sub__(self, other):
     return self.sub(other)
 
-@register()
+@register(Tensor)
 def __rsub__(self, other):
     other = to_tensor(other)
     return other.sub(self)
 
-@register()
+@register(Tensor)
 def __neg__(self, ):
     return self.neg()
 
-@register()
+@register(Tensor)
 def __mul__(self, other):
     return self.mul(other)
 
-@register()
+@register(Tensor)
 def __rmul__(self, other):
     other = to_tensor(other)
     return other.mul(self)
 
-@register()
+@register(Tensor)
 def __div__(self, other):
     return self.div(other)
 
-@register()
+@register(Tensor)
 def __truediv__(self, other):
     return self.div(other)
 
-@register()
+@register(Tensor)
 def __rdiv__(self, other):
     other = to_tensor(other)
     return other.div(self)
 
-@register()
+@register(Tensor)
 def __rtruediv__(self, other):
     other = to_tensor(other)
     return other.div(self)
 
-@register()
+@register(Tensor)
 def __matmul__(self, other):
     return self.matmul(other)
 
-@register()
+@register(Tensor)
 def __pow__(self, n):
     return self.pow(n)
 
-@register()
+@register(Tensor)
 def __rpow__(self, a):
     return self.rpow(a)
 
-@register()
+@register(Tensor)
 def __getitem__(self, idx):
     return _GetItem(idx)(self)[0]
 
@@ -433,12 +487,12 @@ def gaurantee_inspace(var: Tensor):
     if isinstance(var.creator, Leaf) and var.requires_grad is True:
         raise RuntimeError('')
 
-@register()
+@register(Tensor)
 def zeros_(self, ):
     gaurantee_inspace(self)
     self.storage[...] = 0
 
-@register()
+@register(Tensor)
 def add_(self, other) -> None:
     gaurantee_inspace(self)
     if isinstance(other, ):
@@ -446,7 +500,7 @@ def add_(self, other) -> None:
     elif isinstance(other, Union[executor.support_types]):
         self.storage[...] += other
 
-@register()
+@register(Tensor)
 def sub_(self, other) -> None:
     gaurantee_inspace(self)
     if isinstance(other, ):
@@ -454,7 +508,7 @@ def sub_(self, other) -> None:
     elif isinstance(other, Union[executor.support_types]):
         self.storage[...] -= other
 
-@register()
+@register(Tensor)
 def mul_(self, other) -> None:
     gaurantee_inspace(self)
     if isinstance(other, ):
