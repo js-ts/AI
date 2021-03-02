@@ -14,12 +14,11 @@ from .module import Module
 
 
 def _attention(query, key, value, key_mask=None, att_mask=None, dropout=None):
-    ''' [n, h, l, dim]
+    ''' [n * h, l, dim]
     '''
     
     dim = query.shape[-1]
-    score = (query @ key.transpose(0, 1, 3, 2)) / math.sqrt(dim) # [n * h, l_q, l_s]
-    print('score', score.shape)
+    score = query @ key.transpose(0, 2, 1) / math.sqrt(dim) # [n * h, l_q, l_s]
 
     att_score = softmax(score, axis=-1)
 
@@ -72,12 +71,12 @@ class MultiHeadAttention(Module):
             key += self.in_proj_bias[self.embed_dim:-self.embed_dim]
             value += self.in_proj_bias[-self.embed_dim:]
         
-        query = query.reshape(-1, n, self.num_heads, e//self.num_heads).transpose(1, 2, 0, 3)
-        key = key.reshape(-1, n, self.num_heads, e//self.num_heads).transpose(1, 2, 0, 3)
-        value = value.reshape(-1, n, self.num_heads, e//self.num_heads).transpose(1, 2, 0, 3)
+        query = query.reshape(-1, n * self.num_heads, e//self.num_heads).transpose(1, 0, 2)
+        key = key.reshape(-1, n * self.num_heads, e//self.num_heads).transpose(1, 0, 2)
+        value = value.reshape(-1, n * self.num_heads, e//self.num_heads).transpose(1, 0, 2)
 
         output, attn = _attention(query, key, value, dropout=self.dropout)
-        output = output.transpose(2, 0, 1, 3).reshape(l, n, -1)
+        output = output.transpose(1, 0, 2).reshape(l, n, e)
         output = self.out_proj(output)
 
         return output, attn

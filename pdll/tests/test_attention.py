@@ -18,15 +18,15 @@ class Testing(unittest.TestCase):
         
         data = np.random.rand(8, 3, 16)
 
-        dt = torch.tensor(data, dtype=torch.float32)
+        dt = torch.tensor(data, requires_grad=True, dtype=torch.float32)
         mt = torch.nn.MultiheadAttention(16, 4)
 
         outt, attt = mt(dt, dt, dt)
+        outt.mean().backward()
+
         print(attt.shape    )
 
-
-
-        dl = L.from_numpy(data[...])
+        dl = L.from_numpy(data[...], requires_grad=True)
         ml = L.nn.MultiHeadAttention(16, 4)
 
         ml.in_proj_weight.storage[...] = mt.in_proj_weight.data.numpy()
@@ -35,12 +35,13 @@ class Testing(unittest.TestCase):
         ml.out_proj.bias.storage[...] = mt.out_proj.bias.data.numpy()
 
         outl, _ = ml(dl, dl, dl)
+        outl.mean().backward()
 
         print(ml.in_proj_weight.shape, mt.in_proj_weight.shape)
         print('output', outl.shape)
 
         np.testing.assert_almost_equal(outl.data.storage, outt.data.numpy(), decimal=4)
-        # np.testing.assert_almost_equal(attl.data.storage, attt.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(dl.grad.data.storage, dt.grad.data.numpy(), decimal=4)
 
 
 
