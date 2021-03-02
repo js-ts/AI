@@ -193,17 +193,18 @@ class _Mean(Function):
         return t.mean(self.axis, keepdims=self.keepdims)
     
     def backward(self, grad: Union[executor.support_types]):
-        if self.axis is None:
-            self.axis = tuple(range(len(self.t_shape)))
+        
+        axis = self.axis
+        if axis is None:
+            axis = tuple(range(len(self.t_shape)))
 
         if self.keepdims:
             shape = grad.shape
         else:
-            shape = list(self.t_shape)
-            for ax in self.axis:
-                shape[ax] = 1
-        
-        ks = [self.t_shape[i] for i in self.axis]
+            shape = [(1 if i in axis else d) for i, d in enumerate(self.t_shape)]
+
+        ks = [self.t_shape[i] for i in axis] if axis else [1]
+
         return grad.reshape(shape) * executor.np.ones(self.t_shape) / REDUCE(MUL, ks)
 
 
