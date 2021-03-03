@@ -70,7 +70,7 @@ class BatchNorm2d(Module):
         if self.training:
             mean = data.mean(axis=(0, 2, 3), keepdims=True)
             var = ((data - mean) ** 2).mean(axis=(0, 2, 3), keepdims=True)
-
+            # var = data.var(axis=(0, 2, 3), keepdims=True)
         else:
             mean = self.running_mean.reshape(1, -1, 1, 1)
             var = self.running_var.reshape(1, -1, 1, 1)

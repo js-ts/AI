@@ -198,14 +198,11 @@ class _Mean(Function):
         if axis is None:
             axis = tuple(range(len(self.t_shape)))
 
-        if self.keepdims:
-            shape = grad.shape
-        else:
-            shape = [(1 if i in axis else d) for i, d in enumerate(self.t_shape)]
+        _shape = [(1 if i in axis else d) for i, d in enumerate(self.t_shape)]
 
         ks = [self.t_shape[i] for i in axis] if axis else [1]
 
-        return grad.reshape(shape) * executor.np.ones(self.t_shape) / REDUCE(MUL, ks)
+        return grad.reshape(_shape) * executor.np.ones(self.t_shape) / REDUCE(MUL, ks)
 
 
 class _Pow(Function):
@@ -313,13 +310,11 @@ class _Var(Function):
         if self.axis is None:
             _axis = tuple(range(len(self.t_shape)))
         
-        if self.keepdims:
-            _shape = self.t_shape
-        else:
-            _shape = [(1 if i in _axis else d) for i, d in enumerate(self.t_shape)]
+        _shape = [(1 if i in _axis else d) for i, d in enumerate(self.t_shape)]
         
         grad = grad.reshape(*_shape)
 
+        # return grad * 2 / self.n * self.t_minus_mean
         return grad * 2 / (self.n - 1) * self.t_minus_mean
 
 
