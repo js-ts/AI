@@ -68,9 +68,6 @@ class Module(object):
         '''str
         '''
         s = ''
-        # s = self.__class__.__name__ + self.ext_repr() + '\n'
-        # for n, m in inspect.getmembers(self):
-        #    _s = f'{n}'
         for n, m in self.named_modules():
             if isinstance(m, Module):
                 s += f'{n} {m.__class__.__name__}{m.ext_repr()} \n'
@@ -78,7 +75,6 @@ class Module(object):
     
     def ext_repr(self, ):
         return ''
-
 
     def train(self, ):
         '''train mode
