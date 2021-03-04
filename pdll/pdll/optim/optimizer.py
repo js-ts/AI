@@ -38,7 +38,6 @@ class SGD(_Optimizer):
             #     p.data[...] = p.data - self.velocity[i]
             self.velocity[i] = self.momentum * self.velocity[i] + (self.lr if self.velocity else 1.0) * p.grad.storage
             p.storage[...] = p.storage - (1.0 if self.velocity else self.lr) * self.velocity[i]
-            # p.data = p - (1.0 if self.velocity else self.lr) * self.velocity[i]
             
     def state_dict(self, ):
         '''
