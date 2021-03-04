@@ -34,4 +34,8 @@
 ## fuser
 - apt install psmisc
 - fuser -v /dev/nvidia*
+
+## kill
+- kill -9 pid
+- pkill -9 python
 - 
