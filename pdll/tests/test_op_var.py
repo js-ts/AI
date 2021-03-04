@@ -40,6 +40,32 @@ class Testing(unittest.TestCase):
         np.testing.assert_almost_equal(v.grad.numpy(), data.grad.numpy(), decimal=4)
         
 
+    def test_var_bias(self, ):
+        ''' '''
+        data = torch.rand(2, 4, 3, 6, requires_grad=True)
+        out = data.var(dim=(0, 2), unbiased=False)
+        out.mean().backward()
+
+        v = L.autograd.Tensor(data.data.numpy(), requires_grad=True)
+        o = v.var(axis=(0, 2), unbiased=False)
+        o.mean().backward()
+        
+        np.testing.assert_almost_equal(o.data.numpy(), out.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad.numpy(), data.grad.numpy(), decimal=4)
+        
+
+        data = torch.rand(2, 4, 3, 6, requires_grad=True)
+        out = data.var(unbiased=False)
+        out.mean().backward()
+
+        v = L.autograd.Tensor(data.data.numpy(), requires_grad=True)
+        o = v.var(unbiased=False)
+        
+        o.mean().backward()
+        
+        np.testing.assert_almost_equal(o.data.numpy(), out.data.numpy(), decimal=4)
+        np.testing.assert_almost_equal(v.grad.numpy(), data.grad.numpy(), decimal=4)
+      
 
 if __name__ == '__main__':
     

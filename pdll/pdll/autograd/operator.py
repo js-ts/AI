@@ -281,11 +281,12 @@ class _RPow(Function):
 class _Var(Function):
     '''sample variance
     '''
-    def __init__(self, axis, keepdims):
+    def __init__(self, axis, keepdims, unbiased=True):
         if isinstance(axis, int):
             axis = (axis, )
         self.axis = axis 
         self.keepdims = keepdims
+        self.unbiased = unbiased
 
     def forward(self, t):
         '''
@@ -301,7 +302,11 @@ class _Var(Function):
         t_minus_mean = t - t.mean(self.axis, keepdims=True)
         self.t_minus_mean = t_minus_mean
 
-        return (t_minus_mean ** 2).sum(self.axis, keepdims=self.keepdims) / (self.n - 1)
+        if self.unbiased:
+            return (t_minus_mean ** 2).sum(self.axis, keepdims=self.keepdims) / (self.n - 1)
+        else:
+            return (t_minus_mean ** 2).sum(self.axis, keepdims=self.keepdims) / self.n
+
 
     def backward(self, grad):
         '''
@@ -314,8 +319,10 @@ class _Var(Function):
         
         grad = grad.reshape(*_shape)
 
-        # return grad * 2 / self.n * self.t_minus_mean
-        return grad * 2 / (self.n - 1) * self.t_minus_mean
+        if self.unbiased:
+            return grad * 2 / (self.n - 1) * self.t_minus_mean
+        else:
+            return grad * 2 / self.n * self.t_minus_mean
 
 
 
@@ -385,8 +392,8 @@ def mean(self, axis=None, keepdims=False):
 #     return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
 
 @register(Tensor)
-def var(self, axis=None, keepdims=False):
-    return _Var(axis=axis, keepdims=keepdims)(self)[0]
+def var(self, axis=None, keepdims=False, unbiased=True):
+    return _Var(axis=axis, keepdims=keepdims, unbiased=unbiased)(self)[0]
 
 
 @register(Tensor)
