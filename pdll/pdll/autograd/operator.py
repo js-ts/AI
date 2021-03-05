@@ -330,7 +330,11 @@ class _Var(Function):
 
 @register(Tensor)
 def add(self, other):
-    other = to_tensor(other)
+    if isinstance(other, executor.support_types + (Tensor,)):
+        other = to_tensor(other)
+    else:
+        return NotImplemented
+        
     return _Add()(self, other)[0]
 
 # @register(Tensor)
@@ -421,8 +425,9 @@ def __add__(self, other):
 def __radd__(self, other):
     '''other + self
     '''
-    other = to_tensor(other)
-    return other.add(self)
+    # other = to_tensor(other)
+    # return other.add(self)
+    return self + other
 
 @register(Tensor)
 def __sub__(self, other):
@@ -430,8 +435,9 @@ def __sub__(self, other):
 
 @register(Tensor)
 def __rsub__(self, other):
-    other = to_tensor(other)
-    return other.sub(self)
+    # other = to_tensor(other)
+    # return other.sub(self)
+    return -self + other 
 
 @register(Tensor)
 def __neg__(self, ):
@@ -443,21 +449,22 @@ def __mul__(self, other):
 
 @register(Tensor)
 def __rmul__(self, other):
-    other = to_tensor(other)
-    return other.mul(self)
+    # other = to_tensor(other)
+    # return other.mul(self)
+    return self * other
 
 @register(Tensor)
 def __div__(self, other):
     return self.div(other)
 
 @register(Tensor)
-def __truediv__(self, other):
-    return self.div(other)
-
-@register(Tensor)
 def __rdiv__(self, other):
     other = to_tensor(other)
     return other.div(self)
+
+@register(Tensor)
+def __truediv__(self, other):
+    return self.div(other)
 
 @register(Tensor)
 def __rtruediv__(self, other):
