@@ -344,7 +344,11 @@ def add(self, other):
 
 @register(Tensor)
 def sub(self, other):
-    other = to_tensor(other)
+    if isinstance(other, executor.support_types + (Tensor,)):
+        other = to_tensor(other)
+    else:
+        return NotImplemented
+
     return _Sub()(self, other)[0]
 
 @register(Tensor)
@@ -382,6 +386,8 @@ def exp(self, ):
 def rpow(self, a):
     return _RPow(a)(self)[0]
 
+
+# statistas
 @register(Tensor)
 def sum(self, axis=None, keepdims=False):
     return _Sum(axis, keepdims)(self)[0]
@@ -400,6 +406,7 @@ def var(self, axis=None, keepdims=False, unbiased=True):
     return _Var(axis=axis, keepdims=keepdims, unbiased=unbiased)(self)[0]
 
 
+# shape
 @register(Tensor)
 def reshape(self, *shape):
     return _Reshape(*shape)(self)[0]
