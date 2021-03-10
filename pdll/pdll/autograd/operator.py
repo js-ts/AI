@@ -428,6 +428,13 @@ def __add__(self, other):
     '''
     return self.add(other)
 
+# @register(Tensor)
+# def __iadd__(self, other):
+#     '''a += 1
+#     '''
+#     assert self.requires_grad != True, ''
+#     return self + other
+
 @register(Tensor)
 def __radd__(self, other):
     '''other + self

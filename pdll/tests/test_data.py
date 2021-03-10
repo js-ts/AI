@@ -16,7 +16,7 @@ class Testing(unittest.TestCase):
                 self.data = np.arange(100)
 
             def __getitem__(self, idx):
-                time.sleep(0.01)
+                time.sleep(0.001)
                 return self.data[idx]
 
             def __len__(self, ):
