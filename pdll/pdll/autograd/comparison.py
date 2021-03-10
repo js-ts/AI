@@ -20,26 +20,11 @@ import numbers
 def eq(tensor, other):
     '''equal
     '''
-    if isinstance(other, (Tensor, numbers.Real)):
-        other = to_tensor(other)
+    if isinstance(other, Tensor):
         data = tensor.storage == other.storage
         return Tensor(data)
     else:
-        # return NotImplemented
-        return id(tensor) == id(other)
-
-
-def gt(tensor, other):
-    '''tensor > other
-    '''
-    if isinstance(other, (Tensor, numbers.Real)):
-        other = to_tensor(other)
-        data = tensor.storage > other.storage
-        return Tensor(data)
-    else:
         return NotImplemented
-
-
 
 @register(Tensor)
 def __eq__(self, other):
@@ -47,5 +32,30 @@ def __eq__(self, other):
 
 
 @register(Tensor)
+def ne(tensor, other):
+    if isinstance(other, Tensor):
+        data = tensor.storage != other.storage
+        return Tensor(data)
+    else:
+        return NotImplemented
+
+@register(Tensor)
+def __ne__(self, other):
+    return ne(self, other)
+
+
+@register(Tensor)
+def gt(tensor, other):
+    '''tensor > other
+    '''
+    if isinstance(other, Tensor):
+        data = tensor.storage > other.storage
+        return Tensor(data)
+    else:
+        return NotImplemented
+
+@register(Tensor)
 def __gt__(self, other):
     return gt(self, other)
+
+

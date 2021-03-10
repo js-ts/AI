@@ -16,18 +16,21 @@ class Testing(unittest.TestCase):
     def test_eq(self, ):
         ''' 
         '''
-        a = L.randn(2, 3)
-        b = L.randn(2, 3)
-        data = np.random.randn(2, 3)
+        a = L.randn(1, 3)
+        b = L.randn(1, 3)
+        data = np.random.randn(1, 3)
         # print(a, data)
 
-        print(isinstance(a, L.Tensor), isinstance(b, L.Tensor))
+        # print(isinstance(a, L.Tensor), isinstance(b, L.Tensor))
 
-        c = a == True
-        d = a < b
-        e = a == data 
-        print(c)
-        print(d)
+        # c = a == b
+        # d = a < b
+        e = a != b
+
+        # print(c)
+        # print(d)
+        # print(e)
+        # print(c)
         print(e)
 
 
