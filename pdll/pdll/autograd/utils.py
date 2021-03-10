@@ -12,18 +12,19 @@ __all__ = [
 ]
 
 
-def _to_numpy(data, dtype=executor.np.float32):
-    return executor.np.array(data).astype(dtype)
-
 def to_tensor(data):
     '''make sure data is Tensor
     '''
+
+    def to_numpy(data, dtype=executor.np.float32):
+        return executor.np.array(data).astype(dtype)
+
     if isinstance(data, (int, float)):
-        data = _to_numpy(data)
+        data = to_numpy(data)
         return Tensor(data)
 
     elif isinstance(data, (list, tuple)):
-        data = _to_numpy(data)
+        data = to_numpy(data)
         return Tensor(data)
         
     elif isinstance(data, Tensor):
