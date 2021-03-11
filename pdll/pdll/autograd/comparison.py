@@ -59,3 +59,18 @@ def __gt__(self, other):
     return gt(self, other)
 
 
+
+@register(Tensor)
+def lt(tensor, other):
+    '''tensor < other
+    '''
+    if isinstance(other, Tensor):
+        data = tensor.storage < other.storage
+        return Tensor(data)
+    else:
+        return NotImplemented
+
+@register(Tensor)
+def __lt__(self, other):
+    return gt(self, other)
+

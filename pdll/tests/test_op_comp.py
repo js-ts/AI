@@ -25,13 +25,7 @@ class Testing(unittest.TestCase):
 
         # c = a == b
         # d = a < b
-        e = a != b
-
-        # print(c)
-        # print(d)
-        # print(e)
-        # print(c)
-        print(e)
+        print(a == [1, 2, 3])
 
 
 

@@ -337,10 +337,6 @@ def add(self, other):
         
     return _Add()(self, other)[0]
 
-# @register(Tensor)
-# def iadd(self, other):
-#     other = to_tensor(other)
-#     return _Add()(self, other)[0]
 
 @register(Tensor)
 def sub(self, other):
@@ -427,13 +423,6 @@ def __add__(self, other):
     '''self + other
     '''
     return self.add(other)
-
-# @register(Tensor)
-# def __iadd__(self, other):
-#     '''a += 1
-#     '''
-#     assert self.requires_grad != True, ''
-#     return self + other
 
 @register(Tensor)
 def __radd__(self, other):
