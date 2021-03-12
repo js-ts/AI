@@ -329,92 +329,93 @@ class _Var(Function):
 # ------ register method
 
 @register(Tensor)
-def add(self, other):
+def add(t, other):
     if isinstance(other, executor.support_types + (Tensor,)):
         other = to_tensor(other)
     else:
         return NotImplemented
         
-    return _Add()(self, other)[0]
+    return _Add()(t, other)[0]
 
 
 @register(Tensor)
-def sub(self, other):
+def sub(t, other):
     if isinstance(other, executor.support_types + (Tensor,)):
         other = to_tensor(other)
     else:
         return NotImplemented
 
-    return _Sub()(self, other)[0]
+    return _Sub()(t, other)[0]
 
 @register(Tensor)
-def neg(self, ):
-    return _Neg()(self)[0]
+def neg(t, ):
+    return _Neg()(t)[0]
 
 @register(Tensor)
-def mul(self, other):
+def mul(t, other):
     other = to_tensor(other)
-    return _Mul()(self, other)[0]
+    return _Mul()(t, other)[0]
 
 @register(Tensor)
-def div(self, other):
+def div(t, other):
     other = to_tensor(other)
-    return _Div()(self, other)[0]
+    return _Div()(t, other)[0]
 
 @register(Tensor)
-def matmul(self, other):
+def matmul(t, other):
     # other = to_tensor(other)
-    return _Matmul()(self, other)[0]
+    return _Matmul()(t, other)[0]
 
 @register(Tensor)
-def pow(self, n):
-    return _Pow(n)(self)[0]
+def pow(t, n):
+    return _Pow(n)(t)[0]
 
 @register(Tensor)
-def sqrt(self, ):
-    return _Pow(1/2.)(self)[0]
+def sqrt(t, ):
+    return _Pow(1/2.)(t)[0]
 
 @register(Tensor)    
-def exp(self, ):
-    return _Exp()(self)[0]
+def exp(t, ):
+    return _Exp()(t)[0]
 
 @register(Tensor)
-def rpow(self, a):
-    return _RPow(a)(self)[0]
-
+def rpow(t, a):
+    return _RPow(a)(t)[0]
 
 # statistas
 @register(Tensor)
-def sum(self, axis=None, keepdims=False):
-    return _Sum(axis, keepdims)(self)[0]
+def sum(t, axis=None, keepdims=False):
+    return _Sum(axis, keepdims)(t)[0]
 
 @register(Tensor)
-def mean(self, axis=None, keepdims=False):
-    return _Mean(axis, keepdims)(self)[0]
+def mean(t, axis=None, keepdims=False):
+    return _Mean(axis, keepdims)(t)[0]
 
 # TODO
 # @register(Tensor)
-# def var(self, axis=None, keepdims=False):
-#     return ((self - self.mean(axis, True)) ** 2).mean(axis, keepdims)
+# def var(t, axis=None, keepdims=False):
+#     return ((t - t.mean(axis, True)) ** 2).mean(axis, keepdims)
 
 @register(Tensor)
-def var(self, axis=None, keepdims=False, unbiased=True):
-    return _Var(axis=axis, keepdims=keepdims, unbiased=unbiased)(self)[0]
+def var(t, axis=None, keepdims=False, unbiased=True):
+    return _Var(axis=axis, keepdims=keepdims, unbiased=unbiased)(t)[0]
 
 
 # shape
 @register(Tensor)
-def reshape(self, *shape):
-    return _Reshape(*shape)(self)[0]
+def reshape(t, *shape):
+    return _Reshape(*shape)(t)[0]
 
 @register(Tensor)
-def transpose(self, *dims):
-    return _Transpose(*dims)(self)[0]
+def transpose(t, *dims):
+    return _Transpose(*dims)(t)[0]
 
 @register(Tensor)
-def t(self, ):
-    dims = self.shape[::-1]
-    return _Transpose(*dims)(self)[0]
+def t(t, ):
+    dims = t.shape[::-1]
+    return _Transpose(*dims)(t)[0]
+
+
 
 
 # magic-method
