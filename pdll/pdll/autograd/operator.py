@@ -425,13 +425,13 @@ def __add__(self, other):
     '''
     return self.add(other)
 
-@register(Tensor)
-def __radd__(self, other):
-    '''other + self
-    '''
-    # other = to_tensor(other)
-    # return other.add(self)
-    return self + other
+# @register(Tensor)
+# def __radd__(self, other):
+#     '''other + self
+#     '''
+#     # other = to_tensor(other)
+#     # return other.add(self)
+#     return self + other
 
 @register(Tensor)
 def __sub__(self, other):
@@ -453,18 +453,18 @@ def __mul__(self, other):
 
 @register(Tensor)
 def __rmul__(self, other):
-    # other = to_tensor(other)
+    other = to_tensor(other)
     # return other.mul(self)
     return self * other
 
-@register(Tensor)
-def __div__(self, other):
-    return self.div(other)
+# @register(Tensor)
+# def __div__(self, other):
+#     return self.div(other)
 
-@register(Tensor)
-def __rdiv__(self, other):
-    other = to_tensor(other)
-    return other.div(self)
+# @register(Tensor)
+# def __rdiv__(self, other):
+#     other = to_tensor(other)
+#     return other.div(self)
 
 @register(Tensor)
 def __truediv__(self, other):
