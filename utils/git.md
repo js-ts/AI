@@ -73,7 +73,7 @@
 - git push /dev
 
 
-
+--- 
 
 # pre-commit
 - pip install pre-commit
@@ -83,3 +83,13 @@
 - git commit -m 'update'
 
 
+# develop
+- git remote add upstream git@github.com:PaddlePaddle/Paddle.git
+- git remote -v
+- git fetch upstream [|develop]
+- git checkout -b newbranch-1 upstream/develop
+- edit -> add -> commit [hash-id]
+- git checkout -b newbranch-2 upstream/release
+- git cherry-pick [hash-id]
+- git push origin newbranch-1:newbranch-1
+- git push origin newbranch-2:newbranch-2
