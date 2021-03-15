@@ -75,3 +75,11 @@
 
 
 
+# pre-commit
+- pip install pre-commit
+- cd /repo
+- pre-commit install
+- git add . 
+- git commit -m 'update'
+
+
