@@ -47,21 +47,21 @@ def ones(*shape: Tuple[int], requires_grad=False) -> Tensor:
     return Tensor(data, requires_grad=requires_grad)
 
 
-def zeros_like(v: Tensor, requires_grad=False) -> Tensor:
+def zeros_like(t: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    data = executor.np.zeros(v.shape, dtype=v.dtype)
+    data = executor.np.zeros(t.shape, dtype=t.dtype)
     return Tensor(data, requires_grad=requires_grad)
 
 
-def ones_like(v: Tensor, requires_grad=False) -> Tensor:
+def ones_like(t: Tensor, requires_grad=False) -> Tensor:
     '''
     '''
-    data = executor.np.ones(v.shape, dtype=v.dtype)
+    data = executor.np.ones(t.shape, dtype=t.dtype)
     return Tensor(data, requires_grad=requires_grad)
 
 
-def from_numpy(data: Tensor, requires_grad=False) -> Tensor:
+def from_numpy(data: executor.support_types, requires_grad=False) -> Tensor:
     '''
     '''
     return Tensor(data, requires_grad=requires_grad)
