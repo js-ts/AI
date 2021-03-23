@@ -177,14 +177,16 @@ def rotate(img, angle, interpolation='nearest', expand=False, center=None, fill=
     matrix[2] += rotn_center[0]
     matrix[5] += rotn_center[1]
     
+    matrix = matrix.reshape((1, 2, 3))
+
     if expand:
         # calculate output size
         corners = paddle.to_tensor([[-0.5 * w, -0.5 * h, 1.0],
                                     [-0.5 * w, 0.5 * h, 1.0],
                                     [0.5 * w, 0.5 * h, 1.0],
-                                    [0.5 * w, -0.5 * h, 1.0]], dtype=matrix.dtype, place=img.place)
+                                    [0.5 * w, -0.5 * h, 1.0]], place=matrix.place).astype(matrix.dtype)
         
-        _pos = corners.reshape((1, 4, 3)).bmm(matrix.reshape((1, 2, 3)).transpose((0, 2, 1))).reshape((1, 4, 2))
+        _pos = corners.reshape((1, 4, 3)).bmm(matrix.transpose((0, 2, 1))).reshape((1, 4, 2))
         min_val = _pos.min(axis=-2).floor()
         max_val = _pos.max(axis=-2).ceil()
         
@@ -194,13 +196,16 @@ def rotate(img, angle, interpolation='nearest', expand=False, center=None, fill=
         
         ow, oh = int(nw.numpy()[0]), int(nh.numpy()[0])
         
+        grid = _affine_grid(matrix, w, h, ow, oh)
+
     else:
         ow, oh = w, h
-    
-    m = matrix.reshape((1, 2, 3))
+        grid = affine_grid(matrix, (n, c, h, w))
+
+    # m = matrix.reshape((1, 2, 3))
     # tic = time.time()
     # grid = affine_grid(m, (n, c, h, w))
-    grid = _affine_grid(m, w, h, ow, oh)
+    # grid = _affine_grid(m, w, h, ow, oh)
 
     out = grid_sample(img, grid, mode=interpolation)
     
