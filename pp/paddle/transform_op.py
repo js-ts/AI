@@ -136,7 +136,6 @@ def _affine_grid(theta, w, h, ow, oh):
     # print(time.time() - tic)
     
     x_grid = paddle.linspace(-ow * 0.5 + d, ow * 0.5 + d - 1, ow)
-
     base_grid[..., 0] = x_grid
     y_grid = paddle.linspace(-oh * 0.5 + d, oh * 0.5 + d - 1, oh).unsqueeze_(-1)
     base_grid[..., 1] = y_grid
@@ -169,14 +168,13 @@ def rotate(img, angle, interpolation='nearest', expand=False, center=None, fill=
     angle = -math.radians(angle)
     matrix = [math.cos(angle), math.sin(angle), 0.0, -math.sin(angle), math.cos(angle), 0.0,]
     
-    matrix = paddle.to_tensor(matrix, place=img.place)
-    
     matrix[2] += matrix[0]*(-rotn_center[0]-post_trans[0]) + matrix[1]*(-rotn_center[1]-post_trans[1])
     matrix[5] += matrix[3]*(-rotn_center[0]-post_trans[0]) + matrix[4]*(-rotn_center[1]-post_trans[1])
     
     matrix[2] += rotn_center[0]
     matrix[5] += rotn_center[1]
     
+    matrix = paddle.to_tensor(matrix, place=img.place)
     matrix = matrix.reshape((1, 2, 3))
 
     if expand:
@@ -184,13 +182,14 @@ def rotate(img, angle, interpolation='nearest', expand=False, center=None, fill=
         corners = paddle.to_tensor([[-0.5 * w, -0.5 * h, 1.0],
                                     [-0.5 * w, 0.5 * h, 1.0],
                                     [0.5 * w, 0.5 * h, 1.0],
-                                    [0.5 * w, -0.5 * h, 1.0]], place=matrix.place).astype(matrix.dtype)
+                                    [0.5 * w, -0.5 * h, 1.0]], 
+                                place=matrix.place).astype(matrix.dtype)
         
-        _pos = corners.reshape((1, 4, 3)).bmm(matrix.transpose((0, 2, 1))).reshape((1, 4, 2))
-        min_val = _pos.min(axis=-2).floor()
-        max_val = _pos.max(axis=-2).ceil()
+        _pos = corners.reshape((1, -1, 3)).bmm(matrix.transpose((0, 2, 1))).reshape((1, -1, 2))
+        _min = _pos.min(axis=-2).floor()
+        _max = _pos.max(axis=-2).ceil()
         
-        npos = max_val - min_val
+        npos = _max - _min
         nw = npos[0][0]
         nh = npos[0][1]
         
@@ -200,7 +199,8 @@ def rotate(img, angle, interpolation='nearest', expand=False, center=None, fill=
 
     else:
         ow, oh = w, h
-        grid = affine_grid(matrix, (n, c, h, w))
+        grid = _affine_grid(matrix, w, h, ow, oh)
+        # grid = affine_grid(matrix, (n, c, h, w))
 
     # m = matrix.reshape((1, 2, 3))
     # tic = time.time()
