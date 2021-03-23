@@ -93,3 +93,9 @@
 - git cherry-pick [hash-id]
 - git push origin newbranch-1:newbranch-1
 - git push origin newbranch-2:newbranch-2
+
+# remote
+- git remote add xxx https://github.com/xxx/Paddle.git 
+- git fetch xxx 
+- git checkout -b [new-name] [xxx/branch]
+
