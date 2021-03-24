@@ -3,12 +3,6 @@
 import paddle
 
 
-def assert_image(img, ):
-    '''make sure img is image
-    '''
-    pass
-
-
 def normalize(img, mean, std, inspace=True, channel_last=False):
     '''normalize image
     '''
@@ -70,7 +64,7 @@ normalize_numpy(arr, mean, std)
 """
 
 
-def rgb_to_grayscale(img, num_output_channels=1):
+def rgb_to_grayscale(img, num_output_channels=1, channel_last=False):
     '''
     '''
     assert img.shape[-3] == 3, 'image should have 3 channels.'
@@ -78,7 +72,10 @@ def rgb_to_grayscale(img, num_output_channels=1):
     rgb_weights = [0.2989, 0.5870, 0.1140]
     rgb_weights = paddle.to_tensor(rgb_weights, place=img.place).astype(img.dtype)
 
-    img = (img * rgb_weights.reshape((-1, 1, 1))).sum(axis=-3, keepdim=True)
+    if not channel_last:
+        rgb_weights = rgb_weights.reshape((-1, 1, 1))
+
+    img = (img * rgb_weights).sum(axis=-3, keepdim=True)
 
     if num_output_channels > 1:
         _shape = img.shape
@@ -149,7 +146,9 @@ def _affine_grid(theta, w, h, ow, oh):
 
 def rotate(img, angle, interpolation='nearest', expand=False, center=None, fill=None, translate=None,):
     '''
+    https://github.com/python-pillow/Pillow/blob/11de3318867e4398057373ee9f12dcb33db7335c/src/PIL/Image.py#L2054
     '''
+
     angle = -angle % 360
 
     n, c, h, w = img.shape
