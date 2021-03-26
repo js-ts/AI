@@ -72,6 +72,9 @@
 - git merge tmp
 - git push /dev
 
+## cherry-pick
+ - git cherry-pick A^...B
+
 
 
 
