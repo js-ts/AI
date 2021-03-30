@@ -31,7 +31,7 @@ def to_tensor(data):
         return data
 
     else:
-        raise RuntimeError('not support data type.')
+        raise ValueError('not support data type.')
 
 
 def broadcast_reverse(grad, shape: Iterable[int]): 
