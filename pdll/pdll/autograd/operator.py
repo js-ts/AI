@@ -16,7 +16,8 @@ from .utils import to_tensor
 
 __all__ = [
     'add', 'sub', 'mul', 'neg', 'div', 'matmul', 'pow', 'exp',
-    'sum', 'mean',
+    'sum', 'mean', 'var', 
+    'reshape', 'transpose', 'flip',
 ]
 
 class _Add(Function):
@@ -151,6 +152,49 @@ class _GetItem(Function):
         return _grad
 
 
+class _Pow(Function):
+    """pow 
+    x^n -> n * (x ^ (n-1))
+    n^x -> ln(y) = x*len(n) -> y' = y * ln(n)
+    """
+    def __init__(self, n):
+        self.n = n 
+
+    def forward(self, t):
+        self.t = t
+        return t ** self.n
+
+    def backward(self, grad: Union[executor.support_types]):
+        # grad * self.o * executor.np.log(self.t + 1e-15)
+        return grad * self.n * (self.t ** (self.n-1))
+
+
+class _RPow(Function):
+    '''a ** x
+    (a ** x) * log(a)
+    '''
+    def __init__(self, a):
+        self.a = a
+
+    def forward(self, t: Union[executor.support_types]):
+        self.t = t
+        self.out = self.a ** t 
+        return self.out
+    
+    def backward(self, grad: Union[executor.support_types]):
+        return grad * self.out * executor.np.log(self.a + 1e-10)
+
+
+class _Exp(Function):
+    """exp 
+    """
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
+        self.out = executor.np.exp(t)
+        return self.out
+    
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
+        return grad * self.out
+
 
 class _Sum(Function):
     ''' sum 
@@ -205,79 +249,6 @@ class _Mean(Function):
         return grad.reshape(_shape) * executor.np.ones(self.t_shape) / REDUCE(MUL, ks)
 
 
-class _Pow(Function):
-    """pow 
-    x^n -> n * (x ^ (n-1))
-    n^x -> ln(y) = x*len(n) -> y' = y * ln(n)
-    """
-    def __init__(self, n):
-        self.n = n 
-
-    def forward(self, t):
-        self.t = t
-        return t ** self.n
-
-    def backward(self, grad: Union[executor.support_types]):
-        # grad * self.o * executor.np.log(self.t + 1e-15)
-        return grad * self.n * (self.t ** (self.n-1))
-
-
-class _Reshape(Function):
-    def __init__(self, *shape):
-        self.shape = shape
-        super().__init__()
-    
-    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
-        self.t_shape = t.shape
-        return t.reshape(*self.shape)
-    
-    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
-        grad = grad[...]
-        return grad.reshape(*self.t_shape)
-
-
-class _Transpose(Function):
-    def __init__(self, *dims):
-        super().__init__()
-        self.dims = dims
-    
-    def forward(self, t: Union[executor.support_types]):
-        assert len(self.dims) == len(t.shape)
-        return t.transpose(*self.dims)
-    
-    def backward(self, grad: Union[executor.support_types]):
-        idx_reverse = executor.np.argsort(self.dims)
-        return grad.transpose(*idx_reverse)
-
-
-class _Exp(Function):
-    """exp 
-    """
-    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
-        self.out = executor.np.exp(t)
-        return self.out
-    
-    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
-        return grad * self.out
-
-
-class _RPow(Function):
-    '''a ** x
-    (a ** x) * log(a)
-    '''
-    def __init__(self, a):
-        self.a = a
-
-    def forward(self, t: Union[executor.support_types]):
-        self.t = t
-        self.out = self.a ** t 
-        return self.out
-    
-    def backward(self, grad: Union[executor.support_types]):
-        return grad * self.out * executor.np.log(self.a + 1e-10)
-
-
-
 class _Var(Function):
     '''sample variance
     '''
@@ -324,6 +295,45 @@ class _Var(Function):
         else:
             return grad * 2 / self.n * self.t_minus_mean
 
+
+class _Reshape(Function):
+    def __init__(self, *shape):
+        self.shape = shape
+        super().__init__()
+    
+    def forward(self, t: Union[executor.support_types]) -> Union[executor.support_types]:
+        self.t_shape = t.shape
+        return t.reshape(*self.shape)
+    
+    def backward(self, grad: Union[executor.support_types]) -> Union[executor.support_types]:
+        grad = grad[...]
+        return grad.reshape(*self.t_shape)
+
+
+class _Transpose(Function):
+    def __init__(self, *dims):
+        super().__init__()
+        self.dims = dims
+    
+    def forward(self, t: Union[executor.support_types]):
+        assert len(self.dims) == len(t.shape)
+        return t.transpose(*self.dims)
+    
+    def backward(self, grad: Union[executor.support_types]):
+        idx_reverse = executor.np.argsort(self.dims)
+        return grad.transpose(*idx_reverse)
+
+
+class _Flip(Function):
+    def __init__(self, *dims):
+        self.dims = dims
+    
+    def forward(self, t):
+        raise NotImplementedError
+
+    def backward(self, grad):
+        raise NotImplementedError
+    
 
 
 # ------ register method
@@ -416,6 +426,9 @@ def t(t, ):
     return _Transpose(*dims)(t)[0]
 
 
+@register(Tensor)
+def flip(t, *dims):
+    return _Flip(*dims)(t)[0]
 
 
 # magic-method
