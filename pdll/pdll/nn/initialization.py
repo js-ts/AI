@@ -6,7 +6,7 @@ def uniform(low, high, size):
     '''uniform
     '''
     return engine.np.random.uniform(low=low, high=high, size=size)
-     
+
 
 def ones(shape):
     '''ones
@@ -20,3 +20,11 @@ def zeros(shape):
     return engine.np.zeros(shape=shape)
 
     
+
+
+def uniform_(tensor, low, high):
+    '''uniform
+    '''
+    tensor.storage[...] = uniform(low, high, tensor.shape)
+
+

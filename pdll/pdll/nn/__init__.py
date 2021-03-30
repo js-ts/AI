@@ -10,6 +10,7 @@ from .modules.linear import Linear
 from .modules.dropout import Dropout
 from .modules.loss import Softmax, CrossEntropyLoss
 from .modules.padding import ZeroPad2d, ConstantPad2d
+from .modules.attention import MultiHeadAttention
 
 __all__ = [
     'Parameter',
@@ -24,4 +25,6 @@ __all__ = [
     'Linear',
     'Softmax',
     'CrossEntropyLoss',
+    'MultiHeadAttention',
+    
 ]

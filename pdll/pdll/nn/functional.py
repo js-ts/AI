@@ -392,3 +392,17 @@ def constant_pad2d(data: Tensor, padding: Union[int, Tuple[int, int, int, int]],
     if isinstance(padding, int):
         padding = (padding, ) * 4
     return _Padding(padding, mode='constant', value=value)(data)[0]
+
+
+def attention(query: Tensor, key: Tensor, value: Tensor, key_mask=None, att_mask=None, dropout=None):
+    ''' [n * h, l, dim]
+    '''
+    dim = query.shape[-1]
+    score = query @ key.transpose(0, 2, 1) / math.sqrt(dim) # [n * h, l_q, l_s]
+
+    att_score = softmax(score, axis=-1)
+
+    if dropout:
+        att_score = dropout(att_score)
+
+    return att_score @ value, att_score

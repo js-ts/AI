@@ -31,14 +31,15 @@ Name | Performance | Commits
 ---|---|---
 [mnist](./examples/mnist.py) | acc=0.99 | an exmaple midified from pytorch [mnist](https://github.com/pytorch/examples/tree/master/mnist), but with new network achitecture.
 
+
 ## About PDLL
 
-PDLL is a python deep learning library.
+PDLL is Python Deep Learning Library, a backend-agnostic python deep learning framework, pluging and playing for different numpy-like computing engines.
 
 Module | Description
 ---|---
-[pdll.backend]() | a numpy-like library, types ans operations.
-[pdll.autograd]() | an automatic differentiation library, that record operations on **Tensor** type. 
+[pdll.backend]() | a numpy-like library, including types and operations
+[pdll.autograd]() | an automatic differentiation library, including Tensor type, Function which recording computing history, and Engine for backpropagation 
 [pdll.nn]() | a neural network library based on autograd
 [pdll.optim]() | an optimizer library for deep learning
 [pdll.io]() | dataset, dataloader and serialization

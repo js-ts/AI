@@ -33,16 +33,6 @@ class Tensor(object):
         assert isinstance(value, Tensor), ''
         self = value
 
-    def numpy(self, ):
-        '''numpy
-        '''
-        if executor.engine.engine_name == 'numpy':
-            return self._storage[...]
-        elif executor.engine.engine_name == 'cupy':
-            return self._storage.get()
-        else:
-            raise RuntimeError
-
     @property
     def grad(self, ):
         return self._grad
@@ -80,6 +70,15 @@ class Tensor(object):
         assert isinstance(value, bool), ''
         self.creator.requires_grad = value
     
+    def numpy(self, ):
+        '''numpy
+        '''
+        if executor.engine.engine_name == 'numpy':
+            return self._storage[...]
+        elif executor.engine.engine_name == 'cupy':
+            return self._storage.get()
+        else:
+            raise RuntimeError
 
     def backward(self, grad=None):
         '''backward

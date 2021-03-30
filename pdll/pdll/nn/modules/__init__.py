@@ -6,7 +6,7 @@ from .pooling import Pool2d, AvgPool2d, MaxPool2d
 from .linear import Linear
 from .dropout import Dropout
 from .loss import Softmax, CrossEntropyLoss, MSELoss
-from .attention import Attention, MultiHeadAttention
+from .attention import MultiHeadAttention
 
 
 __all__ = [
@@ -19,4 +19,6 @@ __all__ = [
     'Linear',
     'Softmax',
     'CrossEntropyLoss', 'MSELoss', 
+    'MultiHeadAttention',
+    
 ]
