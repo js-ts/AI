@@ -14,4 +14,4 @@ names | commits
 [ViT](https://github.com/lucidrains/vit-pytorch) | --
 [Swin transformer]() | Architecture
 [DETR]() | Detection
-[CvT]() | --
+[CvT](https://arxiv.org/pdf/2103.15808.pdf) | CvT: Introducing Convolutions to Vision Transformers
