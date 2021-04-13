@@ -34,7 +34,8 @@
 ## fuser
 - apt install psmisc
 - fuser -v /dev/nvidia*
-
+- ps -aux | grep test_main.py  | awk '{print $2}' | uniq | xargs kill -9
+- 
 ## kill
 - kill -9 pid
 - pkill -9 python
