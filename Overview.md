@@ -89,7 +89,7 @@ ID|name|Commence
     - Q-RNN 
     - BPTT
 
-- NN from scrach  
+- NN framework 
     - [tiny example](https://github.com/lyuwenyu/AI/tree/master/nn)
         - forward
             - specific funcion
@@ -102,18 +102,23 @@ ID|name|Commence
             - laerning rate
             - momentum
             - weight decay
+    - [PDLL](https://github.com/lyuwenyu/PDLL)
+        - autograd
+        - nn
 
-- Summary
-    - Defination 
-        - metrics
+- Serving
     - Solving
-        - Data
-        - Label
-        - Feature
+        - Data / Label
+        - Feature / Metrics
         - Model
         - Optimization
-    - Serving
-        - xxx
+    - Accelerating
+        - Quantization
+        - Pruning
+        - Distill
+    - Serving  
+        - C/S
+        - grpc / brpc
 
 |ID|Name|Conference|Commence  
 |---|---|---|---|
