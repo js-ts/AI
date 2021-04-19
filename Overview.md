@@ -115,7 +115,7 @@ ID|name|Commence
     - Accelerating
         - Quantization
         - Pruning
-        - Distill
+        - Distillation
     - Serving  
         - C/S
         - grpc / brpc
@@ -267,8 +267,8 @@ Paper | Commits | Related
     - SLAM
 - Mine
     - [pytorch-workspace](https://github.com/lyuwenyu/pytorch_workspace)
+    - [Detetron](https://github.com/lyuwenyu/DetectionL)
     - [Geometry]()
-    - [Detetron]()
 
 Name | commits | resource
 --- | --- | ---
