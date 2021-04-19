@@ -113,3 +113,7 @@ class Tensor(object):
         else:
             s += ')'
         return s
+
+    def __array__(self):
+        return self.numpy()
+        
