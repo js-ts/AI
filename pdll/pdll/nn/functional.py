@@ -46,6 +46,52 @@ class _Tanh(Function):
         return grad  * (1 - self.out ** 2)
 
 
+class _Mish(Function):
+    '''Mish: A Self Regularized Non-Monotonic Neural Activation Function
+    https://arxiv.org/abs/1908.08681v1
+    x * tanh( softplus(x) )
+    '''
+    def __init__(self, beta=1, threshold=20):
+        super().__init__()
+        self.beta = 1
+        self.threshold = 20
+
+    def forward(self, ):
+        pass
+
+    def backward(self, ):
+        pass
+
+class _Softplus(Function):
+    '''
+    forward: 1 / beta * log(1 + exp(beta * x))
+    backward: grad * (1 - 1. / (1 + exp(beta * x)))
+    '''
+    def __init__(self, beta=1, threshold=20):
+        super().__init__()
+        self.beta = 1
+        self.threshold = 20
+
+    def forward(self, data):
+        self.mask = self.beta * data > self.threshold
+        self.data = data 
+
+        dummy = data * (1 - self.mask)
+        dataexp = 1 + executor.np.exp(self.beta * dummy)
+        dummy = 1 / self.beta * executor.np.log(dataexp)
+        dummy[self.mask] = data[self.mask]
+
+        self.dataexp = dataexp
+
+        return dummy
+
+    def backward(self, grad):
+        grad = grad * (1 - 1 / self.dataexp)
+        grad[self.mask] = self.data[self.mask]
+
+        return grad
+
+
 @register(Tensor)
 def relu(self, ):
     return _ReLU()(self)[0]
@@ -57,6 +103,10 @@ def tanh(self, ):
 @register(Tensor)
 def sigmoid(self, ):
     return _Sigmoid()(self)[0]
+
+@register(Tensor)
+def softplus(self, ):
+    return _Softplus(beta=1, threshold=20)(self)[0]
 
 
 class _Conv2d(Function):
