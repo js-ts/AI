@@ -56,12 +56,28 @@ class _Mish(Function):
         self.beta = 1
         self.threshold = 20
 
-    def forward(self, ):
-        pass
+    def forward(self, x):
+        self.mask = self.beta * x > self.threshold
+        self.x = x 
 
-    def backward(self, ):
-        pass
+        dummy = x * (1 - self.mask)
+        xexp = 1 + executor.np.exp(self.beta * dummy)
+        dummy = 1 / self.beta * executor.np.log(xexp)
+        dummy[self.mask] = x[self.mask]
 
+        self.xexp = xexp
+        # self.softplus = dummy
+        self.tanhsp = executor.np.tanh(dummy)
+
+        return x * self.tanhsp
+
+    def backward(self, grad):
+        dx = self.tanhsp + self.x * (1 - self.tanhsp ** 2) * (1 - 1 / self.xexp)
+        dx[self.mask] = [self.tanhsp + self.x * (1 - self.x ** 2)][self.mask]
+
+        return grad * dx 
+
+        
 class _Softplus(Function):
     '''
     forward: 1 / beta * log(1 + exp(beta * x))
@@ -72,24 +88,23 @@ class _Softplus(Function):
         self.beta = 1
         self.threshold = 20
 
-    def forward(self, data):
-        self.mask = self.beta * data > self.threshold
-        self.data = data 
+    def forward(self, x):
+        self.mask = self.beta * x > self.threshold
+        self.x = x 
 
-        dummy = data * (1 - self.mask)
-        dataexp = 1 + executor.np.exp(self.beta * dummy)
-        dummy = 1 / self.beta * executor.np.log(dataexp)
-        dummy[self.mask] = data[self.mask]
+        dummy = x * (1 - self.mask)
+        xexp = 1 + executor.np.exp(self.beta * dummy)
+        dummy = 1 / self.beta * executor.np.log(xexp)
+        dummy[self.mask] = x[self.mask]
 
-        self.dataexp = dataexp
+        self.xexp = xexp
 
         return dummy
 
     def backward(self, grad):
-        grad = grad * (1 - 1 / self.dataexp)
-        grad[self.mask] = self.data[self.mask]
-
-        return grad
+        dx = 1 - 1 / self.xexp
+        dx[self.mask] = 1. 
+        return grad * dx
 
 
 @register(Tensor)
@@ -108,6 +123,9 @@ def sigmoid(self, ):
 def softplus(self, ):
     return _Softplus(beta=1, threshold=20)(self)[0]
 
+@register(Tensor)
+def mish(self, ):
+    return _Mish(beta=1, threshold=20)(self)[0]
 
 class _Conv2d(Function):
     '''conv
