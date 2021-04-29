@@ -73,11 +73,11 @@ class _Mish(Function):
 
     def backward(self, grad):
         dx = self.tanhsp + self.x * (1 - self.tanhsp ** 2) * (1 - 1 / self.xexp)
-        dx[self.mask] = [self.tanhsp + self.x * (1 - self.x ** 2)][self.mask]
+        dx[self.mask] = (self.tanhsp + self.x * (1 - self.x ** 2))[self.mask]
 
         return grad * dx 
 
-        
+
 class _Softplus(Function):
     '''
     forward: 1 / beta * log(1 + exp(beta * x))
@@ -90,7 +90,6 @@ class _Softplus(Function):
 
     def forward(self, x):
         self.mask = self.beta * x > self.threshold
-        self.x = x 
 
         dummy = x * (1 - self.mask)
         xexp = 1 + executor.np.exp(self.beta * dummy)
