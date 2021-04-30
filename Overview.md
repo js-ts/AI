@@ -258,7 +258,7 @@ Paper | Commits | Related
     - Single Object
     - Multiple Object
 - Image Search   
-- Style Transform
+- Style Transfer
 - Optical Flow  
 - 3D-restruction 
     - Calibration 
