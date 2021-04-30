@@ -73,8 +73,9 @@
 - git push /dev
 
 ## cherry-pick
- - git cherry-pick A^...B
-
+ - git cherry-pick A^...B  [A, B]
+ - git cherry-pick --continue
+ - git cherry-pick --abort
 
 --- 
 
