@@ -25,10 +25,17 @@ with SysPathG('/test') as p:
 # 1
 @contextmanager
 def syspathg(path):
-    sys.path.insert(0, path)
-    yield path
-    _p = sys.path.pop(0)
-    print('_p', _p)
+    try:
+        sys.path.insert(0, path)
+        yield path
+        
+    except Exception as e:
+        print(str(e))
+
+    finally:
+        if sys.path[0] == path:
+            _p = sys.path.pop(0)
+            print('_p', _p)
 
 with syspathg('./tst') as p:
     print('1-p', p)
