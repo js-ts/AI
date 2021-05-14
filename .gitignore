@@ -8,3 +8,4 @@
 *pycache*
 *.ipynb_checkpoints*
 *.pd
+*.pth
