@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
+import re
 import numpy as np 
-
 
 class ResnetBase(nn.Module):
     """
@@ -17,21 +17,21 @@ class ResnetBase(nn.Module):
 
         self.net = net
         self.num_layers = num_layers
-        self.output_channels = np.array([64, 128, 256, 512])
-        
+        self.out_channels_list = [64, 64, 128, 256, 512] 
+
     def forward(self, data):
         outputs = []
         for m in self.net.children():
             data = m(data)
             outputs.append(data)
-
-        return outputs[-self.num_layers:]
+            
+        return (outputs[2:3] + outputs[4:])[-self.num_layers:]
 
 
 
 if __name__ == '__main__':
 
-    mm = ResnetBase('resnet50', 3, 4, True)
+    mm = ResnetBase('resnet18', 3, 4, True)
 
 
     data = torch.rand(1, 3, 120, 120)
