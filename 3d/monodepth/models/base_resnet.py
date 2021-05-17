@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 import re
-import numpy as np 
+
 
 class ResnetBase(nn.Module):
     """
@@ -18,6 +18,8 @@ class ResnetBase(nn.Module):
         self.net = net
         self.num_layers = num_layers
         self.out_channels_list = [64, 64, 128, 256, 512] 
+        if int(re.search('\d+', name)[0]) > 34:
+            self.out_channels_list = [4 * d for d in self.out_channels_list]
 
     def forward(self, data):
         outputs = []
