@@ -27,7 +27,7 @@ class PoseDecoder(nn.Module):
             nn.Conv2d(256, 6 * num_frames, 1, 1,),
         )
 
-        self.num_frames = 2 #TODO here to 1 will be better
+        self.num_frames = num_frames #TODO here to 1 will be better
         self.in_channels_list = in_channels_list
 
     def forward(self, features):
