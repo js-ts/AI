@@ -12,4 +12,5 @@ from .losses import SSIM
 from .utils import disp_to_depth
 from .utils import params_to_matrix
 from .utils import reprojection
+from .utils import depth_metrics
 

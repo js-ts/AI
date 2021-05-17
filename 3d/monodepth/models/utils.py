@@ -82,3 +82,24 @@ def reprojection(im, proj, padding_mode="border"):
     grid = (grid - 0.5) * 2 # (-1, -1) left-top (1, 1) right-bottom
     
     return F.grid_sample(im, grid, padding_mode=padding_mode, align_corners=False)
+
+
+def depth_metrics(pred, gt):
+    '''
+    '''
+    # pred *= torch.median(gt) / torch.median(pred)
+    # pred = torch.clamp(pred, min=1e-3, max=80)
+
+    thr = torch.max(pred / gt, gt / pred)
+    a1 = (thr < 1.25 ** 1).float().mean()
+    a2 = (thr < 1.25 ** 2).float().mean()
+    a3 = (thr < 1.25 ** 3).float().mean()
+
+    rms = ((gt - pred) ** 2).mean().sqrt()
+    rms_log = ((gt.log() - pred.log()) ** 2).mean().sqrt()
+
+    rel_abs = (torch.abs(gt - pred) / gt).mean()
+    rel_sq = ((gt - pred) ** 2 / gt).mean()
+
+    return rel_abs, rel_sq, rms, rms_log, a1, a2, a3 
+

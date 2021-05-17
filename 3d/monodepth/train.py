@@ -1,5 +1,6 @@
 
 import torch
+from torch.functional import meshgrid
 import torch.nn as nn 
 import torch.nn.functional as F 
 
@@ -57,8 +58,9 @@ if __name__ == '__main__':
 
     for i in range(2):
 
-        depth = d_outputs[('disp', i)]
-        depth = F.interpolate(depth, im_size, mode='bilinear', align_corners=False)
+        disp = d_outputs[('disp', i)]
+        disp = F.interpolate(disp, im_size, mode='bilinear', align_corners=False)
+        _, depth = models.disp_to_depth(disp, 1e-3, 80)
 
         points = pix2cam(depth, k)
         pixels = cam2pix(points, k, matrix)
@@ -71,6 +73,10 @@ if __name__ == '__main__':
         loss += ssim_loss * 0.85 + l1_loss * 0.15
 
         print(ssim_loss.shape, l1_loss.shape)
+        
+        if i == 0:
+            metrics = models.depth_metrics(depth.detach(), torch.rand(10, 2, 320, 320))
+            print(metrics)
 
     loss.mean().backward()
 
