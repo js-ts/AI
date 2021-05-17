@@ -50,7 +50,7 @@ class Pixel2Cam(nn.Module):
         
     def forward(self, depth, k):
         '''
-        depth [n, h, w]
+        depth [n, 1, h, w]
         k [n, 4, 4]
         
         p [n, 4, h, w]
@@ -79,7 +79,7 @@ class Cam2Pixel(nn.Module):
         k: [n, 4, 4]
         T: [n, 4, 4]
 
-        p: [n, h, w, 2]
+        p: [n, 2, h, w]
         '''
         n, c, h, w = points.shape
 
@@ -87,10 +87,12 @@ class Cam2Pixel(nn.Module):
 
         cam_points = torch.matmul(P, points.view(n, c, -1))
         pix_coords = cam_points[:, :2, :] / cam_points[:, 2, :]
-        pix_coords = pix_coords.view(points.shape[0], 2, h, w).permute(0, 2, 3, 1)
-
-        pix_coords[..., 0] /= w - 1
-        pix_coords[..., 1] /= h - 1
-        pix_coords = (pix_coords - 0.5) * 2 # (-1, -1) left-top (1, 1) right-bottom
-
+        pix_coords = pix_coords.view(points.shape[0], 2, h, w)
+        
+        # # (-1, -1) left-top (1, 1) right-bottom
+        # pix_coords = pix_coords.permute(0, 2, 3, 1)
+        # pix_coords[..., 0] /= w - 1
+        # pix_coords[..., 1] /= h - 1
+        # pix_coords = (pix_coords - 0.5) * 2 
+        
         return pix_coords

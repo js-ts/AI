@@ -1,5 +1,5 @@
 import torch
-
+import torch.nn.functional as F 
 
 def disp_to_depth(disp, min_depth, max_depth):
     '''
@@ -69,3 +69,15 @@ def params_to_matrix(axisangle, translate, invert=False):
     else:
         return torch.matmul(T, R)
 
+
+def reprojection(im, proj, padding_mode="border"):
+    '''
+    im [n, 3, h, w]
+    proj [n, 2, h, w],  (0, 0) left-top (w-1, h-1) right-bottom
+    '''
+    grid = proj.permute(0, 2, 3, 1)
+    grid[..., 0] / proj.shape[3] - 1
+    grid[..., 0] / proj.shape[2] - 1
+    grid = (grid - 0.5) * 2 # (-1, -1) left-top (1, 1) right-bottom
+    
+    return F.grid_sample(im, grid, padding_mode=padding_mode)
