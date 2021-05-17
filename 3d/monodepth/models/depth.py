@@ -31,8 +31,8 @@ class DepthDecoder(nn.Module):
         hidden_dims = [16, 32, 64, 128, 256]
 
         self.convs = nn.ModuleDict()
-        for i in range(4, -1, -1):
-            c_in = in_channels_list[-1] if i == 4 else hidden_dims[i+1]
+        for i in range(scales, -1, -1):
+            c_in = in_channels_list[-1] if i == scales else hidden_dims[i+1]
             c_out = hidden_dims[i]
             self.convs[str((i, 0))] = block(c_in, c_out)
 
@@ -50,7 +50,7 @@ class DepthDecoder(nn.Module):
         outputs = {}
 
         x = features[-1]
-        for i in range(4, -1, -1):
+        for i in range(self.scales, -1, -1):
             x = self.convs[str((i, 0))](x)
             x = F.interpolate(x, scale_factor=2, mode='nearest')
 

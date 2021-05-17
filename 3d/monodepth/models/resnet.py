@@ -19,7 +19,7 @@ class ResnetBase(nn.Module):
         self.num_layers = num_layers
         self.out_channels_list = [64, 64, 128, 256, 512] 
         if int(re.search('\d+', name)[0]) > 34:
-            self.out_channels_list = [4 * d for d in self.out_channels_list]
+            self.out_channels_list = [64, 256, 512, 1024, 2048]
 
     def forward(self, data):
         outputs = []
@@ -33,7 +33,7 @@ class ResnetBase(nn.Module):
 
 if __name__ == '__main__':
 
-    mm = ResnetBase('resnet18', 3, 4, True)
+    mm = ResnetBase('resnet50', 3, 4, True)
 
 
     data = torch.rand(1, 3, 120, 120)
