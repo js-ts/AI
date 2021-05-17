@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-from .base_resnet import ResnetBase
+from .resnet import ResnetBase
 
 
 # DEMO

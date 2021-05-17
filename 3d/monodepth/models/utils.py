@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F 
 
+
 def disp_to_depth(disp, min_depth, max_depth):
     '''
     '''
@@ -34,8 +35,8 @@ def axisangle_to_matrix(vec):
     for k, (j, i) in enumerate([(0, 1), (0, 2), (1, 2)]):
         A[:, j, i] = axis[:, 2-k] * -1 * (-1) ** k
         A[:, i, j] = axis[:, 2-k] * (-1) ** k
-
-    R = I  + A * torch.sin(angle) + torch.matmul(A, A) * (1 - torch.cos(angle))
+    
+    R = I  + A * torch.sin(angle).unsqueeze(-1) + torch.matmul(A, A) * (1 - torch.cos(angle)).unsqueeze(-1)
 
     return R
 
@@ -60,7 +61,7 @@ def params_to_matrix(axisangle, translate, invert=False):
 
     if invert:
         R = R.permute(0, 2, 1)
-        translate *= -1
+        translate = -1 * translate # here dont using in-space operation
 
     T = translate_to_matrix(translate)
 
@@ -80,4 +81,4 @@ def reprojection(im, proj, padding_mode="border"):
     grid[..., 0] / proj.shape[2] - 1
     grid = (grid - 0.5) * 2 # (-1, -1) left-top (1, 1) right-bottom
     
-    return F.grid_sample(im, grid, padding_mode=padding_mode)
+    return F.grid_sample(im, grid, padding_mode=padding_mode, align_corners=False)

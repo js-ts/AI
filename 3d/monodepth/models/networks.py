@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn 
 
-from .base_resnet import ResnetBase
+from .resnet import ResnetBase
 from .depth import DepthDecoder
 from .pose import PoseDecoder
 
@@ -46,7 +46,7 @@ class Pixel2Cam(nn.Module):
         pixels = pixels.view(-1, 3).permute(1, 0).unsqueeze(0)
 
         self.register_buffer('pixels', pixels) # 1, 3, h * w
-        self.register_buffer('ones', torch.ones(w * h))
+        self.register_buffer('ones', torch.ones(1, 1, w * h))
         
     def forward(self, depth, k):
         '''
@@ -55,12 +55,12 @@ class Pixel2Cam(nn.Module):
         
         p [n, 4, h, w]
         '''
-        n, h, w = depth.size 
+        n, _, h, w = depth.shape 
 
         k_invert = torch.linalg.pinv(k)
         cam_points = torch.bmm(k_invert[:, :3, :3], self.pixels.repeat(n, 1, 1))
         cam_points = depth.view(n, 1, -1) * cam_points
-        cam_points = torch.cat((cam_points, self.ones), dim=1)
+        cam_points = torch.cat((cam_points, self.ones.repeat(n, 1, 1)), dim=1)
 
         return cam_points.view(n, 4, h, w)
 
@@ -86,7 +86,8 @@ class Cam2Pixel(nn.Module):
         P = torch.matmul(K, T)[:, :3, :]
 
         cam_points = torch.matmul(P, points.view(n, c, -1))
-        pix_coords = cam_points[:, :2, :] / cam_points[:, 2, :]
+
+        pix_coords = cam_points[:, :2, :] / cam_points[:, 2:, :]
         pix_coords = pix_coords.view(points.shape[0], 2, h, w)
         
         # # (-1, -1) left-top (1, 1) right-bottom
