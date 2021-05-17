@@ -92,12 +92,13 @@ if __name__ == '__main__':
     disp = outputs['disp', 0]
     disp = F.interpolate(disp, (oh, ow), mode='bilinear', align_corners=False)
     disp = disp.squeeze().cpu().data.numpy()
-
     save_color_depth(disp, 'output/test.jpg')
 
     print('load_model_v1...')
 
-    depth, pose = load_model_v1()   
+    depth, pose = load_model_v1()
+    depth.eval(); pose.eval()
+    
     outputs = depth(data)
 
     disp = outputs['disp', 0]
