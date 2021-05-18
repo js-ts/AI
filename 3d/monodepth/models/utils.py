@@ -78,7 +78,7 @@ def reprojection(im, proj, padding_mode="border"):
     '''
     grid = proj.permute(0, 2, 3, 1)
     grid[..., 0] / proj.shape[3] - 1
-    grid[..., 0] / proj.shape[2] - 1
+    grid[..., 1] / proj.shape[2] - 1
     grid = (grid - 0.5) * 2 # (-1, -1) left-top (1, 1) right-bottom
     
     return F.grid_sample(im, grid, padding_mode=padding_mode, align_corners=False)
