@@ -5,5 +5,9 @@
 - Invert
 - R
 - T
+- K 
+  - instrict parameter
+- Pose
 
-- 
+- SSIM
+
