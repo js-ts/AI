@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F 
 
-import numpy as np 
 
 
 def conv3x3(in_channels, out_channels, use_refl=True):
