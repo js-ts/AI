@@ -23,7 +23,7 @@ def load_model(device):
     paths = ['encoder.pth', 'depth.pth', 'pose_encoder.pth', 'pose.pth']
     netws = [depth.encoder, depth.decoder, pose.encoder, pose.decoder]
     for m, p in zip(netws, paths):
-        params = torch.load(os.path.join('./output/mono_640x192/', p), map_location=torch.device('cpu'))
+        params = torch.load(os.path.join('./outputs/mono_640x192/', p), map_location=torch.device('cpu'))
         params = {kt: params[k] for kt, k in zip(m.state_dict(), params)} 
         m.load_state_dict(params, strict=True)
 
