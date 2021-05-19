@@ -78,7 +78,7 @@ if __name__ == '__main__':
             # print(ssim_loss.shape, l1_loss.shape)
             
             if i == 0:
-                metrics = models.depth_metrics(depth.detach(), torch.rand(10, 2, 320, 320))
+                metrics = models.depth_metrics(depth.detach(), torch.rand(10, 2, 320, 320).to(device))
                 print(metrics)
 
         loss.mean().backward()
