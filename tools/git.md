@@ -89,6 +89,8 @@
 
 # develop
 - git remote add upstream git@github.com:PaddlePaddle/Paddle.git
+- git remote add upstream https://github.com/PaddlePaddle/PaddleDetection.git
+- git remote rm upstream
 - git remote -v
 - git fetch upstream [|develop]
 - git checkout -b newbranch-1 upstream/develop
