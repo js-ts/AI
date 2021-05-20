@@ -41,10 +41,11 @@ class Pixel2Cam(nn.Module):
         super().__init__()
         w, h = size
 
-        pixels = torch.meshgrid(torch.arange(w), torch.arange(h))
-        pixels = torch.cat([pixels[0].unsqueeze(-1), pixels[1].unsqueeze(-1), torch.ones(h, w, 1)], dim=-1)
-        pixels = pixels.view(-1, 3).permute(1, 0).unsqueeze(0)
-
+        j, i = torch.meshgrid(torch.arange(h), torch.arange(w))
+        
+        pixels = torch.cat([i.unsqueeze(0), j.unsqueeze(0), torch.ones(1, h, w)], dim=0) # (x, y, 1)
+        pixels = pixels.view(3, -1).unsqueeze(0)
+        
         self.register_buffer('pixels', pixels) # 1, 3, h * w
         self.register_buffer('ones', torch.ones(1, 1, w * h))
         

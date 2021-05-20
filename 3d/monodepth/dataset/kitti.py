@@ -24,7 +24,7 @@ class KITIIDataset(data.Dataset):
         self.side_idx = {'2': 2, '3': 3, 'l': 2, 'r': 3}
         self.fram_idx = [0, -1, 1, 's']
         self.training = training
-        # self.num_scale = 4
+        self.num_scale = 4
 
         self.dataroot = dataroot
         with open(datafile, 'r') as f:
@@ -32,6 +32,7 @@ class KITIIDataset(data.Dataset):
             self.lines = lines
 
         self.kitti_transforms = KittiTransforms()
+        self.to_tensor = transforms.ToTensor()
 
     def __len__(self, ):
         return len(self.lines)
@@ -66,12 +67,17 @@ class KITIIDataset(data.Dataset):
             K = self.K.copy()
             K[0, :] *= self.im_size[0] // (2 ** s)
             K[1, :] *= self.im_size[1] // (2 ** s)
-            inputs[('K', s)] = K 
+            inputs[('K', s)] = torch.tensor(K)
 
         # augument
         # if self.training and random.random() < 0.5:
         #     inputs = self.kitti_transforms(inputs)
-
+        
+        # to tensor
+        for k in inputs:
+            if not isinstance(inputs[k], torch.Tensor):
+                inputs[k] = self.to_tensor(inputs[k])
+    
         return inputs
 
 
@@ -88,4 +94,9 @@ class KITIIDataset(data.Dataset):
         if do_flip:
             im = im.transpose(Image.FLIP_LEFT_RIGHT)
 
-        return im 
+        return im
+    
+    
+    def load_depth(self, ):
+        pass
+    

@@ -14,7 +14,6 @@ def train():
     pass
 
 
-
 def load_model(device):
     ''' load depthnet and posenet'''
     depth = models.DepthNet('resnet18')
