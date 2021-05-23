@@ -19,6 +19,8 @@ def build_dataloader():
 def train_epoch(model, dataloader, optimizer, device):
     '''
     '''
+    print('train.....')
+
     model.train()
     for _data in dataloader:
 
@@ -29,14 +31,19 @@ def train_epoch(model, dataloader, optimizer, device):
         loss.mean().backward()
         optimizer.step()
 
-        print(_data)
+        print(misc.get_rank(), _data)
         
     return 
 
 
 def test_epoch(model, dataloader, device):
+    print('eval.....')
+
     model.eval()
-    pass
+    for _data in dataloader:
+        print(misc.get_rank(), _data)
+
+    return 
 
 
 def main(args):
@@ -51,27 +58,16 @@ def main(args):
     model.to(device)
     print(model)
 
-    params_dict_list = [{'params': model.parameters(), 'lr': args.lr * 0.1}]
-    optimizer = optim.SGD(params_dict_list, lr=args.lr, )
+    params_dicts = [{'params': model.parameters(), 'lr': args.lr * 0.1}]
+    optimizer = optim.SGD(params_dicts, lr=args.lr, )
     scheduler = optim.lr_scheduler.StepLR(optimizer, 10)
 
+    train_dataset = range(16)
+    val_dataset = range(16)
+
+    train_dataloader, train_sampler = misc.build_dataloader(train_dataset, args.batch_size, True, args.num_workers, True, args.distributed)
+    val_dataloader, _ = misc.build_dataloader(val_dataset, args.batch_size, False, args.num_workers, False, args.distributed)
     
-    train_dataset = range(10)
-    val_dataset = range(10)
-
-    if args.distributed:
-        model = nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-        train_sampler = DistributedSampler(train_dataset, shuffle=True)
-        val_sampler = DistributedSampler(val_dataset, shuffle=False)
-    else:
-        train_sampler = RandomSampler(train_dataset)
-        val_sampler = SequentialSampler(val_dataset)
-
-    # train_batch_sampler = BatchSampler(train_sampler, args.batch_size, drop_last=True)
-    # train_dataloader = DataLoader(train_dataset, batch_sampler=train_batch_sampler, num_workers=args.num_workers)
-    train_dataloader = DataLoader(train_dataset, args.batch_size, sampler=train_sampler, num_workers=args.num_workers, drop_last=True)
-    val_dataloader = DataLoader(val_dataset, args.batch_size, sampler=val_sampler, num_workers=args.num_workers)
-
     for e in range(args.epochs):
         if args.distributed:
             train_sampler.set_epoch(e)
@@ -95,7 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', default=2, type=int)
     parser.add_argument('--batch_size', default=3, type=int)
     
-    parser.add_argument('--epochs', default=3, type=int)
+    parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--lr', default=0.1, type=float)
 
 
@@ -105,7 +101,6 @@ if __name__ == '__main__':
     # parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     args = parser.parse_args()
-    print(args)
     
     main(args)
     

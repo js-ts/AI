@@ -1,7 +1,7 @@
 
 import torch
 import torch.distributed as dist
-
+import torch.utils.data as data
 
 import os
 import random
@@ -57,7 +57,7 @@ def init_distributed(args):
 
     dist.init_process_group(args.dist_backend, init_method=args.dist_url, world_size=args.world_size, rank=args.rank)
     dist.barrier()
-    setup_distributed(args.rank == 0)
+    # setup_distributed(args.rank == 0)
 
 
 
@@ -100,7 +100,30 @@ def set_random_seed(seed):
 
 
 
-def distributed_dataloader():
+def build_dataloader(dataset, batch_size=8, shuffle=True, num_workers=4, drop_last=False, distribued=False):
     '''
+    world_size = 4, batch_size = 3
+    0 1 2 3, 4 5 6 7, 8 9 10 11, 12 13 14 15
+    process-0 [0, 4, 8]
+    process-1 [1, 5, 9]
+    ...
+    process-0 [12]
+    process-1 [13]
     '''
-    pass
+    if distribued:
+        sampler = data.DistributedSampler(dataset, shuffle=shuffle)
+    else:
+        sampler = data.RandomSampler(dataset) if shuffle else data.SequentialSampler(dataset)
+    
+    # sampler = data.DistributedSampler(dataset, shuffle=shuffle) if distribued else None
+    if True:
+        batch_sampler = data.BatchSampler(sampler, batch_size, drop_last=drop_last)
+        dataloader = data.DataLoader(dataset, batch_sampler=batch_sampler, num_workers=num_workers)
+    else:
+        # sampler option is mutually exclusive with shuffle
+        shuffle = shuffle if not distribued else None
+        dataloader = data.DataLoader(dataset, batch_size, sampler=sampler, num_workers=num_workers, drop_last=drop_last)
+
+    return dataloader, sampler
+
+    
