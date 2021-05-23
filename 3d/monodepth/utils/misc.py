@@ -7,7 +7,9 @@ import os
 import random
 import numpy as np 
 
-# python -m torch.distributed.launch --nproc_per_node=8 main.py --
+# https://pytorch.org/docs/stable/distributed.html#launch-utility
+# python -m torch.distributed.launch --nproc_per_node=4 main.py --
+# python -m torch.distributed.launch --nproc_per_node=4 --use_env main.py --
 
 def setup_distributed(is_master):
     '''
@@ -27,13 +29,20 @@ def setup_distributed(is_master):
 def init_distributed(args):
     '''
     '''
+    # --use_env
     if 'RANK' in os.environ and 'WORLD_SIZE' in os.environ:
         args.rank = int(os.environ['RANK'])
         args.world_size = int(int(os.environ['WORLD_SIZE']))
         args.gpu = int(os.environ['LOCAL_RANK'])
+        
+        if hasattr(args, 'local_rank'):
+            # --local_rank
+            assert args.local_rank == int(os.environ['LOCAL_RANK']), ''
+            
     elif 'SLURM_PROCID' in os.environ:
         args.rank = int(os.environ['SLURM_PROCID'])
         args.gpu = args.rank % torch.cuda.device_count()
+        
     else:
         print('Not using distributed...')
         args.distributed = False
@@ -88,3 +97,10 @@ def set_random_seed(seed):
     random.seed(seed)
 
     return seed
+
+
+
+def distributed_dataloader():
+    '''
+    '''
+    pass
