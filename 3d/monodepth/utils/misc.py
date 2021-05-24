@@ -11,16 +11,20 @@ import numpy as np
 # python -m torch.distributed.launch --nproc_per_node=4 main.py --
 # python -m torch.distributed.launch --nproc_per_node=4 --use_env main.py --
 
-def setup_distributed(is_master):
+# CUDA_VISIBLE_DEVICES=1,2 python xx
+
+
+
+def setup_distributed(is_main):
     '''
-    This function disables printing when not in master process
+    This function disables printing when not in main process
     '''
     import builtins as __builtin__
     builtin_print = __builtin__.print
 
     def print(*args, **kwargs):
         force = kwargs.pop('force', False)
-        if is_master or force:
+        if is_main or force:
             builtin_print(*args, **kwargs)
 
     __builtin__.print = print
@@ -77,12 +81,12 @@ def get_rank():
     return 0
 
 
-def is_master_process():
+def is_main_process():
     return get_rank() == 0
 
 
-def save_on_master(*args, **kwargs):
-    if is_master_process():
+def save_on_main(*args, **kwargs):
+    if is_main_process():
         torch.save(*args, **kwargs)
 
 
@@ -121,7 +125,7 @@ def build_dataloader(dataset, batch_size=8, shuffle=True, num_workers=4, drop_la
         dataloader = data.DataLoader(dataset, batch_sampler=batch_sampler, num_workers=num_workers)
     else:
         # sampler option is mutually exclusive with shuffle
-        shuffle = shuffle if not distribued else None
+        # shuffle = shuffle if not distribued else None
         dataloader = data.DataLoader(dataset, batch_size, sampler=sampler, num_workers=num_workers, drop_last=drop_last)
 
     return dataloader, sampler
