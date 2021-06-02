@@ -11,7 +11,8 @@ import paddle.nn.initializer as initializer
 
 __all__= ['uniform_', 'normal_', 'constant_', 'ones_', 'zeros_', 
           'xavier_uniform_', 'xavier_normal_',
-          'kaiming_uniform_', 'kaiming_normal_']
+          'kaiming_uniform_', 'kaiming_normal_'，
+          'reset_parameter_as_torch']
 
 #  'Constant',
 #  'KaimingNormal',
@@ -180,7 +181,7 @@ def kaiming_normal_(tensor, a=0, mode='fan_in', nonlinearity='leaky_relu', rever
     
 
 @paddle.no_grad()
-def _reset_parameter_as_torch(model, include_self=True):
+def reset_parameter_as_torch(model, include_self=True):
     for n, m in model.named_sublayers(include_self=include_self):
         if isinstance(m, nn.Conv2D):
             k = m._groups / (m._in_channels * m._kernel_size[0] * m._kernel_size[0])
@@ -201,8 +202,6 @@ def _reset_parameter_as_torch(model, include_self=True):
         elif isinstance(m, nn.BatchNorm2D):
             # same as torch 1, 0
             pass
-        else:
-            print(type(m))
         
 
 class MM(nn.Layer):
