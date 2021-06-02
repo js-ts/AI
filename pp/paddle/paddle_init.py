@@ -89,9 +89,9 @@ def _calculate_fan_in_and_fan_out(tensor, reverse=False):
         raise ValueError("Fan in and fan out can not be computed for tensor with fewer than 2 dimensions")
     
     if reverse:
-        num_input_fmaps, num_output_fmaps = tensor.shape[1], tensor.shape[0]
-    else:
         num_input_fmaps, num_output_fmaps = tensor.shape[0], tensor.shape[1]
+    else:
+        num_input_fmaps, num_output_fmaps = tensor.shape[1], tensor.shape[0]
     
     receptive_field_size = 1
     if tensor.ndim > 2:
