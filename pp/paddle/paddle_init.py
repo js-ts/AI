@@ -27,7 +27,37 @@ def _no_grad_uniform_(tensor, a, b):
     return tensor
         
 
+@paddle.no_grad()
+def _reset_parameter_as_torch(model, include_self=True):
+    for n, m in model.named_sublayers(include_self=include_self):
+        if isinstance(m, nn.Conv2D):
+            k = m._groups / (m._in_channels * m._kernel_size[0] * m._kernel_size[0])
+            k = math.sqrt(k)
+            v = paddle.uniform(shape=m.weight.shape, dtype=m.weight.dtype, min=-k, max=k)
+            m.weight.set_value(v)
+            if m.bias is not None:
+                v = paddle.uniform(shape=m.bias.shape, dtype=m.bias.dtype, min=-k, max=k)
+                m.bias.set_value(v)
 
+        elif isinstance(m, nn.Linear):
+            k = math.sqrt(1 / m.weight.shape[0])
+            v = paddle.uniform(shape=m.weight.shape, dtype=m.weight.dtype, min=-k, max=k)
+            m.weight.set_value(v)
+            if m.bias is not None:
+                v = paddle.uniform(shape=m.bias.shape, dtype=m.weight.dtype, min=-k, max=k)
+                m.bias.set_value(v)
+
+        elif isinstance(m, nn.Embedding):
+            v = paddle.normal(shape=m.weight.shape)
+            m.weight.set_value(v)
+
+        elif isinstance(m, nn.BatchNorm2D):
+            # same as torch 1, 0
+            pass
+        else:
+            print(type(m))
+        
+        
 class MM(nn.Layer):
     def __init__(self, ):
         super().__init__()
@@ -42,36 +72,11 @@ class MM(nn.Layer):
         
         self.layers = nn.Sequential(nn.Conv2D(8, 32, 2, 1), nn.ReLU())
         
-        self._reset_as_torch()
+        _reset_parameter_as_torch(self)
         
 
-    @paddle.no_grad()
-    def _reset_as_torch(self, ):
-        for n, m in self.named_sublayers():
-            if isinstance(m, nn.Conv2D):
-                k = m._groups / (m._in_channels * m._kernel_size[0] * m._kernel_size[0])
-                k = math.sqrt(k)
-                v = paddle.uniform(shape=m.weight.shape, dtype=m.weight.dtype, min=-k, max=k)
-                m.weight.set_value(v)
-                if m.bias is not None:
-                    v = paddle.uniform(shape=m.bias.shape, dtype=m.bias.dtype, min=-k, max=k)
-                    m.bias.set_value(v)
-                    
-            elif isinstance(m, nn.Linear):
-                k = math.sqrt(1 / m.weight.shape[0])
-                v = paddle.uniform(shape=m.weight.shape, dtype=m.weight.dtype, min=-k, max=k)
-                m.weight.set_value(v)
-                if m.bias is not None:
-                    v = paddle.uniform(shape=m.bias.shape, dtype=m.weight.dtype, min=-k, max=k)
-                    m.bias.set_value(v)
-                    
-            elif isinstance(m, nn.Embedding):
-                v = paddle.normal(shape=m.weight.shape)
-                m.weight.set_value(v)
-
-            elif isinstance(m, nn.BatchNorm2D):
-                # same as torch 1, 0
-                pass
+    def forward(self, ):
+        pass
     
 
 mm = MM()
