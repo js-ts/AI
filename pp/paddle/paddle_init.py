@@ -21,6 +21,13 @@ embedding = nn.Embedding(100, 64, weight_attr=ParamAttr(initializer=initializer.
 #  'XavierUniform',
 
 
+def _no_grad_uniform_(tensor, a, b):
+    with paddle.no_grad():
+        tensor.set_value(paddle.uniform(shape=tensor.shape, dtype=tensor.dtype, min=a, max=b))
+    return tensor
+        
+
+
 class MM(nn.Layer):
     def __init__(self, ):
         super().__init__()
@@ -38,6 +45,7 @@ class MM(nn.Layer):
         self._reset_as_torch()
         
 
+    @paddle.no_grad()
     def _reset_as_torch(self, ):
         for n, m in self.named_sublayers():
             if isinstance(m, nn.Conv2D):
@@ -64,9 +72,6 @@ class MM(nn.Layer):
             elif isinstance(m, nn.BatchNorm2D):
                 # same as torch 1, 0
                 pass
-            
-            
-            
     
 
 mm = MM()
