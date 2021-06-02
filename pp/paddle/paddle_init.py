@@ -84,8 +84,7 @@ def _calculate_fan_in_and_fan_out(tensor, reverse=False):
         linear: weight [cin, cout]
         default, [cout, cin, ...]
     '''
-    dimensions = tensor.ndim
-    if dimensions < 2:
+    if tensor.ndim < 2:
         raise ValueError("Fan in and fan out can not be computed for tensor with fewer than 2 dimensions")
     
     if reverse:
@@ -184,14 +183,14 @@ def kaiming_normal_(tensor, a=0, mode='fan_in', nonlinearity='leaky_relu', rever
 def reset_parameter_as_torch(model, include_self=True):
     for n, m in model.named_sublayers(include_self=include_self):
         if isinstance(m, nn.Conv2D):
-            k = m._groups / (m._in_channels * m._kernel_size[0] * m._kernel_size[0])
+            k = float(m._groups) / (m._in_channels * m._kernel_size[0] * m._kernel_size[0])
             k = math.sqrt(k)
             _no_grad_uniform_(m.weight, -k, k)
             if m.bias is not None:
                 _no_grad_uniform_(m.bias, -k, k)
                 
         elif isinstance(m, nn.Linear):
-            k = math.sqrt(1 / m.weight.shape[0])
+            k = math.sqrt(1. / m.weight.shape[0])
             _no_grad_uniform_(m.weight, -k, k)
             if m.bias is not None:
                 _no_grad_uniform_(m.bias, -k, k)
@@ -225,6 +224,32 @@ class MM(nn.Layer):
         pass
     
 
+    
+class _MM(nn.Layer):
+    def __init__(self, ):
+        super().__init__()
+        self.conv = nn.Conv2D(3, 8, 3, 2, 1)
+        self.linear = nn.Linear(10, 11)
+        self.seq = nn.Sequential(nn.Linear(3, 3), nn.ReLU())
+
+        init_parameter_as_torch(self)
+        self._reset_parameters()
+
+    def forward(self, ):
+        pass
+
+    def _reset_parameters(self, ):
+        for _, m in self.named_sublayers():
+
+            if hasattr(m, 'bias') and getattr(m, 'bias') is not None:
+                zeros_(m.bias)
+
+            if isinstance(m, nn.Conv2D):
+                xavier_uniform_(m.weight)
+            elif isinstance(m, nn.Linear):
+                kaiming_uniform_(m.weight, a=1, reverse=True)
+
 if __name__ == '__main__':
     
     mm = MM()
+
