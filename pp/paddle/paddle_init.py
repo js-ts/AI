@@ -11,7 +11,7 @@ import paddle.nn.initializer as initializer
 
 __all__= ['uniform_', 'normal_', 'constant_', 'ones_', 'zeros_', 
           'xavier_uniform_', 'xavier_normal_',
-          'kaiming_uniform_', 'kaiming_normal_'，
+          'kaiming_uniform_', 'kaiming_normal_',
           'reset_parameter_as_torch']
 
 #  'Constant',
