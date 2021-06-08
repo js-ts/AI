@@ -8,10 +8,10 @@ import numpy as np
 def get_torch_mm():
     m = torch.nn.Sequential(
             torch.nn.Conv2d(3, 8, 3, 2, 1),
-            torch.nn.BatchNorm2d(8),
+            # torch.nn.BatchNorm2d(8),
             torch.nn.Flatten(),
-            torch.nn.Linear(50 * 50 * 8, 10),
-            torch.nn.ReLU()
+            torch.nn.Linear(10 * 10 * 8, 10),
+            # torch.nn.ReLU()
         )
     
     return m
@@ -20,17 +20,17 @@ def get_torch_mm():
 def get_paddle_mm():
     m = paddle.nn.Sequential(
             paddle.nn.Conv2D(3, 8, 3, 2, 1),
-            paddle.nn.BatchNorm2D(8),
+            # paddle.nn.BatchNorm2D(8),
             paddle.nn.Flatten(),
-            paddle.nn.Linear(50 * 50 * 8, 10),
-            paddle.nn.ReLU()
+            paddle.nn.Linear(10 * 10 * 8, 10),
+            # paddle.nn.ReLU()
         )
             
     return m
 
 
 def reset_parameters(paddle_model, torch_model, data=None):
-    '''reset_parameters
+    '''reset parameters
     '''
     sublayers = [(n, m) for n, m in paddle_model.named_sublayers(include_self=True)]
     submoduls = [(n, m) for n, m in torch_model.named_modules()]
@@ -62,7 +62,7 @@ def reset_parameters(paddle_model, torch_model, data=None):
     
     
     if data is None:
-        data = np.random.rand(1, 3, 100, 100).astype(np.float32)
+        data = np.random.rand(1, 3, 20, 20).astype(np.float32)
 
     tdata = torch.tensor(data[...])
     pdata = paddle.to_tensor(data[...])
@@ -85,38 +85,107 @@ def reset_parameters(paddle_model, torch_model, data=None):
     print('paddle', pdata.grad.mean(), pdata.grad.sum())
     np.testing.assert_almost_equal(pdata.grad.numpy(), tdata.grad.data.numpy(), decimal=4)
 
-    _check_parameters(paddle_model, torch_model)
-    
-    
+    check_parameters(paddle_model, torch_model)
+    print('-------<after checking forward, backward for input and parameters>----------')
+    print('----------------------------reset parameters done---------------------------')
 
-def _check_parameters(pm, tm):
+    
+    
+def check_parameters(paddle_model, torch_model, decimal=4):
+    '''check_parameters
     '''
-    '''
-    tp = [p for p in tm.parameters() if p.requires_grad]
-    pp = [p for p in pm.parameters() if not p.stop_gradient]
-    assert len(tp) == len(pp), ''
+    tnp = [(n, p) for n, p in torch_model.named_parameters() if p.requires_grad]
+    pnp = [(n, p) for n, p in paddle_model.named_parameters() if not p.stop_gradient]
+    assert len(tnp) == len(pnp), ''
     
-    for _tp, _pp in zip(tp, pp):
-        try:
-            np.testing.assert_almost_equal(_tp.data.numpy(), _pp.numpy(), decimal=4)
-            np.testing.assert_almost_equal(_tp.grad.data.numpy(), _pp.grad.numpy(), decimal=4)
-        except:
-            np.testing.assert_almost_equal(_tp.data.numpy().T, _pp.numpy(), decimal=4)
-            np.testing.assert_almost_equal(_tp.grad.data.numpy().T, _pp.grad.numpy(), decimal=4)
-
-
-def check_optimizer(optim):
-    
-    for e in range(10):
-        for _ in range(10):
-            data = np.random.rand(1, 3, 100, 100).astype(np.float32)
-            tdata = torch.tensor(data[...])
-            pdata = paddle.to_tensor(data[...])
+    for _tnp, _pnp in zip(tnp, pnp):
+        _tp = _tnp[-1]; _pp = _pnp[-1]
+        # print(_tnp[0], _pnp[0])
+        
+        if list(_tp.shape) == list(_pp.shape):
+            np.testing.assert_almost_equal(_tp.data.numpy(), _pp.numpy(), decimal=decimal)
+            np.testing.assert_almost_equal(_tp.grad.data.numpy(), _pp.grad.numpy(), decimal=decimal)
+        elif list(_tp.shape[::-1]) == list(_pp.shape):
+            np.testing.assert_almost_equal(_tp.data.numpy().T, _pp.numpy(), decimal=decimal)
+            np.testing.assert_almost_equal(_tp.grad.data.numpy().T, _pp.grad.numpy(), decimal=decimal)
+        else:
+            raise RuntimeError('--')
 
             
 
-tm = get_torch_mm()
-pm = get_paddle_mm()
+def check_optimizer(paddle_model, torch_model, optim_name):
+    '''check_optimizer
+    '''
+    
+    epoches = 5
+    iters_per_epoch = 3
+    
+    lr = 0.1
+    gamma = 0.1
+    milestones = [2, 4]
+    
+    
+    if True:
+        tp = [p for p in torch_model.parameters() if p.requires_grad]
+        pp = [p for p in paddle_model.parameters() if not p.stop_gradient]
+        assert len(tp) == len(pp), ''
+    else:
+        tp = torch_model.parameters()
+        pp = paddle_model.parameters()
+        
+        
+    pscheduler = paddle.optimizer.lr.MultiStepDecay(learning_rate=lr, milestones=milestones, gamma=gamma)
 
-reset_parameters(pm, tm)
+    paddle_optimizers = {
+        'AdamW': paddle.optimizer.AdamW(learning_rate=pscheduler, parameters=pp, weight_decay=0.01),
+        'SGD': paddle.optimizer.SGD(learning_rate=pscheduler, parameters=pp, weight_decay=0.0),
+    }
+    
+    torch_optimizers = {
+        'AdamW': torch.optim.AdamW(tp, lr=lr, weight_decay=0.01),
+        'SGD': torch.optim.SGD(tp, lr=lr, weight_decay=0.0),
+    }
 
+    toptim = torch_optimizers[optim_name]; 
+    poptim = paddle_optimizers[optim_name]
+
+    tscheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer=toptim, milestones=milestones, gamma=gamma)
+    
+    for e in range(epoches):
+        for i in range(iters_per_epoch):
+            data = np.random.rand(1, 3, 20, 20).astype(np.float32) * 2 - 1
+            
+            tdata = torch.tensor(data[...])
+            pdata = paddle.to_tensor(data[...])
+    
+            tout = torch_model(tdata)
+            pout = paddle_model(pdata)    
+            
+            toptim.zero_grad()
+            poptim.clear_grad()
+            
+            tout.sum().backward()
+            pout.sum().backward()
+            
+            toptim.step()
+            poptim.step()
+            
+            print('{}/{}'.format(e, i), tout.sum().data.numpy(), pout.sum().numpy())
+            print()
+            check_parameters(paddle_model, torch_model, decimal=2)
+            
+        tscheduler.step()
+        pscheduler.step()
+        
+        print(e, toptim.param_groups[0]['lr'], pscheduler.get_lr(),)
+        
+            
+if __name__ == '__main__':
+    
+    tm = get_torch_mm()
+    pm = get_paddle_mm()
+
+    reset_parameters(pm, tm)
+
+    check_optimizer(pm, tm, 'AdamW')
+    # check_optimizer(pm, tm, 'SGD')
