@@ -13,19 +13,25 @@ def get_torch_mm():
             torch.nn.Linear(10 * 10 * 8, 10),
             # torch.nn.ReLU()
         )
+    # m[0].weight.requires_grad = False
     
     return m
 
 
 def get_paddle_mm():
+    
+    weight_attr = paddle.ParamAttr(learning_rate=0.1)
+    bias_attr = paddle.ParamAttr(learning_rate=0.1)
+
     m = paddle.nn.Sequential(
-            paddle.nn.Conv2D(3, 8, 3, 2, 1),
+            paddle.nn.Conv2D(3, 8, 3, 2, 1, weight_attr=weight_attr, bias_attr=bias_attr),
             # paddle.nn.BatchNorm2D(8),
             paddle.nn.Flatten(),
             paddle.nn.Linear(10 * 10 * 8, 10),
             # paddle.nn.ReLU()
         )
-            
+    # m[0].weight.stop_gradient = True
+    
     return m
 
 
@@ -129,6 +135,9 @@ def check_optimizer(paddle_model, torch_model, optim_name):
         tp = [p for p in torch_model.parameters() if p.requires_grad]
         pp = [p for p in paddle_model.parameters() if not p.stop_gradient]
         assert len(tp) == len(pp), ''
+        
+        tp = [{'params': torch_model[0].parameters(), 'lr': lr * 0.1}, {'params': torch_model[-1].parameters(),}]
+
     else:
         tp = torch_model.parameters()
         pp = paddle_model.parameters()
@@ -136,6 +145,7 @@ def check_optimizer(paddle_model, torch_model, optim_name):
         
     pscheduler = paddle.optimizer.lr.MultiStepDecay(learning_rate=lr, milestones=milestones, gamma=gamma)
 
+    
     paddle_optimizers = {
         'AdamW': paddle.optimizer.AdamW(learning_rate=pscheduler, parameters=pp, weight_decay=0.01),
         'SGD': paddle.optimizer.SGD(learning_rate=pscheduler, parameters=pp, weight_decay=0.0),
