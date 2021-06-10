@@ -28,9 +28,12 @@ from PIL import Image
 # print(im_emb.shape)
 
 
-def train_model(model, dataloaders, criterion, optimizer, scheduler, num_epochs=25, device='cpu'):
+def train_model(model, datasets, criterion, optimizer, scheduler, num_epochs=25, device='cpu'):
     since = time.time()
-
+        
+    dataloaders, dataset_sizes = datasets
+    print(dataset_sizes)
+    
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
@@ -107,12 +110,23 @@ class MM(nn.Module):
         
         self.embedding = nn.Embedding(num_embeddings, embedding_dim, padding_idx=-1,)
         
-        # self.cnn = nn.Sequential(nn.Conv2d(128, 256, 3, 2, 1), nn.BatchNorm2d(156), nn.ReLU(),)
+        self.cnn = nn.Sequential(nn.Conv2d(128, 256, 7, 2, 3), nn.BatchNorm2d(256), nn.ReLU(),
+                                 nn.Conv2d(256, 256, 5, 2, 2), nn.BatchNorm2d(256), nn.ReLU(),
+                                 nn.Conv2d(256, 256, 5, 2, 2), nn.BatchNorm2d(256), nn.ReLU(),
+                                 nn.Conv2d(256, 256, 5, 2, 2), nn.BatchNorm2d(256), nn.ReLU(),
+                                 # nn.AvgPool2d(3, 2, 1),
+                                 # nn.AdaptiveAvgPool2d(output_size=(1, 1)),
+                                 nn.Flatten(1),
+                                 nn.Linear(2 * 2 * 256, 512), nn.ReLU(),
+                                 nn.Dropout(0.5),
+                                 # nn.Linear(512, 512), nn.ReLU(),
+                                 nn.Linear(512, 10),
+                                )
         
-        self.cnn = models.resnet18(pretrained=True)
-        self.cnn.fc = nn.Linear(self.cnn.fc.in_features, 10)
-        self.cnn.conv1 = nn.Conv2d(128, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-
+        # self.cnn = models.resnet18(pretrained=True)
+        # self.cnn.fc = nn.Linear(self.cnn.fc.in_features, 10)
+        # self.cnn.conv1 = nn.Conv2d(embedding_dim, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        
         
     def forward(self, data):
         n, c, h, w = data.shape
@@ -160,24 +174,30 @@ def build_dataloader():
     dataloaders['train'] = trainLoader
     dataloaders['val'] = testLoader
     
-    return dataloaders
+    dataset_sizes = {}
+    dataset_sizes['train'] = len(trainDataset)
+    dataset_sizes['val'] = len(testDataset)
+    
+    return dataloaders, dataset_sizes
+
 
 if __name__ == '__main__':
     
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    device = torch.device('cuda:3') if torch.cuda.is_available() else torch.device('cpu')
     
     mm = MM()
     mm.to(device)
     
-    dataloaders = build_dataloader()
+    dataloaders, dataset_sizes = build_dataloader()
     
     for (imgs, labs) in dataloaders['train']:
         imgs = imgs.to(device)
-        mm(imgs)
+        out = mm(imgs)
+        print(out.shape)
         break
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(mm.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(mm.parameters(), lr=0.01, momentum=0.9)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
     
-    _ = train_model(mm, dataloaders, criterion, optimizer, scheduler, num_epochs=25, device=device)
+    _ = train_model(mm, (dataloaders, dataset_sizes), criterion, optimizer, scheduler, num_epochs=25, device=device)
