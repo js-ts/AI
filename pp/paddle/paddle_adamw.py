@@ -4,6 +4,34 @@ import paddle
 import numpy as np
 
 
+@paddle.no_grad()
+def clip_grad_norm_(params, max_norm, norm_type=2, error_if_nonfinite=True):
+    '''clip_grad_norm_
+    '''
+    if isinstance(params, paddle.Tensor):
+        params = [params]
+    params = [p for p in params if p.stop_gradient is False]
+    
+    if len(params) == 0:
+        return 0.
+    
+    max_norm = float(max_norm)
+    
+    total_norm = paddle.norm(paddle.stack([paddle.norm(x.grad, norm_type) for x in params]), norm_type)
+    clip_coef = max_norm / (total_norm + 1e-6)
+
+    if clip_coef < 1:
+        for p in params:
+            p.grad.set_value( p.grad * clip_coef )
+    
+    if total_norm.isnan() or total_norm.isinf():
+        if error_if_nonfinite:
+            raise RuntimeError('')
+        else:
+            print('Non-finite norm encountered')
+            
+    return total_norm
+
 
 def get_torch_mm():
     m = torch.nn.Sequential(
@@ -145,9 +173,9 @@ def check_optimizer(paddle_model, torch_model, optim_name):
         
     pscheduler = paddle.optimizer.lr.MultiStepDecay(learning_rate=lr, milestones=milestones, gamma=gamma)
 
-    
+    # pclip = paddle.nn.ClipGradByGlobalNorm(0.1)
     paddle_optimizers = {
-        'AdamW': paddle.optimizer.AdamW(learning_rate=pscheduler, parameters=pp, weight_decay=0.01),
+        'AdamW': paddle.optimizer.AdamW(learning_rate=pscheduler, parameters=pp, weight_decay=0.01, ), # grad_clip=pclip),
         'SGD': paddle.optimizer.SGD(learning_rate=pscheduler, parameters=pp, weight_decay=0.0),
     }
     
@@ -177,6 +205,17 @@ def check_optimizer(paddle_model, torch_model, optim_name):
             tout.sum().backward()
             pout.sum().backward()
             
+            tnorm = torch.nn.utils.clip_grad_norm_(torch_model.parameters(), 0.1)
+            pnorm = clip_grad_norm_(paddle_model.parameters(), 0.1)
+            print(e, i, tnorm, pnorm)
+            
+            for p in torch_model.parameters():
+                print(p.sum(), p.grad.sum())
+                
+            for p in paddle_model.parameters():
+                print(p.sum(), p.grad.sum())
+                
+                
             toptim.step()
             poptim.step()
             
