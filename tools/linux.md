@@ -1,6 +1,8 @@
 # Linux commands
 
+
 - find ./ -name "*.py" -or -name "*.cpp" | xargs grep "xxx" | wc 
+- sort -r -t $'\t' -k 7
 
 ---
 - nohup command &
@@ -35,8 +37,8 @@
 - apt install psmisc
 - fuser -v /dev/nvidia*
 - ps -aux | grep test_main.py  | awk '{print $2}' | uniq | xargs kill -9
-- 
+
+
 ## kill
 - kill -9 pid
 - pkill -9 python
-- 
