@@ -3,6 +3,8 @@
 
 - find ./ -name "*.py" -or -name "*.cpp" | xargs grep "xxx" | wc 
 - sort -r -t $'\t' -k 7
+- ps aux | grep xxx | awk '{print $2}' | uniq | xargs kill -9
+
 
 ---
 - nohup command &
