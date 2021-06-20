@@ -41,7 +41,7 @@ def get_torch_mm():
             torch.nn.Linear(10 * 10 * 8, 10),
             # torch.nn.ReLU()
         )
-    # m[0].weight.requires_grad = False
+    m[0].weight.requires_grad = False
     
     return m
 
@@ -58,7 +58,7 @@ def get_paddle_mm():
             paddle.nn.Linear(10 * 10 * 8, 10),
             # paddle.nn.ReLU()
         )
-    # m[0].weight.stop_gradient = True
+    m[0].weight.stop_gradient = True
     
     return m
 
@@ -151,12 +151,12 @@ def check_optimizer(paddle_model, torch_model, optim_name):
     '''check_optimizer
     '''
     
-    epoches = 5
-    iters_per_epoch = 3
+    epoches = 8
+    iters_per_epoch = 5
     
-    lr = 0.1
+    lr = 0.0001
     gamma = 0.1
-    milestones = [2, 4]
+    milestones = [3, 6]
     
     
     if True:
@@ -173,9 +173,9 @@ def check_optimizer(paddle_model, torch_model, optim_name):
         
     pscheduler = paddle.optimizer.lr.MultiStepDecay(learning_rate=lr, milestones=milestones, gamma=gamma)
 
-    # pclip = paddle.nn.ClipGradByGlobalNorm(0.1)
+    pclip = paddle.nn.ClipGradByGlobalNorm(0.1)
     paddle_optimizers = {
-        'AdamW': paddle.optimizer.AdamW(learning_rate=pscheduler, parameters=pp, weight_decay=0.01, ), # grad_clip=pclip),
+        'AdamW': paddle.optimizer.AdamW(learning_rate=pscheduler, parameters=pp, weight_decay=0.01, grad_clip=pclip),
         'SGD': paddle.optimizer.SGD(learning_rate=pscheduler, parameters=pp, weight_decay=0.0),
     }
     
@@ -191,37 +191,46 @@ def check_optimizer(paddle_model, torch_model, optim_name):
     
     for e in range(epoches):
         for i in range(iters_per_epoch):
-            data = np.random.rand(1, 3, 20, 20).astype(np.float32) * 2 - 1
+            data =  np.random.rand(1, 3, 20, 20).astype(np.float32) * 2 - 1
             
-            tdata = torch.tensor(data[...])
+            tdata = torch.tensor(data[...]) 
             pdata = paddle.to_tensor(data[...])
-    
+
             tout = torch_model(tdata)
-            pout = paddle_model(pdata)    
-            
-            toptim.zero_grad()
-            poptim.clear_grad()
-            
-            tout.sum().backward()
-            pout.sum().backward()
-            
-            tnorm = torch.nn.utils.clip_grad_norm_(torch_model.parameters(), 0.1)
-            pnorm = clip_grad_norm_(paddle_model.parameters(), 0.1)
-            print(e, i, tnorm, pnorm)
-            
-            for p in torch_model.parameters():
-                print(p.sum(), p.grad.sum())
+            pout = paddle_model(pdata)   
+
+            if False:
+                toptim.zero_grad()
+                poptim.clear_grad()
+
+                tout.sum().backward()
+                pout.sum().backward()
+
+                tnorm = torch.nn.utils.clip_grad_norm_(torch_model.parameters(), 0.1)
+                pnorm = clip_grad_norm_(paddle_model.parameters(), 0.1)
+                # print(e, i, tnorm, pnorm)
+
+                toptim.step()
+                poptim.step()
+
+            else:
+                # ClipGradByGlobalNorm
                 
-            for p in paddle_model.parameters():
-                print(p.sum(), p.grad.sum())
+                tout.sum().backward()
+                pout.sum().backward()
+
+                tnorm = torch.nn.utils.clip_grad_norm_(torch_model.parameters(), 0.1)
+
+                toptim.step()
+                poptim.step()
                 
-                
-            toptim.step()
-            poptim.step()
-            
+                toptim.zero_grad()
+                poptim.clear_grad()
+
+
             print('{}/{}'.format(e, i), tout.sum().data.numpy(), pout.sum().numpy())
             print()
-            check_parameters(paddle_model, torch_model, decimal=2)
+            check_parameters(paddle_model, torch_model, decimal=6)
             
         tscheduler.step()
         pscheduler.step()
@@ -238,3 +247,6 @@ if __name__ == '__main__':
 
     check_optimizer(pm, tm, 'AdamW')
     # check_optimizer(pm, tm, 'SGD')
+
+
+
