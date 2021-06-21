@@ -17,6 +17,18 @@ class HardSigmoid(nn.Layer):
         x = paddle.maximum(paddle.zeros_like(x), x)
         return x
     
+    
+class ShiftedSigmoid(nn.Layer):
+    '''shift [-1, 1]
+    '''
+    def __init__(self, ):
+        super().__init__()
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.sigmoid(x)
+        return 2 * x - 1
+        
         
 class DynamicHeadBlock(nn.Layer):
     def __init__(self, ):
@@ -24,6 +36,7 @@ class DynamicHeadBlock(nn.Layer):
         
         l = 3
         c = 8
+        dim = 128
         
         self.mid_idx = l // 3
         
@@ -36,6 +49,14 @@ class DynamicHeadBlock(nn.Layer):
         self.weight_conv = nn.Sequential(nn.Conv2D(c, 3 * 3, 3, 1, 1), nn.Sigmoid())
         self.deform_conv = paddle.vision.ops.DeformConv2D(c, c, 3, 1, 1)
         
+        self.c_attention = nn.Sequential(nn.AdaptiveAvgPool2D(output_size=1), 
+                                         nn.Flatten(),  
+                                         nn.Linear(c, dim), 
+                                         nn.ReLU(), 
+                                         nn.Linear(dim, c),
+                                         nn.LayerNorm(c),
+                                         ShiftedSigmoid(), )
+        
         # init.reset_initialized_parameter(self)
         
     def forward(self, feat):
@@ -44,21 +65,26 @@ class DynamicHeadBlock(nn.Layer):
         '''
         n, l, c, h, w = feat.shape
         
+        # layer
         feat = feat.reshape([n, l, c, -1])
         feat = self.l_attention(feat) * feat
         feat = feat.reshape([n, l, c, h, w])
         
+        
+        # spatial
         offset = self.offset_conv(feat[:, self.mid_idx])
         weight = self.weight_conv(feat[:, self.mid_idx])
         
         sptials = []
         for i in range(l):
             sptials.append(self.deform_conv(feat[:, i], offset, mask=weight))
-            
-        sptials = paddle.concat([s.unsqueeze(0) for s in sptials], axis=0)
-        sptials = sptials.mean(axis=0)
         
-        print(sptials.shape)
+        feat = paddle.concat([s.unsqueeze(0) for s in sptials], axis=0).mean(axis=0)
+        
+
+        # channel 
+        feat = self.c_attention(feat).unsqueeze([2, 3]) * feat
+        print(feat.shape)
         
         return feat
         
