@@ -31,30 +31,34 @@ class ShiftedSigmoid(nn.Layer):
         
         
 class DynamicHeadBlock(nn.Layer):
-    def __init__(self, ):
+    def __init__(self, levels=3, channels=8, dim=128):
         super().__init__()
         
-        l = 3
-        c = 8
-        dim = 128
+        L = levels
+        C = channels
+        dim = dim
+        k = 3
         
-        self.mid_idx = l // 3
+        self.k = k
+        self.mid_idx = L // 2
         
         self.l_attention = nn.Sequential(nn.AdaptiveAvgPool2D(output_size=1),
-                                        nn.Conv2D(l, l, 1, 1), 
+                                        nn.Conv2D(L, L, 1, 1), 
                                         nn.ReLU(), 
                                         HardSigmoid(), )
         
-        self.offset_conv = nn.Conv2D(c, 2 * 3 * 3, 3, 1, 1)
-        self.weight_conv = nn.Sequential(nn.Conv2D(c, 3 * 3, 3, 1, 1), nn.Sigmoid())
-        self.deform_conv = paddle.vision.ops.DeformConv2D(c, c, 3, 1, 1)
+        # self.offset_conv = nn.Conv2D(C, 2 * 3 * 3, 3, 1, 1)
+        # self.weight_conv = nn.Sequential(nn.Conv2D(C, 3 * 3, 3, 1, 1), nn.Sigmoid())
+        self.offset_conv = nn.Conv2D(C, 2 * k * k + k * k, 3, 1, 1)
+        
+        self.deform_convs = nn.LayerList([paddle.vision.ops.DeformConv2D(C, C, 3, 1, 1) for i in range(L)])
         
         self.c_attention = nn.Sequential(nn.AdaptiveAvgPool2D(output_size=1), 
                                          nn.Flatten(),  
-                                         nn.Linear(c, dim), 
+                                         nn.Linear(C, dim), 
                                          nn.ReLU(), 
-                                         nn.Linear(dim, c),
-                                         nn.LayerNorm(c),
+                                         nn.Linear(dim, C),
+                                         nn.LayerNorm(C),
                                          ShiftedSigmoid(), )
         
         # init.reset_initialized_parameter(self)
@@ -72,13 +76,17 @@ class DynamicHeadBlock(nn.Layer):
         
         
         # spatial
-        offset = self.offset_conv(feat[:, self.mid_idx])
-        weight = self.weight_conv(feat[:, self.mid_idx])
+        # offset = self.offset_conv(feat[:, self.mid_idx])
+        # weight = self.weight_conv(feat[:, self.mid_idx])
         
+        _offset = self.offset_conv(feat[:, self.mid_idx])
+        weight = F.sigmoid(_offset[:, :self.k * self.k])
+        offset = _offset[:, self.k * self.k:]
+                           
         sptials = []
         for i in range(l):
-            sptials.append(self.deform_conv(feat[:, i], offset, mask=weight))
-        
+            sptials.append(self.deform_convs[i](feat[:, i], offset, mask=weight))
+
         feat = paddle.concat([s.unsqueeze(0) for s in sptials], axis=0).mean(axis=0)
         
 

@@ -32,5 +32,39 @@ class A(Base):
 
 
 
+class X():
+    def __init__(self, x):
+        self.x = x
+    
+    def printf(self, ):
+        print('x', self.x ** 2)
+    
+    def test(self, ):
+        self.printf()
+        
+        
+class Y():
+    def __init__(self, y):
+        self.y = y
+    
+    def printf(self, ):
+        print('y', self.y ** 2)
+        
+    def test(self, ):
+        self.printf()
+
+class Z(X, Y):
+    def __init__(self, x, y):
+        super(Z, self).__init__(x=x)
+        super(X, self).__init__(y=y)
+    
+    def printf(self, ):
+        print('z', '---')
+        
+    
 if __name__ == '__main__':
     a = A()    
+    
+    z = Z(1, 2)
+    z.printf()
+    z.test()
